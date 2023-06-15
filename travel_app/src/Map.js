@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { GoogleMap, useLoadScript, MarkerF } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
 import './App.css';
 
 export default function MapFragment() {
@@ -82,6 +82,14 @@ export default function MapFragment() {
           center={positions[positions.length - 1]}
           mapContainerClassName="map-container"
         >
+        <PolylineF
+          path={positions}
+          options={{
+            strokeColor: '#0000FF', // red
+            strokeOpacity: 1.0,
+            strokeWeight: 5,
+          }}
+        />
           {positions.map((position, index) => (
             <MarkerF key={index} position={position} />
           ))}
