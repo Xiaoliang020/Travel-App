@@ -41,3 +41,23 @@
   width: 100%;
   height: 100vh;
 }
+
+.tracking-button {
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.tracking-button-start {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+}
+
+.tracking-button-stop {
+  background-color: #f44336;
+  color: white;
+  border: none;
+}

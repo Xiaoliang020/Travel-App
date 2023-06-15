@@ -4,41 +4,89 @@ import './App.css';
 
 export default function MapFragment() {
   const [positions, setPositions] = useState([]);
+  const [trackingEnabled, setTrackingEnabled] = useState(false); // State to track whether geolocation tracking is enabled
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
   });
 
   useEffect(() => {
-    // Get the user's current geolocation coordinates
-    const interval = setInterval(() => {
+    let interval;
+
+    if (trackingEnabled) {
+      // Immediately get the current location
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
           setPositions((prev) => [...prev, { lat: latitude, lng: longitude }]);
+          console.log("Got first location after click the button");
         },
         (error) => {
           console.error('Error retrieving geolocation:', error);
         }
       );
-    }, 10000);
+
+      // Start tracking location
+      interval = setInterval(() => {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setPositions((prev) => [...prev, { lat: latitude, lng: longitude }]);
+            console.log("Get a location");
+          },
+          (error) => {
+            console.error('Error retrieving geolocation:', error);
+          }
+        );
+      }, 10000);
+    }
 
     // Cleanup function to clear interval when component unmounts
     return () => clearInterval(interval);
-  }, []);
+  }, [trackingEnabled]);
+
+  const handleStartTracking = () => {
+    setTrackingEnabled(true);
+    console.log("Start tracking");
+  };
+
+  const handleStopTracking = () => {
+    setTrackingEnabled(false);
+    console.log("Stop tracking");
+  };
 
   if (!isLoaded) return <div>Loading..</div>
 
   return (
-    <GoogleMap
-      zoom={14}
-      center={positions[positions.length - 1]}
-      mapContainerClassName="map-container"
-    >
-      {positions.map((position, index) => (
-        <MarkerF key={index} position={position} />
-      ))}
-
-    </GoogleMap>
+    <div>
+      <div>
+        {trackingEnabled ? (
+          <button 
+            className="tracking-button tracking-button-stop" 
+            onClick={handleStopTracking}
+          >
+            Stop Tracking
+          </button>
+        ) : (
+          <button 
+            className="tracking-button tracking-button-start" 
+            onClick={handleStartTracking}
+          >
+            Start Tracking
+          </button>
+        )}
+      </div>
+      <div>
+        <GoogleMap
+          zoom={14}
+          center={positions[positions.length - 1]}
+          mapContainerClassName="map-container"
+        >
+          {positions.map((position, index) => (
+            <MarkerF key={index} position={position} />
+          ))}
+        </GoogleMap>
+      </div>
+    </div>
   );
 }
