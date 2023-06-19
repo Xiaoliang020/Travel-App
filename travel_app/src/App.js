@@ -1,12 +1,12 @@
 import './App.css';
 import Location from './Location';
-import MapFragment from './Map';
+import Map from './Map';
 
 function App() {
   return (
     <div className="App">
       <Location />
-      <MapFragment />
+      <Map />
     </div>
   );
 }

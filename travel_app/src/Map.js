@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
 import './App.css';
 
-export default function MapFragment() {
+export default function Map() {
   const [positions, setPositions] = useState([]);
   const [trackingEnabled, setTrackingEnabled] = useState(false); // State to track whether geolocation tracking is enabled
 
@@ -26,7 +26,7 @@ export default function MapFragment() {
         }
       );
 
-      // Start tracking location
+      // Start tracking location every 10 seconds
       interval = setInterval(() => {
         navigator.geolocation.getCurrentPosition(
           (position) => {
