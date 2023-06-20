@@ -6,6 +6,8 @@ export default function Map() {
   const [positions, setPositions] = useState([]);
   const [trackingEnabled, setTrackingEnabled] = useState(false); // State to track whether geolocation tracking is enabled
   const [pathId, setPathId] = useState(0);
+  // const [clearedPaths, setClearedPaths] = useState([]); // State to store cleared paths, probably needed for future features
+
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -63,6 +65,11 @@ export default function Map() {
     (acc[position.pathId] = acc[position.pathId] || []).push(position);
     return acc;
   }, {});
+  
+  const handleClearPaths = () => {
+    // setClearedPaths(positions);
+    setPositions([]);
+  }
 
   if (!isLoaded) return <div>Loading..</div>
 
@@ -84,6 +91,14 @@ export default function Map() {
             Start Tracking
           </button>
         )}
+      </div>
+      <div>
+        <button 
+          className="clear-button"
+          onClick={handleClearPaths}
+        >
+          Clear
+        </button>
       </div>
       <div>
         <GoogleMap
