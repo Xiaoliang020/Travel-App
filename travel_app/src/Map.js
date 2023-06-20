@@ -5,6 +5,7 @@ import './App.css';
 export default function Map() {
   const [positions, setPositions] = useState([]);
   const [trackingEnabled, setTrackingEnabled] = useState(false); // State to track whether geolocation tracking is enabled
+  const [pathId, setPathId] = useState(0);
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -18,7 +19,7 @@ export default function Map() {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setPositions((prev) => [...prev, { lat: latitude, lng: longitude }]);
+          setPositions((prev) => [...prev, { lat: latitude, lng: longitude, pathId }]);
           console.log("Got first location after click the button");
         },
         (error) => {
@@ -31,8 +32,9 @@ export default function Map() {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
-            setPositions((prev) => [...prev, { lat: latitude, lng: longitude }]);
+            setPositions((prev) => [...prev, { lat: latitude, lng: longitude, pathId }]);
             console.log("Get a location");
+            console.log(pathId);
           },
           (error) => {
             console.error('Error retrieving geolocation:', error);
@@ -43,10 +45,11 @@ export default function Map() {
 
     // Cleanup function to clear interval when component unmounts
     return () => clearInterval(interval);
-  }, [trackingEnabled]);
+  }, [trackingEnabled, pathId]);
 
   const handleStartTracking = () => {
     setTrackingEnabled(true);
+    setPathId(pathId + 1);
     console.log("Start tracking");
   };
 
@@ -54,6 +57,12 @@ export default function Map() {
     setTrackingEnabled(false);
     console.log("Stop tracking");
   };
+
+  // Group positions by pathId
+  const positionByPathId = positions.reduce((acc,position) => {
+    (acc[position.pathId] = acc[position.pathId] || []).push(position);
+    return acc;
+  }, {});
 
   if (!isLoaded) return <div>Loading..</div>
 
@@ -82,14 +91,17 @@ export default function Map() {
           center={positions[positions.length - 1]}
           mapContainerClassName="map-container"
         >
-        <PolylineF
-          path={positions}
-          options={{
-            strokeColor: '#0000FF', // red
-            strokeOpacity: 1.0,
-            strokeWeight: 5,
-          }}
-        />
+        {Object.values(positionByPathId).map((pathPositions, index) => (
+          <PolylineF
+            key = {index}
+            path={pathPositions}
+            options={{
+              strokeColor: '#0000FF', // red
+              strokeOpacity: 1.0,
+              strokeWeight: 5,
+            }}
+          />
+        ))}
           {positions.map((position, index) => (
             <MarkerF key={index} position={position} />
           ))}
