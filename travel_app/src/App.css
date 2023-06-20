@@ -76,3 +76,8 @@
 .clear-button:hover {
   background-color: #b71c1c; /* darker red */
 }
+
+.clear-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}

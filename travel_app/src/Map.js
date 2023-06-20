@@ -7,7 +7,7 @@ export default function Map() {
   const [trackingEnabled, setTrackingEnabled] = useState(false); // State to track whether geolocation tracking is enabled
   const [pathId, setPathId] = useState(0);
   // const [clearedPaths, setClearedPaths] = useState([]); // State to store cleared paths, probably needed for future features
-
+  const [currentPosition, setCurrentPositions] = useState({lat: null, lng:null});
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -22,6 +22,7 @@ export default function Map() {
         (position) => {
           const { latitude, longitude } = position.coords;
           setPositions((prev) => [...prev, { lat: latitude, lng: longitude, pathId }]);
+          setCurrentPositions({ lat: latitude, lng: longitude });
           console.log("Got first location after click the button");
         },
         (error) => {
@@ -35,6 +36,7 @@ export default function Map() {
           (position) => {
             const { latitude, longitude } = position.coords;
             setPositions((prev) => [...prev, { lat: latitude, lng: longitude, pathId }]);
+            setCurrentPositions({ lat: latitude, lng: longitude });
             console.log("Get a location");
             console.log(pathId);
           },
@@ -69,12 +71,20 @@ export default function Map() {
   const handleClearPaths = () => {
     // setClearedPaths(positions);
     setPositions([]);
+    setPathId(0);
   }
 
   if (!isLoaded) return <div>Loading..</div>
 
   return (
     <div>
+      <h1>Location Information</h1>
+
+      <div>
+        <p>Latitude: {currentPosition.lat}</p>
+        <p>Longitude: {currentPosition.lng}</p>
+      </div>
+
       <div>
         {trackingEnabled ? (
           <button 
@@ -96,6 +106,7 @@ export default function Map() {
         <button 
           className="clear-button"
           onClick={handleClearPaths}
+          disabled={trackingEnabled}
         >
           Clear
         </button>
@@ -111,14 +122,18 @@ export default function Map() {
             key = {index}
             path={pathPositions}
             options={{
-              strokeColor: '#0000FF', // red
+              strokeColor: '#0000FF',
+              // strokeColor: parseInt(pathId) % 2 === 0 ? '#0000FF' : '#00FF00',
               strokeOpacity: 1.0,
               strokeWeight: 5,
             }}
           />
         ))}
           {positions.map((position, index) => (
-            <MarkerF key={index} position={position} />
+            <MarkerF 
+            key={index} 
+            position={position} 
+            />
           ))}
         </GoogleMap>
       </div>
