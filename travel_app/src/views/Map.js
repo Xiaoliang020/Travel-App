@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
-import './App.css';
+import '../App.css';
 
 export default function Map() {
   const [positions, setPositions] = useState([]);
@@ -77,7 +77,7 @@ export default function Map() {
   if (!isLoaded) return <div>Loading..</div>
 
   return (
-    <div>
+    <div className="map-view">
       <h1>Location Information</h1>
 
       <div>

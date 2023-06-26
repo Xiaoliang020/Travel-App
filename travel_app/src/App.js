@@ -1,11 +1,18 @@
 import './App.css';
-// import Location from './Location';
-import Map from './Map';
+import { useRoutes } from "react-router-dom"
+import router from "./router"
 
 function App() {
+  const outlet = useRoutes(router)
   return (
     <div className="App">
-      <Map />
+      {/* <Link to="/home">Home</Link> 
+      <Link to="/settings">Settings</Link>
+      <Link to="/community">Community</Link> */}
+
+      {/* Used to show components */}
+      {/* <Outlet></Outlet> */}
+      {outlet}
     </div>
   );
 }

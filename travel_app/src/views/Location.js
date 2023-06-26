@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './App.css';
+import '../App.css';
 
 const Location = () => {
     const [latitude, setLatitude] = useState(null);
