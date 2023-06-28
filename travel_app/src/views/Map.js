@@ -7,7 +7,9 @@ export default function Map() {
   const [trackingEnabled, setTrackingEnabled] = useState(false); // State to track whether geolocation tracking is enabled
   const [pathId, setPathId] = useState(0);
   // const [clearedPaths, setClearedPaths] = useState([]); // State to store cleared paths, probably needed for future features
-  const [currentPosition, setCurrentPositions] = useState({lat: null, lng:null});
+  const [currentPosition, setCurrentPositions] = useState({ lat: null, lng: null });
+  const [isPathsVisible, setIsPathsVisible] = useState(true);
+
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -63,16 +65,21 @@ export default function Map() {
   };
 
   // Group positions by pathId
-  const positionByPathId = positions.reduce((acc,position) => {
+  const positionByPathId = positions.reduce((acc, position) => {
     (acc[position.pathId] = acc[position.pathId] || []).push(position);
     return acc;
   }, {});
-  
+
   const handleClearPaths = () => {
     // setClearedPaths(positions);
     setPositions([]);
     setPathId(0);
   }
+
+  const togglePathsVisibility = () => {
+    setIsPathsVisible(!isPathsVisible);
+  };
+
 
   if (!isLoaded) return <div>Loading..</div>
 
@@ -87,15 +94,15 @@ export default function Map() {
 
       <div>
         {trackingEnabled ? (
-          <button 
-            className="tracking-button tracking-button-stop" 
+          <button
+            className="tracking-button tracking-button-stop"
             onClick={handleStopTracking}
           >
             Stop Tracking
           </button>
         ) : (
-          <button 
-            className="tracking-button tracking-button-start" 
+          <button
+            className="tracking-button tracking-button-start"
             onClick={handleStartTracking}
           >
             Start Tracking
@@ -103,7 +110,15 @@ export default function Map() {
         )}
       </div>
       <div>
-        <button 
+        <button
+          className="visibility-button"
+          onClick={togglePathsVisibility}
+        >
+          {isPathsVisible ? 'Hide Paths' : 'Show Paths'}
+        </button>
+      </div>
+      <div>
+        <button
           className="clear-button"
           onClick={handleClearPaths}
           disabled={trackingEnabled}
@@ -117,22 +132,22 @@ export default function Map() {
           center={positions[positions.length - 1]}
           mapContainerClassName="map-container"
         >
-        {Object.values(positionByPathId).map((pathPositions, index) => (
-          <PolylineF
-            key = {index}
-            path={pathPositions}
-            options={{
-              strokeColor: '#0000FF',
-              // strokeColor: parseInt(pathId) % 2 === 0 ? '#0000FF' : '#00FF00',
-              strokeOpacity: 1.0,
-              strokeWeight: 5,
-            }}
-          />
-        ))}
+          {isPathsVisible && Object.values(positionByPathId).map((pathPositions, index) => (
+            <PolylineF
+              key={index}
+              path={pathPositions}
+              options={{
+                strokeColor: '#0000FF',
+                // strokeColor: parseInt(pathId) % 2 === 0 ? '#0000FF' : '#00FF00',
+                strokeOpacity: 1.0,
+                strokeWeight: 5,
+              }}
+            />
+          ))}
           {positions.map((position, index) => (
-            <MarkerF 
-            key={index} 
-            position={position} 
+            <MarkerF
+              key={index}
+              position={position}
             />
           ))}
         </GoogleMap>
