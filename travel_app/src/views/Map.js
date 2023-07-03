@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
 import '../App.css';
+import { useContext } from 'react';
+import SavedPathsContext from '../SavedPathsContext'; 
 
 export default function Map() {
   const [positions, setPositions] = useState([]);
@@ -9,6 +11,7 @@ export default function Map() {
   // const [clearedPaths, setClearedPaths] = useState([]); // State to store cleared paths, probably needed for future features
   const [currentPosition, setCurrentPositions] = useState({ lat: null, lng: null });
   const [isPathsVisible, setIsPathsVisible] = useState(true);
+  const { addPath } = useContext(SavedPathsContext);
 
 
   const { isLoaded } = useLoadScript({
@@ -54,15 +57,22 @@ export default function Map() {
   }, [trackingEnabled, pathId]);
 
   const handleStartTracking = () => {
+    setPositions([]); // clear positions before a new tracking
     setTrackingEnabled(true);
     setPathId(pathId + 1);
     console.log("Start tracking");
   };
 
+
   const handleStopTracking = () => {
     setTrackingEnabled(false);
     console.log("Stop tracking");
+
+    if (window.confirm("Do you want to save this path?")) {
+      addPath(positions);
+    }
   };
+
 
   // Group positions by pathId
   const positionByPathId = positions.reduce((acc, position) => {
