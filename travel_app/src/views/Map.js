@@ -13,7 +13,6 @@ export default function Map() {
   const [isPathsVisible, setIsPathsVisible] = useState(true);
   const { addPath } = useContext(SavedPathsContext);
 
-
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
   });
@@ -26,7 +25,7 @@ export default function Map() {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setPositions((prev) => [...prev, { lat: latitude, lng: longitude, pathId }]);
+          setPositions((prev) => [...prev, { lat: latitude, lng: longitude, type: "default", pathId }]);
           setCurrentPositions({ lat: latitude, lng: longitude });
           console.log("Got first location after click the button");
         },
@@ -40,7 +39,7 @@ export default function Map() {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
-            setPositions((prev) => [...prev, { lat: latitude, lng: longitude, pathId }]);
+            setPositions((prev) => [...prev, { lat: latitude, lng: longitude, type: "default", pathId }]);
             setCurrentPositions({ lat: latitude, lng: longitude });
             console.log("Get a location");
             console.log(pathId);
@@ -73,7 +72,6 @@ export default function Map() {
     }
   };
 
-
   // Group positions by pathId
   const positionByPathId = positions.reduce((acc, position) => {
     (acc[position.pathId] = acc[position.pathId] || []).push(position);
@@ -88,6 +86,19 @@ export default function Map() {
 
   const togglePathsVisibility = () => {
     setIsPathsVisible(!isPathsVisible);
+  };
+
+  const handleAddPoint = () => {
+    const { lat, lng } = currentPosition;
+    const newMarker = {
+      lat,
+      lng,
+      type: "custom",
+      id: Date.now(), // Assign a unique ID to the marker
+    };
+
+    setPositions((prevPositions) => [...prevPositions, newMarker]);
+    console.log("Add an information point");
   };
 
 
@@ -128,6 +139,11 @@ export default function Map() {
         </button>
       </div>
       <div>
+        <button className="add-point-button" onClick={handleAddPoint}>
+          Add a Point
+        </button>
+      </div>
+      <div>
         <button
           className="clear-button"
           onClick={handleClearPaths}
@@ -158,6 +174,9 @@ export default function Map() {
             <MarkerF
               key={index}
               position={position}
+              icon={position.type === 'custom' ? {
+                url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/info-i_maps.png'
+              } : null}
             />
           ))}
         </GoogleMap>
