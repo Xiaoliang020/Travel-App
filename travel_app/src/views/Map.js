@@ -21,7 +21,6 @@ export default function Map() {
 
   const mapId = theme === 'default' ? '17e23ad9dc98cd76' : '965d3fbc319fcf57';
 
-
   useEffect(() => {
     let interval;
 
@@ -66,7 +65,6 @@ export default function Map() {
     setPathId(pathId + 1);
     console.log("Start tracking");
   };
-
 
   const handleStopTracking = () => {
     setTrackingEnabled(false);
@@ -144,7 +142,11 @@ export default function Map() {
         </button>
       </div>
       <div>
-        <button className="add-point-button" onClick={handleAddPoint}>
+        <button
+          className="add-point-button" 
+          onClick={handleAddPoint}
+          disabled={!trackingEnabled}
+        >
           Add a Point
         </button>
       </div>
