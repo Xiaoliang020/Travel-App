@@ -3,6 +3,7 @@ import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps
 import '../App.css';
 import { useContext } from 'react';
 import SavedPathsContext from '../SavedPathsContext'; 
+import { ThemeContext } from '../App';
 
 export default function Map() {
   const [positions, setPositions] = useState([]);
@@ -12,10 +13,14 @@ export default function Map() {
   const [currentPosition, setCurrentPositions] = useState({ lat: null, lng: null });
   const [isPathsVisible, setIsPathsVisible] = useState(true);
   const { addPath } = useContext(SavedPathsContext);
+  const { theme } = useContext(ThemeContext);
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
   });
+
+  const mapId = theme === 'default' ? '17e23ad9dc98cd76' : '965d3fbc319fcf57';
+
 
   useEffect(() => {
     let interval;
@@ -157,6 +162,9 @@ export default function Map() {
           zoom={14}
           center={positions[positions.length - 1]}
           mapContainerClassName="map-container"
+          options={{
+            mapId: mapId,
+          }}
         >
           {isPathsVisible && Object.values(positionByPathId).map((pathPositions, index) => (
             <PolylineF
