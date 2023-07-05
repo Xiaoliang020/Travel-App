@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import './App.css';
 import { useRoutes } from "react-router-dom"
 import router from "./router"
-import SavedPathsContext from "./SavedPathsContext"  // 根据你的文件路径替换这里
+import SavedPathsContext from "./SavedPathsContext"
 
 export const ThemeContext = React.createContext();
 
 function App() {
   const [savedPaths, setSavedPaths] = useState([]);
+  const [displayedPath, setDisplayedPath] = useState([]);
   const [theme, setTheme] = useState('default');
   
   const outlet = useRoutes(router)
@@ -16,6 +17,8 @@ function App() {
       <SavedPathsContext.Provider value={{
         savedPaths,
         addPath: (path) => setSavedPaths((currentPaths) => [...currentPaths, path]),
+        displayedPath,
+        setDisplayedPath,
       }}>
         <div className="App">
           {/* <Link to="/home">Home</Link> 

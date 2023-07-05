@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
 import '../App.css';
 import { useContext } from 'react';
-import SavedPathsContext from '../SavedPathsContext'; 
+import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
 
 export default function Map() {
@@ -12,7 +12,10 @@ export default function Map() {
   // const [clearedPaths, setClearedPaths] = useState([]); // State to store cleared paths, probably needed for future features
   const [currentPosition, setCurrentPositions] = useState({ lat: null, lng: null });
   const [isPathsVisible, setIsPathsVisible] = useState(true);
-  const { addPath } = useContext(SavedPathsContext);
+  const [mapCenter, setMapCenter] = useState(null);
+  const [mapZoom, setMapZoom] = useState(14);
+
+  const { addPath, displayedPath, setDisplayedPath } = useContext(SavedPathsContext);
   const { theme } = useContext(ThemeContext);
 
   const { isLoaded } = useLoadScript({
@@ -20,6 +23,41 @@ export default function Map() {
   });
 
   const mapId = theme === 'default' ? '17e23ad9dc98cd76' : '965d3fbc319fcf57';
+
+  // Get the user's current location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // Set the default map center to the user's current location
+          setMapCenter({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error("Error retrieving geolocation:", error);
+          // If can't get the user's current location, the set to a default location
+          setMapCenter({ lat: 40.7128, lng: -74.0060 }); // Anywhere can be changed later
+        }
+      );
+    } else {
+      // If the web browser doesn't support geolocation, also set a default center
+      setMapCenter({ lat: 40.7128, lng: -74.0060 });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (displayedPath && displayedPath.length > 0) {
+      // If there is a path to display, set the center point of the map to the first point of the displayed path
+      setMapCenter(displayedPath[0]);
+      setMapZoom(15);
+    } else if (positions.length > 0) {
+      // If there is no path to display, but is under tracking, set the center point of the map as the last tracked point
+      setMapCenter(positions[positions.length - 1]);
+    }
+    // If the geolocation cannot be obtained or there is no path being tracked, keep the center point unchanged
+  }, [displayedPath, positions]);
 
   useEffect(() => {
     let interval;
@@ -85,6 +123,7 @@ export default function Map() {
     // setClearedPaths(positions);
     setPositions([]);
     setPathId(0);
+    setDisplayedPath([]);
   }
 
   const togglePathsVisibility = () => {
@@ -143,7 +182,7 @@ export default function Map() {
       </div>
       <div>
         <button
-          className="add-point-button" 
+          className="add-point-button"
           onClick={handleAddPoint}
           disabled={!trackingEnabled}
         >
@@ -161,8 +200,8 @@ export default function Map() {
       </div>
       <div>
         <GoogleMap
-          zoom={14}
-          center={positions[positions.length - 1]}
+          center={mapCenter}
+          zoom={mapZoom}
           mapContainerClassName="map-container"
           options={{
             mapId: mapId,
@@ -180,6 +219,18 @@ export default function Map() {
               }}
             />
           ))}
+
+          {displayedPath && isPathsVisible && ( // Display the saved path
+            <PolylineF
+              path={displayedPath}
+              options={{
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 5,
+              }}
+            />
+          )}
+
           {positions.map((position, index) => (
             <MarkerF
               key={index}

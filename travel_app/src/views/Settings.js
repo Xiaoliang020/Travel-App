@@ -2,16 +2,20 @@ import React, { useState } from 'react';
 import { useContext } from 'react';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
+import { useNavigate } from 'react-router-dom';
+
 
 
 export default function Settings() {
-    const { savedPaths } = useContext(SavedPathsContext);
+    const { savedPaths, setDisplayedPath } = useContext(SavedPathsContext);
     const { theme, setTheme } = useContext(ThemeContext);
+    const navigate = useNavigate();
+
 
     const handleThemeChange = (e) => {
         const newTheme = e.target.value;
         setTheme(newTheme);
-      };
+    };
 
     return (
         <div>
@@ -22,6 +26,10 @@ export default function Settings() {
                 <div key={index}>
                     {/* Replace this with how you want to display the path */}
                     Path {index + 1}: {path[0].lat}, {path[0].lng}
+                    <button onClick={() => {
+                        setDisplayedPath(path);
+                        navigate('/map');
+                    }}>Display on map</button>
                 </div>
             ))}
 
