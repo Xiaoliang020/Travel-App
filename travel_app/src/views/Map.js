@@ -283,7 +283,11 @@ export default function Map() {
           //   fullscreenControl: false, // 添加这一行来隐藏全屏控件
           //   streetViewControl: false,
           // }}
-          options={theme === 'default' ? {} : darkMode}
+          options={{
+            fullscreenControl: false,
+            streetViewControl: false,
+            ...theme === 'default' ? {} : darkMode,
+          }}
         >
           {isPathsVisible && Object.values(positionByPathId).map((pathPositions, index) => (
             <PolylineF
