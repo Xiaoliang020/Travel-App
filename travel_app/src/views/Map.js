@@ -6,7 +6,8 @@ import { } from 'antd';
 import { useContext } from 'react';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
-import { PlayCircleOutlined, StopOutlined, CompassOutlined, EyeOutlined, EyeInvisibleOutlined, PlusOutlined, ClearOutlined } from '@ant-design/icons';
+import { PlayCircleOutlined, StopOutlined, CompassOutlined, EyeOutlined, EyeInvisibleOutlined, PlusOutlined, ClearOutlined, DownloadOutlined } from '@ant-design/icons';
+import html2canvas from 'html2canvas';
 
 
 export default function Map() {
@@ -27,6 +28,8 @@ export default function Map() {
   });
 
   const mapId = theme === 'default' ? '17e23ad9dc98cd76' : '965d3fbc319fcf57';
+
+  const [isTakingScreenshot, setIsTakingScreenshot] = useState(false);
 
   // Get the user's current location
   useEffect(() => {
@@ -147,6 +150,21 @@ export default function Map() {
     console.log("Add an information point");
   };
 
+  const handleScreenshot = async () => {
+    setIsTakingScreenshot(true);
+
+    const mapContainer = document.querySelector('.map-container');
+  
+    html2canvas(mapContainer, { useCORS: true, allowTaint: true}).then((canvas) => {
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = 'screenshot.png';
+      link.click();
+  
+      setIsTakingScreenshot(false);
+    });
+  };
+  
 
   if (!isLoaded) return <div>Loading..</div>
 
@@ -157,8 +175,9 @@ export default function Map() {
           center={mapCenter}
           zoom={mapZoom}
           mapContainerClassName="map-container"
+          // Problem: Cannot show the map's detail in the screenshot when enable this
           options={{
-            mapId: mapId,
+            // mapId: mapId,
             fullscreenControl: false, // 添加这一行来隐藏全屏控件
             streetViewControl: false,
           }}
@@ -275,6 +294,13 @@ export default function Map() {
             tooltip='Clear'
             onClick={handleClearPaths}
             disabled={trackingEnabled}
+          />
+
+          <FloatButton
+            icon={<DownloadOutlined />}
+            tooltip="Take Screenshot"
+            onClick={handleScreenshot}
+            disabled={isTakingScreenshot}
           />
         </FloatButton.Group>
 
