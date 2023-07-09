@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
 import '../App.css';
+import { FloatButton, Button, Tooltip } from 'antd';
+import { } from 'antd';
 import { useContext } from 'react';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
+import { PlayCircleOutlined, StopOutlined, CompassOutlined, EyeOutlined, EyeInvisibleOutlined, PlusOutlined, ClearOutlined } from '@ant-design/icons';
+
 
 export default function Map() {
   const [positions, setPositions] = useState([]);
@@ -148,63 +152,15 @@ export default function Map() {
 
   return (
     <div className="map-view">
-      <h1>Location Information</h1>
-
-      <div>
-        <p>Latitude: {currentPosition.lat}</p>
-        <p>Longitude: {currentPosition.lng}</p>
-      </div>
-
-      <div>
-        {trackingEnabled ? (
-          <button
-            className="tracking-button tracking-button-stop"
-            onClick={handleStopTracking}
-          >
-            Stop Tracking
-          </button>
-        ) : (
-          <button
-            className="tracking-button tracking-button-start"
-            onClick={handleStartTracking}
-          >
-            Start Tracking
-          </button>
-        )}
-      </div>
-      <div>
-        <button
-          className="visibility-button"
-          onClick={togglePathsVisibility}
-        >
-          {isPathsVisible ? 'Hide Paths' : 'Show Paths'}
-        </button>
-      </div>
-      <div>
-        <button
-          className="add-point-button"
-          onClick={handleAddPoint}
-          disabled={!trackingEnabled}
-        >
-          Add a Point
-        </button>
-      </div>
-      <div>
-        <button
-          className="clear-button"
-          onClick={handleClearPaths}
-          disabled={trackingEnabled}
-        >
-          Clear
-        </button>
-      </div>
-      <div>
+      <div className="map-container">
         <GoogleMap
           center={mapCenter}
           zoom={mapZoom}
           mapContainerClassName="map-container"
           options={{
             mapId: mapId,
+            fullscreenControl: false, // 添加这一行来隐藏全屏控件
+            streetViewControl: false,
           }}
         >
           {isPathsVisible && Object.values(positionByPathId).map((pathPositions, index) => (
@@ -241,7 +197,89 @@ export default function Map() {
             />
           ))}
         </GoogleMap>
+
+        {/* Main start/stop button */}
+        <div className='map-view-start-stop-button'>
+          {trackingEnabled ? (
+            <Button
+              type="primary"
+              shape="round"
+              size="large"
+              onClick={handleStopTracking}
+              icon={<StopOutlined />}
+              style={{ backgroundColor: 'OrangeRed' }}
+            >
+              STOP
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              shape="round"
+              size="large"
+              onClick={handleStartTracking}
+              icon={<PlayCircleOutlined />}
+              style={{ backgroundColor: 'LimeGreen' }}
+            >
+              START
+            </Button>
+          )}
+        </div>
+
+        {/* Text location information and back to top button*/}
+        <FloatButton.Group shape="circle" style={{ left: 24 }}>
+          <Tooltip
+            title={
+              <div>
+                <h1>Your current location:</h1>
+                <p>Latitude: {currentPosition.lat} </p>
+                <p>Longitude: {currentPosition.lng}</p>
+              </div>
+            }
+            placement='right'
+            color='#87d068'
+          >
+            <FloatButton
+              icon={<CompassOutlined />}
+            />
+          </Tooltip>
+
+          <FloatButton.BackTop visibilityHeight={0} />
+        </FloatButton.Group>
+
+
+        {/* Functional buttons group */}
+        <FloatButton.Group shape="circle" style={{ right: 50, top: '60%', transform: 'translateY(-50%)' }}>
+          {isPathsVisible ? (
+            <FloatButton
+              icon={<EyeInvisibleOutlined />}
+              tooltip='Hide Paths'
+              onClick={togglePathsVisibility}
+            />
+          ) : (
+            <FloatButton
+              icon={<EyeOutlined />}
+              tooltip='Show Paths'
+              onClick={togglePathsVisibility}
+            />
+          )}
+
+          <FloatButton
+            icon={<PlusOutlined />}
+            tooltip='Add a Point'
+            onClick={handleAddPoint}
+            disabled={!trackingEnabled}
+          />
+
+          <FloatButton
+            icon={<ClearOutlined />}
+            tooltip='Clear'
+            onClick={handleClearPaths}
+            disabled={trackingEnabled}
+          />
+        </FloatButton.Group>
+
       </div>
-    </div>
+
+    </div >
   );
 }

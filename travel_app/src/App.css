@@ -38,9 +38,26 @@
 }
 
 .map-container {
+  position: relative;
   width: 100%;
   height: 100vh;
 }
+
+.map-view-button-group {
+  position: absolute;
+  top: 700px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-view-start-stop-button {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%); /* 这个用于使元素居中对齐 */
+}
+
 
 .tracking-button {
   padding: 10px 20px;
@@ -48,18 +65,6 @@
   font-size: 16px;
   cursor: pointer;
   margin-bottom: 20px;
-}
-
-.tracking-button-start {
-  background-color: #4caf50;
-  color: white;
-  border: none;
-}
-
-.tracking-button-stop {
-  background-color: #f44336;
-  color: white;
-  border: none;
 }
 
 .clear-button {
@@ -104,3 +109,4 @@
   border-radius: 4px;
   cursor: pointer;
 }
+
