@@ -6,7 +6,7 @@ import { } from 'antd';
 import { useContext } from 'react';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
-import { PlayCircleOutlined, StopOutlined, CompassOutlined, EyeOutlined, EyeInvisibleOutlined, PlusOutlined, ClearOutlined, DownloadOutlined } from '@ant-design/icons';
+import { PlayCircleOutlined, StopOutlined, CompassOutlined, EyeOutlined, EyeInvisibleOutlined, PlusOutlined, ClearOutlined, DownloadOutlined, ShareAltOutlined } from '@ant-design/icons';
 import html2canvas from 'html2canvas';
 
 
@@ -164,6 +164,33 @@ export default function Map() {
       setIsTakingScreenshot(false);
     });
   };
+
+  const handleShareScreenshot = async () => {
+    setIsTakingScreenshot(true);
+  
+    const mapContainer = document.querySelector('.map-container');
+  
+    html2canvas(mapContainer, { useCORS: true, allowTaint: true }).then((canvas) => {
+      const blob = canvas.toBlob((blob) => {
+        if (blob) {
+          const file = new File([blob], 'screenshot.png', { type: 'image/png' });
+  
+          if (navigator.share) {
+            // Share the screenshot using the Web Share API
+            navigator.share({
+              files: [file],
+            });
+          } else {
+            console.error('Web Share API not supported.');
+          }
+        } else {
+          console.error('Failed to generate screenshot blob.');
+        }
+  
+        setIsTakingScreenshot(false);
+      });
+    });
+  };
   
 
   if (!isLoaded) return <div>Loading..</div>
@@ -175,9 +202,9 @@ export default function Map() {
           center={mapCenter}
           zoom={mapZoom}
           mapContainerClassName="map-container"
-          // Problem: Cannot show the map's detail in the screenshot when enable this
+          // Problem: Cannot show the map's detail in the screenshot when enable mapId
           options={{
-            // mapId: mapId,
+            mapId: mapId,
             fullscreenControl: false, // 添加这一行来隐藏全屏控件
             streetViewControl: false,
           }}
@@ -300,6 +327,13 @@ export default function Map() {
             icon={<DownloadOutlined />}
             tooltip="Take Screenshot"
             onClick={handleScreenshot}
+            disabled={isTakingScreenshot}
+          />
+
+          <FloatButton
+            icon={<ShareAltOutlined />}
+            tooltip="Share"
+            onClick={handleShareScreenshot}
             disabled={isTakingScreenshot}
           />
         </FloatButton.Group>
