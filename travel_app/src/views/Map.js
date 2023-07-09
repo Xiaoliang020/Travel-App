@@ -242,14 +242,14 @@ export default function Map() {
 
   const handleShareScreenshot = async () => {
     setIsTakingScreenshot(true);
-
+  
     const mapContainer = document.querySelector('.map-container');
-
+  
     html2canvas(mapContainer, { useCORS: true, allowTaint: true }).then((canvas) => {
       const blob = canvas.toBlob((blob) => {
         if (blob) {
           const file = new File([blob], 'screenshot.png', { type: 'image/png' });
-
+  
           if (navigator.share) {
             // Share the screenshot using the Web Share API
             navigator.share({
@@ -261,12 +261,12 @@ export default function Map() {
         } else {
           console.error('Failed to generate screenshot blob.');
         }
-
+  
         setIsTakingScreenshot(false);
       });
     });
   };
-
+  
 
   if (!isLoaded) return <div>Loading..</div>
 
