@@ -31,6 +31,57 @@ export default function Map() {
 
   const [isTakingScreenshot, setIsTakingScreenshot] = useState(false);
 
+
+
+  function getLocation (){
+    return new Promise((resolve,reject) => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          resolve({ latitude, longitude });
+        },
+        (error) => {
+          reject(error);
+        }
+      );
+    });
+  }
+
+
+  async function getAvgLocation(pathId){
+
+    const { latitude: firstLat, longitude: firstLng } = await getLocation();
+    console.log({ firstLat, firstLng });
+  
+    await new Promise((resolve) => {
+      setTimeout(function(){
+        resolve();
+      }, 1000);
+    });
+
+    const { latitude: secondLat, longitude: secondLng } = await getLocation();
+    console.log({ secondLat, secondLng });
+
+    await new Promise((resolve) => {
+      setTimeout(function(){
+        resolve();
+      }, 1000);
+    });
+  
+    const { latitude: thirdLat, longitude: thirdLng } = await getLocation();
+    console.log({ thirdLat, thirdLng });
+
+    const position = {
+      latitude: (firstLat + secondLat + thirdLat)/3.0 , 
+      longitude: (firstLng + secondLng + thirdLng)/3.0
+    }
+
+    setPositions((prev) => [...prev, { lat: position.latitude, lng: position.longitude, type: "default", pathId }]);
+    setCurrentPositions({ lat: position.latitude, lng: position.longitude });
+
+  }
+
+
   // Get the user's current location
   useEffect(() => {
     if (navigator.geolocation) {
@@ -84,20 +135,14 @@ export default function Map() {
       );
 
       // Start tracking location every 10 seconds
-      interval = setInterval(() => {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            setPositions((prev) => [...prev, { lat: latitude, lng: longitude, type: "default", pathId }]);
-            setCurrentPositions({ lat: latitude, lng: longitude });
-            console.log("Get a location");
-            console.log(pathId);
-          },
-          (error) => {
-            console.error('Error retrieving geolocation:', error);
-          }
-        );
-      }, 10000);
+      interval = setInterval(async () => {
+        console.log("Start Marking");
+        await getAvgLocation(pathId);
+        console.log("Get a location");
+        console.log(pathId);
+
+
+      }, 7000);
     }
 
     // Cleanup function to clear interval when component unmounts
