@@ -103,6 +103,8 @@ export default function Map() {
     setPositions((prev) => [...prev, { lat: position.latitude, lng: position.longitude, type: "default", pathId }]);
     setCurrentPositions({ lat: position.latitude, lng: position.longitude });
 
+    console.log(position);
+
   }
 
 
@@ -165,8 +167,7 @@ export default function Map() {
         console.log("Get a location");
         console.log(pathId);
 
-
-      }, 7000);
+      }, 8000);
     }
 
     // Cleanup function to clear interval when component unmounts
