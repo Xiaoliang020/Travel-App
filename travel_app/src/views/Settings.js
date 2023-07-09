@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
 import { useNavigate } from 'react-router-dom';
+import { Table, Modal } from 'antd';
 
 
 
@@ -17,21 +18,50 @@ export default function Settings() {
         setTheme(newTheme);
     };
 
+    // Define the columns for the table
+    const columns = [
+        {
+            title: 'Path ID',
+            dataIndex: 'key',
+            key: 'key',
+        },
+        {
+            title: 'Path Details',
+            dataIndex: 'details',
+            key: 'details',
+            render: (text, record) => (
+                <div>
+                    {record.path.map((point, index) => (
+                        <p key={index}>Point {index + 1}: {point.lat}, {point.lng}</p>
+                    ))}
+                </div>
+            ),
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (text, record) => (
+                <button onClick={() => {
+                    setDisplayedPath(record.path);
+                    navigate('/map');
+                }}>Display on map</button>
+            ),
+        },
+    ];
+
+    // Define the data for the table
+    const data = savedPaths.map((path, index) => ({
+        key: index + 1,
+        path: path,
+    }));
+
     return (
         <div>
-            <h1>Settings</h1>
-
             <h2>Saved Paths</h2>
-            {savedPaths.map((path, index) => (
-                <div key={index}>
-                    {/* Replace this with how you want to display the path */}
-                    Path {index + 1}: {path[0].lat}, {path[0].lng}
-                    <button onClick={() => {
-                        setDisplayedPath(path);
-                        navigate('/map');
-                    }}>Display on map</button>
-                </div>
-            ))}
+
+            {/* Add the table here */}
+            <Table columns={columns} dataSource={data} />
+
 
             <label>Select Theme:</label>
             <select value={theme} onChange={handleThemeChange}>

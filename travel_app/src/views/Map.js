@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
 import '../App.css';
-import { FloatButton, Button, Tooltip } from 'antd';
-import { } from 'antd';
+import { FloatButton, Button, Tooltip, Modal } from 'antd';
 import { useContext } from 'react';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
-import { PlayCircleOutlined, StopOutlined, CompassOutlined, EyeOutlined, EyeInvisibleOutlined, PlusOutlined, ClearOutlined, DownloadOutlined } from '@ant-design/icons';
+import { PlayCircleOutlined, StopOutlined, CompassOutlined, EyeOutlined, EyeInvisibleOutlined, PlusOutlined, ClearOutlined, DownloadOutlined, ShareAltOutlined } from '@ant-design/icons';
 import html2canvas from 'html2canvas';
 
 
@@ -115,10 +114,16 @@ export default function Map() {
     setTrackingEnabled(false);
     console.log("Stop tracking");
 
-    if (window.confirm("Do you want to save this path?")) {
-      addPath(positions);
-    }
+    Modal.confirm({
+      centered: true,
+      title: 'Do you want to save this path?',
+      onOk: () => {
+        addPath(positions);
+      },
+      // No action on cancel, as we just close the modal
+    });
   };
+
 
   // Group positions by pathId
   const positionByPathId = positions.reduce((acc, position) => {
@@ -154,17 +159,44 @@ export default function Map() {
     setIsTakingScreenshot(true);
 
     const mapContainer = document.querySelector('.map-container');
-  
-    html2canvas(mapContainer, { useCORS: true, allowTaint: true}).then((canvas) => {
+
+    html2canvas(mapContainer, { useCORS: true, allowTaint: true }).then((canvas) => {
       const link = document.createElement('a');
       link.href = canvas.toDataURL('image/png');
       link.download = 'screenshot.png';
       link.click();
-  
+
       setIsTakingScreenshot(false);
     });
   };
-  
+
+  const handleShareScreenshot = async () => {
+    setIsTakingScreenshot(true);
+
+    const mapContainer = document.querySelector('.map-container');
+
+    html2canvas(mapContainer, { useCORS: true, allowTaint: true }).then((canvas) => {
+      const blob = canvas.toBlob((blob) => {
+        if (blob) {
+          const file = new File([blob], 'screenshot.png', { type: 'image/png' });
+
+          if (navigator.share) {
+            // Share the screenshot using the Web Share API
+            navigator.share({
+              files: [file],
+            });
+          } else {
+            console.error('Web Share API not supported.');
+          }
+        } else {
+          console.error('Failed to generate screenshot blob.');
+        }
+
+        setIsTakingScreenshot(false);
+      });
+    });
+  };
+
 
   if (!isLoaded) return <div>Loading..</div>
 
@@ -175,9 +207,9 @@ export default function Map() {
           center={mapCenter}
           zoom={mapZoom}
           mapContainerClassName="map-container"
-          // Problem: Cannot show the map's detail in the screenshot when enable this
+          // Problem: Cannot show the map's detail in the screenshot when enable mapId
           options={{
-            // mapId: mapId,
+            mapId: mapId,
             fullscreenControl: false, // 添加这一行来隐藏全屏控件
             streetViewControl: false,
           }}
@@ -300,6 +332,13 @@ export default function Map() {
             icon={<DownloadOutlined />}
             tooltip="Take Screenshot"
             onClick={handleScreenshot}
+            disabled={isTakingScreenshot}
+          />
+
+          <FloatButton
+            icon={<ShareAltOutlined />}
+            tooltip="Share"
+            onClick={handleShareScreenshot}
             disabled={isTakingScreenshot}
           />
         </FloatButton.Group>
