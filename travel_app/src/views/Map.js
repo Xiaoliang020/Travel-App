@@ -320,7 +320,7 @@ export default function Map() {
               position={position}
               icon={position.type === 'custom' ? {
                 url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/info-i_maps.png'
-              } : null}
+              } : 'invisable'}
             />
           ))}
         </GoogleMap>
