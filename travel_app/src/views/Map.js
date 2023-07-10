@@ -74,6 +74,12 @@ export default function Map() {
 
   async function getAvgLocation(pathId){
 
+    await new Promise((resolve) => {
+      setTimeout(function(){
+        resolve();
+      }, 1000);
+    });
+
     const { latitude: firstLat, longitude: firstLng } = await getLocation();
     console.log({ firstLat, firstLng });
   
@@ -318,9 +324,10 @@ export default function Map() {
             <MarkerF
               key={index}
               position={position}
+              visible = {position.type === 'custom'}
               icon={position.type === 'custom' ? {
                 url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/info-i_maps.png'
-              } : 'invisable'}
+              } : null}
             />
           ))}
         </GoogleMap>
