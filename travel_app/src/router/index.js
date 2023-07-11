@@ -11,6 +11,7 @@ const Community = lazy(()=>import("../views/Community"))
 const Settings = lazy(()=>import("../views/Settings"))
 const Location = lazy(()=>import("../views/Location"))
 const Map = lazy(()=>import("../views/Map"))
+const HelloWorld = lazy(()=>import("../views/HelloWorld"))
 
 const withLoadingComponent = (comp) =>(
     <React.Suspense fallback={<div>Loading...</div>}>
@@ -42,6 +43,10 @@ const routes = [
             {
                 path:"/map",
                 element: withLoadingComponent(<Map />)
+            },
+            {
+                path:"/helloworld",
+                element: withLoadingComponent(<HelloWorld />)
             }
         ]
     }
