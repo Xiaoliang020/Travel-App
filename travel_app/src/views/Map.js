@@ -7,6 +7,7 @@ import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
 import { PlayCircleOutlined, StopOutlined, CompassOutlined, EyeOutlined, EyeInvisibleOutlined, PlusOutlined, ClearOutlined, DownloadOutlined, ShareAltOutlined } from '@ant-design/icons';
 import html2canvas from 'html2canvas';
+import Geocode from "react-geocode";
 import { UploadOutlined } from '@ant-design/icons';
 import { LoadingOutlined} from '@ant-design/icons';
 
@@ -19,6 +20,9 @@ export default function Map() {
   const [isPathsVisible, setIsPathsVisible] = useState(true);
   const [mapCenter, setMapCenter] = useState(null);
   const [mapZoom, setMapZoom] = useState(14);
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
+
   const [inputText, setInputText] = useState('');
   const [markerIcon, setMarkerIcon] = useState(null);
 
@@ -35,7 +39,7 @@ export default function Map() {
   // const mapId = theme === 'default' ? '17e23ad9dc98cd76' : '965d3fbc319fcf57';
 
   const [isTakingScreenshot, setIsTakingScreenshot] = useState(false);
-  
+
   const darkMode = {
     fullscreenControl: false,
     streetViewControl: false,
@@ -109,19 +113,19 @@ export default function Map() {
   }
 
 
-  async function getAvgLocation(pathId){
+  async function getAvgLocation(pathId) {
 
     await new Promise((resolve) => {
-      setTimeout(function(){
+      setTimeout(function () {
         resolve();
       }, 1000);
     });
 
     const { latitude: firstLat, longitude: firstLng } = await getLocation();
     console.log({ firstLat, firstLng });
-  
+
     await new Promise((resolve) => {
-      setTimeout(function(){
+      setTimeout(function () {
         resolve();
       }, 1000);
     });
@@ -130,24 +134,24 @@ export default function Map() {
     console.log({ secondLat, secondLng });
 
     await new Promise((resolve) => {
-      setTimeout(function(){
+      setTimeout(function () {
         resolve();
       }, 1000);
     });
-  
+
     const { latitude: thirdLat, longitude: thirdLng } = await getLocation();
     console.log({ thirdLat, thirdLng });
 
     const position = {
-      latitude: (firstLat + secondLat + thirdLat)/3.0 , 
-      longitude: (firstLng + secondLng + thirdLng)/3.0
+      latitude: (firstLat + secondLat + thirdLat) / 3.0,
+      longitude: (firstLng + secondLng + thirdLng) / 3.0
     }
 
     setPositions((prev) => [...prev, { lat: position.latitude, lng: position.longitude, type: "default", pathId }]);
     setCurrentPositions({ lat: position.latitude, lng: position.longitude });
 
     console.log(position);
-
+    setEndTime(new Date()); // Save the end time
   }
 
 
@@ -190,6 +194,7 @@ export default function Map() {
     let interval;
 
     if (trackingEnabled) {
+      setStartTime(new Date()); // Save the start time
       // Immediately get the current location
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -224,15 +229,56 @@ export default function Map() {
     console.log("Start tracking");
   };
 
+  Geocode.setApiKey(process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
+
   const handleStopTracking = () => {
     setTrackingEnabled(false);
     console.log("Stop tracking");
+
+    const duration = (endTime - startTime) / 1000; // Calculate the duration in seconds
+    if (duration < 10) {
+      Modal.warning({
+        centered: true,
+        title: 'Warning',
+        content: 'The path is less than 10 seconds long and will not be saved.',
+      });
+      return;
+    }
 
     Modal.confirm({
       centered: true,
       title: 'Do you want to save this path?',
       onOk: () => {
-        addPath(positions);
+        const startCoordinates = positions[0];
+        const endCoordinates = positions[positions.length - 1];
+
+        // 使用逆地理编码服务获取开始点的地址
+        Geocode.fromLatLng(startCoordinates.lat, startCoordinates.lng)
+          .then((response) => {
+            const startAddress = response.results[0].formatted_address;
+
+            // 使用逆地理编码服务获取结束点的地址
+            Geocode.fromLatLng(endCoordinates.lat, endCoordinates.lng)
+              .then((response) => {
+                const endAddress = response.results[0].formatted_address;
+
+                const pathData = {
+                  path: positions,
+                  startTime: startTime,
+                  endTime: endTime,
+                  duration: duration,
+                  startAddress: startAddress,
+                  endAddress: endAddress,
+                };
+                addPath(pathData);
+              })
+              .catch((error) => {
+                console.error("Error geocoding end coordinates:", error);
+              });
+          })
+          .catch((error) => {
+            console.error("Error geocoding start coordinates:", error);
+          });
       },
       // No action on cancel, as we just close the modal
     });
@@ -333,14 +379,14 @@ export default function Map() {
 
   const handleShareScreenshot = async () => {
     setIsTakingScreenshot(true);
-  
+
     const mapContainer = document.querySelector('.map-container');
-  
+
     html2canvas(mapContainer, { useCORS: true, allowTaint: true }).then((canvas) => {
       const blob = canvas.toBlob((blob) => {
         if (blob) {
           const file = new File([blob], 'screenshot.png', { type: 'image/png' });
-  
+
           if (navigator.share) {
             // Share the screenshot using the Web Share API
             navigator.share({
@@ -352,12 +398,12 @@ export default function Map() {
         } else {
           console.error('Failed to generate screenshot blob.');
         }
-  
+
         setIsTakingScreenshot(false);
       });
     });
   };
-  
+
   if (!isLoaded) return <div>Loading..</div>
 
   return (
@@ -367,12 +413,6 @@ export default function Map() {
           center={mapCenter}
           zoom={mapZoom}
           mapContainerClassName="map-container"
-          // Problem: Cannot show the map's detail in the screenshot when enable mapId
-          // options={{
-          //   mapId: mapId,
-          //   fullscreenControl: false, // 添加这一行来隐藏全屏控件
-          //   streetViewControl: false,
-          // }}
           options={{
             fullscreenControl: false,
             streetViewControl: false,

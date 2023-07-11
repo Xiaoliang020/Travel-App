@@ -10,23 +10,22 @@ function App() {
   const [savedPaths, setSavedPaths] = useState([]);
   const [displayedPath, setDisplayedPath] = useState([]);
   const [theme, setTheme] = useState('default');
-  
-  const outlet = useRoutes(router)
+
+  const outlet = useRoutes(router);
+
+  const addPath = (pathData) => {
+    setSavedPaths((currentPaths) => [...currentPaths, pathData]);
+  };
+
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}> 
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       <SavedPathsContext.Provider value={{
         savedPaths,
-        addPath: (path) => setSavedPaths((currentPaths) => [...currentPaths, path]),
+        addPath,
         displayedPath,
         setDisplayedPath,
       }}>
         <div className="App">
-          {/* <Link to="/home">Home</Link> 
-          <Link to="/settings">Settings</Link>
-          <Link to="/community">Community</Link> */}
-
-          {/* Used to show components */}
-          {/* <Outlet></Outlet> */}
           {outlet}
         </div>
       </SavedPathsContext.Provider>

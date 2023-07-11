@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
-import { useContext } from 'react';
+import React, { useState, useContext } from 'react';
+import { Table, Modal } from 'antd';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
 import { useNavigate } from 'react-router-dom';
-import { Table, Modal } from 'antd';
-
 
 
 export default function Settings() {
@@ -12,6 +10,10 @@ export default function Settings() {
     const { theme, setTheme } = useContext(ThemeContext);
     const navigate = useNavigate();
 
+    const handleDisplayPath = (path) => {
+        setDisplayedPath(path);
+        navigate('/map');
+    };
 
     const handleThemeChange = (e) => {
         const newTheme = e.target.value;
@@ -26,33 +28,60 @@ export default function Settings() {
             key: 'key',
         },
         {
-            title: 'Path Details',
-            dataIndex: 'details',
-            key: 'details',
+            title: 'Start place & time',
+            dataIndex: 'start',
+            key: 'start',
             render: (text, record) => (
                 <div>
-                    {record.path.map((point, index) => (
-                        <p key={index}>Point {index + 1}: {point.lat}, {point.lng}</p>
-                    ))}
+                    <p>开始时间: {record.startTime.toString()}</p>
+                    <p>开始地点: {record.startAddress}</p>
                 </div>
+            ),
+        },
+        {
+            title: 'End place & time',
+            dataIndex: 'end',
+            key: 'end',
+            render: (text, record) => (
+                <div>
+                    <p>结束时间: {record.endTime.toString()}</p>
+                    <p>结束地点: {record.endAddress}</p>
+                </div>
+            ),
+        },
+        {
+            title: 'Duration',
+            dataIndex: 'duration',
+            key: 'duration',
+            render: (text, record) => (
+                <div>{formatDuration(record.duration)}</div>
             ),
         },
         {
             title: 'Action',
             key: 'action',
             render: (text, record) => (
-                <button onClick={() => {
-                    setDisplayedPath(record.path);
-                    navigate('/map');
-                }}>Display on map</button>
+                <button onClick={() => handleDisplayPath(record.path)}>Display on map</button>
             ),
         },
     ];
 
+    const formatDuration = (duration) => {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor((duration % 3600) / 60);
+        const seconds = Math.round(duration % 60);
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    };
+
     // Define the data for the table
     const data = savedPaths.map((path, index) => ({
         key: index + 1,
-        path: path,
+        path: path.path,
+        startTime: path.startTime,
+        endTime: path.endTime,
+        duration: path.duration,
+        startAddress: path.startAddress,
+        endAddress: path.endAddress,
     }));
 
     return (
