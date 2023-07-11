@@ -4,9 +4,10 @@ export default function HelloWorld() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    fetch('/api/hello')
+    fetch('/hello')
       .then(response => response.text())
-      .then(data => setMessage(data));
+      .then(data => setMessage(data))
+      .catch(error => console.error('Error:', error));
   }, []);
 
   return <div>{message}</div>;
