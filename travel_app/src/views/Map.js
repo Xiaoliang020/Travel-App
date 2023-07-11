@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
 import '../App.css';
-import { FloatButton, Button, Tooltip, Modal } from 'antd';
+import { FloatButton, Button, Tooltip, Modal, Input, Upload, message } from 'antd';
 import { useContext } from 'react';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
 import { PlayCircleOutlined, StopOutlined, CompassOutlined, EyeOutlined, EyeInvisibleOutlined, PlusOutlined, ClearOutlined, DownloadOutlined, ShareAltOutlined } from '@ant-design/icons';
 import html2canvas from 'html2canvas';
-
+import { UploadOutlined } from '@ant-design/icons';
+import { LoadingOutlined} from '@ant-design/icons';
 
 export default function Map() {
   const [positions, setPositions] = useState([]);
@@ -18,6 +19,11 @@ export default function Map() {
   const [isPathsVisible, setIsPathsVisible] = useState(true);
   const [mapCenter, setMapCenter] = useState(null);
   const [mapZoom, setMapZoom] = useState(14);
+  const [inputText, setInputText] = useState('');
+  const [markerIcon, setMarkerIcon] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState();
 
   const { addPath, displayedPath, setDisplayedPath } = useContext(SavedPathsContext);
   const { theme } = useContext(ThemeContext);
@@ -26,7 +32,7 @@ export default function Map() {
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
   });
 
-  const mapId = theme === 'default' ? '17e23ad9dc98cd76' : '965d3fbc319fcf57';
+  // const mapId = theme === 'default' ? '17e23ad9dc98cd76' : '965d3fbc319fcf57';
 
   const [isTakingScreenshot, setIsTakingScreenshot] = useState(false);
   
@@ -55,6 +61,37 @@ export default function Map() {
     ],
   };
 
+
+  const uploadButton = (
+    <div>
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+  
+  const beforeUpload = (file) => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    if (!isJpgOrPng) {
+      message.error('You can only upload JPG/PNG file!');
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('Image must smaller than 2MB!');
+    }
+    return isJpgOrPng && isLt2M;
+  };
+  
+  const handleChange = (info) => {
+    if (info.file.status === 'uploading') {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === 'done') {
+      // Get this url from response in real world.
+      setImageUrl(URL.createObjectURL(info.file.originFileObj));
+      setLoading(false);
+    }
+  };
 
 
   function getLocation (){
@@ -201,6 +238,22 @@ export default function Map() {
     });
   };
 
+  const handleMarkerClick = () => {
+    Modal.confirm({
+      title: 'Input Something',
+      content: (
+        <Input
+          placeholder="Input something..."
+          defaultValue={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+        />
+      ),
+      onOk: (close) => {
+        close();
+      },
+    });
+  };
+  
 
   // Group positions by pathId
   const positionByPathId = positions.reduce((acc, position) => {
@@ -221,6 +274,37 @@ export default function Map() {
 
   const handleAddPoint = () => {
     const { lat, lng } = currentPosition;
+
+    Modal.confirm({
+      title: 'Set a New Marker',
+      content: (
+        <div>
+          <Input
+          placeholder="Input something..."
+          defaultValue={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+        />
+
+          <Upload
+            name="avatar"
+            listType="picture-card"
+            className="avatar-uploader"
+            showUploadList={false}
+            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+            beforeUpload={beforeUpload}
+            onChange={handleChange}
+          >
+            {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+          
+          </Upload>
+        </div>
+      ),
+      onOk: (close) => {
+        close();
+      },
+    });
+
+
     const newMarker = {
       lat,
       lng,
@@ -274,7 +358,6 @@ export default function Map() {
     });
   };
   
-
   if (!isLoaded) return <div>Loading..</div>
 
   return (
@@ -325,9 +408,8 @@ export default function Map() {
               key={index}
               position={position}
               visible = {position.type === 'custom'}
-              icon={position.type === 'custom' ? {
-                url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/info-i_maps.png'
-              } : null}
+              icon={position.type === 'custom' ? markerIcon : null}
+              onClick={handleMarkerClick}
             />
           ))}
         </GoogleMap>
