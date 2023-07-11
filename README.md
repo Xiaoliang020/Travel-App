@@ -1,7 +1,15 @@
 # Travel-App
-Travel App for SIE
+Travel App for travelers to record their paths and save impressive places
 
 ## How to run the project
+
+### backend
+```bash
+cd back-end
+mvn clean
+mvn site
+mvn exec:exec
+```
 
 ### frontend
 
@@ -10,4 +18,4 @@ cd travel_app
 npm install
 npm start
 ```
-Add a .env.local file in travel_app folder to specify your Google Map API key before run the app
+Note: Add a .env.local file in travel_app folder to specify your Google Map API key before run the app
