@@ -10,6 +10,7 @@ import html2canvas from 'html2canvas';
 import Geocode from "react-geocode";
 import { LoadingOutlined} from '@ant-design/icons';
 import myImg from '../picture/1.jpg';
+import myImg2 from '../picture/2.jpg';
 
 export default function Map() {
   const [positions, setPositions] = useState([]);
@@ -24,7 +25,7 @@ export default function Map() {
   const [endTime, setEndTime] = useState(null);
 
   const [inputText, setInputText] = useState('');
-  const [markerIcon, setMarkerIcon] = useState(null);
+  const [markerIcon, setMarkerIcon] = useState(1);
 
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState();
@@ -356,14 +357,6 @@ export default function Map() {
           defaultValue={inputText}
           onChange={(e) => setInputText(e.target.value)}
         />
-          {/* <Modal 
-            open = {previewOpen} 
-            title = 'The Marker Preview'
-            footer = {null}
-            onCancel ={handleCancel}
-          >
-            <img alt="example" style={{ width: '100%' }} src={previewImage} />
-          </Modal> */}
         </div>
       ),
       onOk: (close) => {
@@ -374,11 +367,18 @@ export default function Map() {
           lng,
           type: "custom",
           id: Date.now(), // Assign a unique ID to the marker
-          icon: 'travel_app/src/picture/IMG_7383.JPG'
+          icon:  markerIcon === 1 ? myImg : myImg2
         };
     
         setPositions((prevPositions) => [...prevPositions, newMarker]);
         console.log("Add an information point");
+
+        if (markerIcon === 1){
+          setMarkerIcon(2);
+        }  else {
+          setMarkerIcon(1);
+        }
+    
       },
     });
   };
@@ -469,9 +469,10 @@ export default function Map() {
               key={index}
               position={position}
               visible = {position.type === 'custom'}
-              icon={ position.type === 'custom' ? {
-                  url: myImg,
-                } : null}
+              icon = {position.icon}
+              // icon={ position.type === 'custom' ? {
+              //     url: myImg,
+              //   } : null}
               onClick={handleMarkerClick}
             />
           ))}
