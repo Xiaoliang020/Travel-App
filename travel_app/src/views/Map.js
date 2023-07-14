@@ -9,6 +9,7 @@ import { PlayCircleOutlined, StopOutlined, CompassOutlined, EyeOutlined, EyeInvi
 import html2canvas from 'html2canvas';
 import Geocode from "react-geocode";
 import { LoadingOutlined} from '@ant-design/icons';
+import myImg from '../picture/1.jpg';
 
 export default function Map() {
   const [positions, setPositions] = useState([]);
@@ -43,6 +44,7 @@ export default function Map() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
+  const [uploadedFiles, setUploadedFiles] = useState([]);
 
   const handleCancel = () => setPreviewOpen(false);
 
@@ -96,14 +98,14 @@ export default function Map() {
     </div>
   );
   
-  const handleChange = (info) => {
-    if (info.file.status === 'uploading') {
+  const handleChange = ({ file, fileList: newFileList }) => {
+    if (file.status === 'uploading') {
       setLoading(true);
       return;
     }
-    if (info.file.status === 'done') {
+    if (file.status === 'done') {
       // Get this url from response in real world.
-      setImageUrl(URL.createObjectURL(info.file.originFileObj));
+      setImageUrl(URL.createObjectURL(file.originFileObj));
       setLoading(false);
     }
   };
@@ -332,14 +334,14 @@ export default function Map() {
   const handleAddPoint = () => {
     const { lat, lng } = currentPosition;
 
-    Modal.confirm({
+    Modal.confirm({ 
       title: 'Set a New Marker',
       content: (
         <div>
           Marker icon:
           <Upload
             listType="picture-circle"
-            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+            //action = "../picture/IMG_7383.JPG"
             onPreview={handlePreview}
             onChange={handleChange}
           >
@@ -354,33 +356,31 @@ export default function Map() {
           defaultValue={inputText}
           onChange={(e) => setInputText(e.target.value)}
         />
-
-
-          <Modal 
+          {/* <Modal 
             open = {previewOpen} 
             title = 'The Marker Preview'
             footer = {null}
             onCancel ={handleCancel}
           >
             <img alt="example" style={{ width: '100%' }} src={previewImage} />
-          </Modal>
+          </Modal> */}
         </div>
       ),
       onOk: (close) => {
         close();
+
+        const newMarker = {
+          lat,
+          lng,
+          type: "custom",
+          id: Date.now(), // Assign a unique ID to the marker
+          icon: 'travel_app/src/picture/IMG_7383.JPG'
+        };
+    
+        setPositions((prevPositions) => [...prevPositions, newMarker]);
+        console.log("Add an information point");
       },
     });
-
-
-    const newMarker = {
-      lat,
-      lng,
-      type: "custom",
-      id: Date.now(), // Assign a unique ID to the marker
-    };
-
-    setPositions((prevPositions) => [...prevPositions, newMarker]);
-    console.log("Add an information point");
   };
 
   const handleScreenshot = async () => {
@@ -469,7 +469,9 @@ export default function Map() {
               key={index}
               position={position}
               visible = {position.type === 'custom'}
-              icon={position.type === 'custom' ? markerIcon : null}
+              icon={ position.type === 'custom' ? {
+                  url: myImg,
+                } : null}
               onClick={handleMarkerClick}
             />
           ))}
