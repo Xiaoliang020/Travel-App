@@ -24,7 +24,7 @@ const withLoadingComponent = (comp) => (
 const routes = [
     {
         path: '/',
-        element: <Navigate to="/map" />
+        element: <Navigate to="/login" />
     },
     {
         path: "/",
