@@ -10,6 +10,7 @@ mvn clean
 mvn site
 mvn exec:exec
 ```
+Note: Create a .env file in back-end/src/main/resources to add your MongoDB information
 
 ### frontend
 
