@@ -7,13 +7,15 @@ import Home from "../views/Home"
 import { Navigate } from "react-router-dom"
 
 // lazy loading
-const Community = lazy(()=>import("../views/Community"))
-const Settings = lazy(()=>import("../views/Settings"))
-const Location = lazy(()=>import("../views/Location"))
-const Map = lazy(()=>import("../views/Map"))
-const HelloWorld = lazy(()=>import("../views/HelloWorld"))
+const Community = lazy(() => import("../views/Community"))
+const Settings = lazy(() => import("../views/Settings"))
+const Location = lazy(() => import("../views/Location"))
+const Map = lazy(() => import("../views/Map"))
+const HelloWorld = lazy(() => import("../views/HelloWorld"))
+const Login = lazy(() => import("../views/Login"))
+const Register = lazy(() => import("../views/Register"))
 
-const withLoadingComponent = (comp) =>(
+const withLoadingComponent = (comp) => (
     <React.Suspense fallback={<div>Loading...</div>}>
         {comp}
     </React.Suspense>
@@ -21,35 +23,47 @@ const withLoadingComponent = (comp) =>(
 
 const routes = [
     {
-        path:'/',
-        element: <Navigate to="/map"/>
+        path: '/',
+        element: <Navigate to="/map" />
     },
     {
-        path:"/",
+        path: "/",
         element: <Home />,
-        children:[
+        children: [
             {
-                path:"/settings",
+                path: "/settings",
                 element: withLoadingComponent(<Settings />)
             },
             {
-                path:"/community",
+                path: "/community",
                 element: withLoadingComponent(<Community />)
             },
             {
-                path:"/location",
+                path: "/location",
                 element: withLoadingComponent(<Location />)
             },
             {
-                path:"/map",
+                path: "/map",
                 element: withLoadingComponent(<Map />)
             },
             {
-                path:"/helloworld",
+                path: "/helloworld",
                 element: withLoadingComponent(<HelloWorld />)
-            }
+            },
         ]
-    }
+    },
+    {
+        path: "/login",
+        element: <Login />,
+    },
+    {
+        path: "/register",
+        element: <Register />,
+    },
+    {
+        path: "*",
+        element: <Navigate to="/" />,
+    },
     // {
     //     path:'/home',
     //     element: <Home />

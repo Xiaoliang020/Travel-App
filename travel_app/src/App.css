@@ -32,6 +32,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -55,7 +56,8 @@
   position: absolute;
   top: 10px;
   left: 50%;
-  transform: translateX(-50%); /* 这个用于使元素居中对齐 */
+  transform: translateX(-50%);
+  /* 这个用于使元素居中对齐 */
 }
 
 
@@ -71,15 +73,18 @@
   margin-top: 5px;
   margin-bottom: 5px;
   padding: 5px 10px;
-  background-color: #c62828; /* red */
-  color: #ffffff; /* white */
+  background-color: #c62828;
+  /* red */
+  color: #ffffff;
+  /* white */
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .clear-button:hover {
-  background-color: #b71c1c; /* darker red */
+  background-color: #b71c1c;
+  /* darker red */
 }
 
 .clear-button:disabled {
@@ -114,4 +119,35 @@
   width: 128px;
   height: 128px;
   border-radius: 50%;
+}
+
+/* #poster {
+  background-position: center;
+  height: 100%;
+  width: 100%;
+  background-size: cover;
+  position: fixed;
+}
+
+Typography {
+  margin: 0px;
+  padding: 0px;
+} */
+
+.login-form {
+  border-radius: 15px;
+  background-clip: padding-box;
+  margin: 90px auto;
+  width: 350px;
+  padding: 35px 35px 35px 35px;
+  background: #fff;
+  border: 1px solid #eaeaea;
+  box-shadow: 0 0 25px #cac6c6;
+}
+
+.login_title {
+  margin: 0px auto 40px auto;
+  text-align: center;
+  color: #505458;
+  font-size: 24px;
 }

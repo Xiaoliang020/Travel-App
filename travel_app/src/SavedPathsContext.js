@@ -2,7 +2,8 @@ import React, { createContext } from 'react';
 
 const SavedPathsContext = createContext({
     savedPaths: [],
-    addPath: () => { },
+    addPath: () => {},
+    deletePath: () => {},
 });
 
 export default SavedPathsContext;

@@ -1,18 +1,31 @@
 import React, { useState, useContext } from 'react';
-import { Table, Modal } from 'antd';
+import { Table, Modal, Button } from 'antd';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
 import { useNavigate } from 'react-router-dom';
 
 
 export default function Settings() {
-    const { savedPaths, setDisplayedPath } = useContext(SavedPathsContext);
+    const { savedPaths, setDisplayedPath, deletePath } = useContext(SavedPathsContext);
     const { theme, setTheme } = useContext(ThemeContext);
     const navigate = useNavigate();
 
     const handleDisplayPath = (path) => {
         setDisplayedPath(path);
         navigate('/map');
+    };
+
+    const handleDeletePath = (pathId) => {
+        Modal.confirm({
+            centered: true,
+            title: 'Confirm Deletion',
+            content: 'Are you sure you want to delete this path?',
+            onOk: () => {
+                deletePath(pathId);
+                console.log(`Delete button clicked for path with ID ${pathId}`);
+                console.log(`Current number of saved paths is ${savedPaths.length}`);
+            },
+        });
     };
 
     const handleThemeChange = (e) => {
@@ -61,7 +74,10 @@ export default function Settings() {
             title: 'Action',
             key: 'action',
             render: (text, record) => (
-                <button onClick={() => handleDisplayPath(record.path)}>Display on map</button>
+                <div>
+                    <Button onClick={() => handleDisplayPath(record.path)}>Display on map</Button>
+                    <Button onClick={() => handleDeletePath(record.key)}>Delete</Button>
+                </div>
             ),
         },
     ];

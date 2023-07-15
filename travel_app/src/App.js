@@ -17,11 +17,20 @@ function App() {
     setSavedPaths((currentPaths) => [...currentPaths, pathData]);
   };
 
+  const deletePath = (pathId) => {
+    const updatedPaths = savedPaths.filter((path) => path.key !== pathId);
+    setSavedPaths(updatedPaths);
+    console.log(`Deleted path with ID ${pathId}`);
+    console.log(`Current number of updated paths is ${updatedPaths.length}`);
+    console.log(`Current number of saved paths is ${savedPaths.length}`);
+  };
+
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
       <SavedPathsContext.Provider value={{
         savedPaths,
         addPath,
+        deletePath,
         displayedPath,
         setDisplayedPath,
       }}>

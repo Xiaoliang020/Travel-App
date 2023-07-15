@@ -239,7 +239,7 @@ export default function Map() {
   const handleStartTracking = () => {
     setPositions([]); // clear positions before a new tracking
     setTrackingEnabled(true);
-    setPathId(pathId + 1);
+    setPathId(prevPathId => prevPathId + 1); // 使用回调函数更新 pathId
     console.log("Start tracking");
   };
 
