@@ -1,4 +1,4 @@
-import { notification, Button, Checkbox, Form, Input, Space } from 'antd';
+import { Button, Checkbox, Form, Input, message } from 'antd';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useState, startTransition } from 'react';
@@ -10,10 +10,7 @@ export default function Login() {
     // 提交表单且数据验证成功后回调事件
     const onFinish = (values) => {
         console.log('Received values of form: ', values);
-        notification.success({
-            message: 'Success',
-            description: 'You have successfully logged in.',
-        });
+        message.success('You have successfully logged in.');
         navigate('/map');
     };
 

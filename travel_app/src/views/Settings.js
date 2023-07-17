@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Table, Modal, Button, Card, Row, Col } from 'antd';
+import { Table, Modal, Button, Card, Row, Col, message } from 'antd';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +32,7 @@ export default function Settings() {
 
     const handleThemeChange = (newTheme) => {
         setTheme(newTheme);
+        message.success('Theme switched successfully!');
     };
 
     // Define the columns for the table
