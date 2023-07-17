@@ -8,6 +8,7 @@ import {
 } from 'antd';
 import React, { startTransition } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const { Option } = Select;
 
@@ -41,9 +42,27 @@ export default function Register() {
 
     const onFinish = (values) => {
         console.log('Received values of form: ', values);
-        message.success('Registration success! Log in now!')
-        startTransition(() => {
-            navigate('/login');
+        // Make an HTTP POST request to the backend
+        axios.post('/api/register', values)
+        .then((response) => {
+            // Check the response code
+            if (response.data.code === '0') {
+                // Registration successful
+                console.log('Registration successful!', response.data);
+                message.success('Registration success! Log in now!');
+                startTransition(() => {
+                    navigate('/login');
+                });
+            } else if (response.data.code === '-1') {
+                // Registration failed due to user already existing
+                console.error('Registration failed:', response.data.message);
+                message.error('User already exists. Please choose a different email.');
+            }
+        })
+        .catch((error) => {
+            // Handle network or other errors
+            console.error('Registration failed:', error);
+            message.error('Registration failed. Please try again later.');
         });
     };
 

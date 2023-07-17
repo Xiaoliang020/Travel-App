@@ -1,7 +1,6 @@
 package com.travelapp.model;
 
 import lombok.Data;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,6 +11,6 @@ public class User {
     private String id;
     private String username;
     private String password;
-
-    // Constructors, getters, and setters
+    private String email;
+    private String gender;
 }
