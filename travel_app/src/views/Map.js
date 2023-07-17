@@ -16,7 +16,7 @@ export default function Map() {
   const [positions, setPositions] = useState([]);
   const [trackingEnabled, setTrackingEnabled] = useState(false); // State to track whether geolocation tracking is enabled
   const [pathId, setPathId] = useState(0);
-  // const [clearedPaths, setClearedPaths] = useState([]); // State to store cleared paths, probably needed for future features
+  const [markers, setMarkers] = useState([]);
   const [currentPosition, setCurrentPositions] = useState({ lat: null, lng: null });
   const [isPathsVisible, setIsPathsVisible] = useState(true);
   const [mapCenter, setMapCenter] = useState(null);
@@ -238,6 +238,7 @@ export default function Map() {
 
   const handleStartTracking = () => {
     setPositions([]); // clear positions before a new tracking
+    setMarkers([]);
     setTrackingEnabled(true);
     setPathId(prevPathId => prevPathId + 1); // 使用回调函数更新 pathId
     console.log("Start tracking");
@@ -324,6 +325,7 @@ export default function Map() {
   const handleClearPaths = () => {
     // setClearedPaths(positions);
     setPositions([]);
+    setMarkers([]);
     setPathId(0);
     setDisplayedPath([]);
   }
@@ -370,7 +372,7 @@ export default function Map() {
           icon:  markerIcon === 1 ? myImg : myImg2
         };
     
-        setPositions((prevPositions) => [...prevPositions, newMarker]);
+        setMarkers((prevPositions) => [...prevPositions, newMarker]);
         console.log("Add an information point");
 
         if (markerIcon === 1){
@@ -446,7 +448,6 @@ export default function Map() {
               path={pathPositions}
               options={{
                 strokeColor: '#0000FF',
-                // strokeColor: parseInt(pathId) % 2 === 0 ? '#0000FF' : '#00FF00',
                 strokeOpacity: 1.0,
                 strokeWeight: 5,
               }}
@@ -464,15 +465,12 @@ export default function Map() {
             />
           )}
 
-          {positions.map((position, index) => (
+          {markers.map((position, index) => (
             <MarkerF
               key={index}
               position={position}
               visible = {position.type === 'custom'}
               icon = {position.icon}
-              // icon={ position.type === 'custom' ? {
-              //     url: myImg,
-              //   } : null}
               onClick={handleMarkerClick}
             />
           ))}
