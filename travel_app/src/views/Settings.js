@@ -1,14 +1,16 @@
 import React, { useState, useContext } from 'react';
-import { Table, Modal, Button } from 'antd';
+import { Table, Modal, Button, Card, Row, Col } from 'antd';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
 import { useNavigate } from 'react-router-dom';
-
+import defaultImage from '../picture/Default.png'
+import nightImage from '../picture/Night.png'
 
 export default function Settings() {
     const { savedPaths, setDisplayedPath, deletePath } = useContext(SavedPathsContext);
     const { theme, setTheme } = useContext(ThemeContext);
     const navigate = useNavigate();
+    const { Meta } = Card;
 
     const handleDisplayPath = (path) => {
         setDisplayedPath(path);
@@ -28,8 +30,7 @@ export default function Settings() {
         });
     };
 
-    const handleThemeChange = (e) => {
-        const newTheme = e.target.value;
+    const handleThemeChange = (newTheme) => {
         setTheme(newTheme);
     };
 
@@ -46,8 +47,8 @@ export default function Settings() {
             key: 'start',
             render: (text, record) => (
                 <div>
-                    <p>开始时间: {record.startTime.toString()}</p>
-                    <p>开始地点: {record.startAddress}</p>
+                    <p>Time: {record.startTime.toString()}</p>
+                    <p>Place: {record.startAddress}</p>
                 </div>
             ),
         },
@@ -57,8 +58,8 @@ export default function Settings() {
             key: 'end',
             render: (text, record) => (
                 <div>
-                    <p>结束时间: {record.endTime.toString()}</p>
-                    <p>结束地点: {record.endAddress}</p>
+                    <p>Time: {record.endTime.toString()}</p>
+                    <p>Place: {record.endAddress}</p>
                 </div>
             ),
         },
@@ -102,19 +103,43 @@ export default function Settings() {
 
     return (
         <div>
-            <h2>Saved Paths</h2>
+            <div>
+                <Card title="Saved Paths">
+                    
+                    {/* Add the table here */}
+                    <Table columns={columns} dataSource={data} />
+                </Card>
+            </div>
 
-            {/* Add the table here */}
-            <Table columns={columns} dataSource={data} />
+            <div>
+                <Card title="Select Theme">
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Card
+                                hoverable
+                                style={{ flex: 1 }}
+                                cover={<img src={defaultImage} alt="Default Mode" />}
+                                onClick={() => handleThemeChange('default')}
+                            >
+                                <Meta title="Default Mode" />
+                            </Card>
 
+                        </Col>
+                        <Col span={12}>
+                            <Card
+                                hoverable
+                                style={{ flex: 1 }}
+                                cover={<img src={nightImage} alt="Night Mode" />}
+                                onClick={() => handleThemeChange('dark')}
+                            >
+                                <Meta title="Night Mode" />
+                            </Card>
 
-            <label>Select Theme:</label>
-            <select value={theme} onChange={handleThemeChange}>
-                <option value="default">Default</option>
-                <option value="Night Mode">Dark</option>
+                        </Col>
+                    </Row>
 
-                {/* 添加其他主题选项 */}
-            </select>
+                </Card>
+            </div>
         </div>
     );
 }
