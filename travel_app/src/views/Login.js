@@ -1,16 +1,19 @@
-import { Typography, Button, Checkbox, Form, Input, Space } from 'antd';
+import { Button, Checkbox, Form, Input, message } from 'antd';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { startTransition } from 'react';
+import { useState, startTransition } from 'react';
 import '../App.css';
 
 export default function Login() {
     const navigate = useNavigate();
+
     // 提交表单且数据验证成功后回调事件
     const onFinish = (values) => {
         console.log('Received values of form: ', values);
+        message.success('You have successfully logged in.');
         navigate('/map');
     };
+
     const handleRegisterClick = () => {
         startTransition(() => {
             navigate('/register');
@@ -57,7 +60,7 @@ export default function Login() {
                 <Button block type="primary" htmlType="submit" className="login-form-button">
                     Log in
                 </Button>
-                <br/>
+                <br />
                 Or
                 <a onClick={handleRegisterClick}> Register now!</a>
             </Form.Item>
