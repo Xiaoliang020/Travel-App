@@ -12,8 +12,6 @@ import com.travelapp.common.Result;
 import com.travelapp.model.User;
 import com.travelapp.repository.UserRepository;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api")
 public class UserController {
@@ -24,22 +22,27 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-    
     @PostMapping("/register")
     public Result<?> register(@RequestBody User user) {
-        // Check if the user already exists in the database based on the email (assuming email is unique)
-        User existingUser = userRepository.findByEmail(user.getEmail());
+        // Check if the user already exists in the database based on the email and username
+        User existingEmail = userRepository.findByEmail(user.getEmail());
+        User existingUsername = userRepository.findByUsername(user.getUsername());
 
-        if (existingUser != null) {
-            return Result.error("-1", "User already exists");
+        if (existingEmail != null) {
+            return Result.error("-1", "The email already exists");
+        }
+
+        if (existingUsername != null) {
+            return Result.error("-1", "The username already exists");
         }
 
         // Save the user in the database
         userRepository.save(user);
         return Result.success();
     }
+
+    // @PostMapping("/login")
+    // public Result<?> login(@RequestBody User user) {
+    //     return Result.success();
+    // }
 }

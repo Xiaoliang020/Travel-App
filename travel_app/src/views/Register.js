@@ -55,8 +55,12 @@ export default function Register() {
                 });
             } else if (response.data.code === '-1') {
                 // Registration failed due to user already existing
-                console.error('Registration failed:', response.data.message);
-                message.error('User already exists. Please choose a different email.');
+                console.error('Registration failed:', response.data.msg);
+                if (response.data.msg === 'The email already exists') {
+                    message.error('This email has been registered. Please choose a different email.');
+                } else if (response.data.msg === 'The username already exists') {
+                    message.error('Username already exists. Please choose a different username.');
+                }
             }
         })
         .catch((error) => {
