@@ -3,6 +3,7 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useState, startTransition } from 'react';
 import '../App.css';
+import axios from 'axios';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -10,8 +11,26 @@ export default function Login() {
     // 提交表单且数据验证成功后回调事件
     const onFinish = (values) => {
         console.log('Received values of form: ', values);
-        message.success('You have successfully logged in.');
-        navigate('/map');
+        // Make an HTTP POST request to the backend
+        axios.post('/api/login', values)
+        .then((response) => {
+            // Check the response code
+            if (response.data.code === '0') {
+                // Login successful!
+                console.log('Login successful!', response.data);
+                message.success('You have successfully logged in.');
+                navigate('/map');
+            } else if (response.data.code === '-1') {
+                // Login failed
+                console.error('Login failed:', response.data.msg);
+                message.error('Invalid username or password. Please try again.');
+            }
+        })
+        .catch((error) => {
+            // Handle network or other errors
+            console.error('Login failed:', error);
+            message.error('Login failed. Please try again later.');
+        });
     };
 
     const handleRegisterClick = () => {

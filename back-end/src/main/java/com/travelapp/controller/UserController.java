@@ -41,8 +41,20 @@ public class UserController {
         return Result.success();
     }
 
-    // @PostMapping("/login")
-    // public Result<?> login(@RequestBody User user) {
-    //     return Result.success();
-    // }
+    @PostMapping("/login")
+    public Result<?> login(@RequestBody User user) {
+        // Find the user in the database based on the username
+        User existingUser = userRepository.findByUsername(user.getUsername());
+
+        // Check if user exists
+        if (existingUser == null) {
+            return Result.error("-1", "Invalid username or password");
+        }
+
+        // Check if the provided password matches the password
+        if (!existingUser.getPassword().equals(user.getPassword())) {
+            return Result.error("-1", "Invalid username or password");
+        }
+        return Result.success();
+    }
 }
