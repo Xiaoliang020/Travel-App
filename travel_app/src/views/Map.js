@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
 import '../App.css';
 import { FloatButton, Button, Tooltip, Modal, Input, Upload, message } from 'antd';
@@ -23,8 +23,9 @@ export default function Map() {
   const [mapZoom, setMapZoom] = useState(14);
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
+  const [markerName, setMarkerName] = useState(1);
 
-  const [inputText, setInputText] = useState('');
+  const inputText = useRef("");
   const [markerIcon, setMarkerIcon] = useState(1);
 
   const [loading, setLoading] = useState(false);
@@ -299,17 +300,31 @@ export default function Map() {
     });
   };
 
-  const handleMarkerClick = () => {
+  // TODO
+  const handleMarkerClick = (marker) => {
+    console.log("marker text is:" + marker.text)
     Modal.confirm({
       title: 'The comment you left in this place',
       content: (
         <Input
           placeholder="Input something..."
-          defaultValue={inputText}
-          onChange={(e) => setInputText(e.target.value)}
+          defaultValue={marker.text}
+          onChange={(e) => inputText.current = e.target.value}
         />
       ),
       onOk: (close) => {
+
+        const newMarker = {
+          lat: marker.lat,
+          lng: marker.lng,
+          type: "custom",
+          id: marker.id, // Assign a unique ID to the marker
+          name: marker.name,
+          text: inputText.current,
+          icon:  marker.icon
+        };
+
+        setMarkers(markers.map(m => m === marker ? newMarker : m))
         close();
       },
     });
@@ -326,6 +341,7 @@ export default function Map() {
     // setClearedPaths(positions);
     setPositions([]);
     setMarkers([]);
+    setMarkerName(1);
     setPathId(0);
     setDisplayedPath([]);
   }
@@ -334,6 +350,7 @@ export default function Map() {
     setIsPathsVisible(!isPathsVisible);
   };
 
+  //TODO
   const handleAddPoint = () => {
     const { lat, lng } = currentPosition;
 
@@ -344,7 +361,6 @@ export default function Map() {
           Marker icon:
           <Upload
             listType="picture-circle"
-            //action = "../picture/IMG_7383.JPG"
             onPreview={handlePreview}
             onChange={handleChange}
           >
@@ -356,23 +372,28 @@ export default function Map() {
           
           <Input
           placeholder="Input something..."
-          defaultValue={inputText}
-          onChange={(e) => setInputText(e.target.value)}
+          onChange={(e) => inputText.current = e.target.value}
         />
         </div>
       ),
       onOk: (close) => {
-        close();
 
         const newMarker = {
-          lat,
-          lng,
+          lat: lat,
+          lng: lng,
           type: "custom",
           id: Date.now(), // Assign a unique ID to the marker
+          name: markerName,
+          text: inputText.current,
           icon:  markerIcon === 1 ? myImg : myImg2
         };
-    
-        setMarkers((prevPositions) => [...prevPositions, newMarker]);
+        
+        console.log("inputText is:" + inputText.current);
+        console.log("marker Text is:" + newMarker.text)
+
+
+        setMarkers((prev) => [...prev, newMarker]);
+        setMarkerName(markerName + 1);
         console.log("Add an information point");
 
         if (markerIcon === 1){
@@ -380,7 +401,8 @@ export default function Map() {
         }  else {
           setMarkerIcon(1);
         }
-    
+
+        close();
       },
     });
   };
@@ -465,13 +487,13 @@ export default function Map() {
             />
           )}
 
-          {markers.map((position, index) => (
+          {markers.map((marker, index) => (
             <MarkerF
-              key={index}
-              position={position}
-              visible = {position.type === 'custom'}
-              icon = {position.icon}
-              onClick={handleMarkerClick}
+              key={marker}
+              position={{lat: marker.lat, lng: marker.lng}}
+              visible = {marker.type === 'custom'}
+              icon = {marker.icon}
+              onClick={() => handleMarkerClick(marker)}
             />
           ))}
         </GoogleMap>
