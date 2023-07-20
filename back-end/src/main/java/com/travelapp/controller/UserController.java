@@ -55,6 +55,6 @@ public class UserController {
         if (!existingUser.getPassword().equals(user.getPassword())) {
             return Result.error("-1", "Invalid username or password");
         }
-        return Result.success();
+        return Result.success(existingUser);
     }
 }

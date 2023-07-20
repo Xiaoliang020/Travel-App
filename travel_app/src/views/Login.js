@@ -18,6 +18,10 @@ export default function Login() {
             if (response.data.code === '0') {
                 // Login successful!
                 console.log('Login successful!', response.data);
+
+                // Save the user info to sessionStorage
+                sessionStorage.setItem('user', JSON.stringify(response.data.data));
+
                 message.success('You have successfully logged in.');
                 navigate('/map');
             } else if (response.data.code === '-1') {
