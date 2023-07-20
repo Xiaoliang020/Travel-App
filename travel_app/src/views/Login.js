@@ -22,8 +22,11 @@ export default function Login() {
                 // Save the user info to sessionStorage
                 sessionStorage.setItem('user', JSON.stringify(response.data.data));
 
+                navigate("/map");
                 message.success('You have successfully logged in.');
-                navigate('/map');
+
+                // Refresh the page to update the authentication status
+                window.location.reload();
             } else if (response.data.code === '-1') {
                 // Login failed
                 console.error('Login failed:', response.data.msg);

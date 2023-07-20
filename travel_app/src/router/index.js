@@ -1,7 +1,5 @@
 import React, { lazy } from "react"
-// import Community from "../views/Community"
 import Home from "../views/Home"
-// import Settings from "../views/Settings"
 
 //Navigate redirect component
 import { Navigate } from "react-router-dom"
@@ -21,6 +19,18 @@ const withLoadingComponent = (comp) => (
     </React.Suspense>
 )
 
+const isAuthenticated = () => {
+    // Retrieve the user info from sessionStorage
+    const userStr = sessionStorage.getItem("user") || "{}"
+    const user = JSON.parse(userStr)
+    return !!user.username; // Return true if the user is authenticated, false otherwise
+};
+
+const authRoute = (component) => {
+    const authenticated = isAuthenticated();
+    return authenticated ? withLoadingComponent(component) : withLoadingComponent(<Navigate to="/login"/>);
+};
+
 const routes = [
     {
         path: '/',
@@ -32,23 +42,23 @@ const routes = [
         children: [
             {
                 path: "/settings",
-                element: withLoadingComponent(<Settings />)
+                element: authRoute(<Settings />)
             },
             {
                 path: "/community",
-                element: withLoadingComponent(<Community />)
+                element: authRoute(<Community />)
             },
             {
                 path: "/location",
-                element: withLoadingComponent(<Location />)
+                element: authRoute(<Location />)
             },
             {
                 path: "/map",
-                element: withLoadingComponent(<Map />)
+                element: authRoute(<Map />)
             },
             {
                 path: "/helloworld",
-                element: withLoadingComponent(<HelloWorld />)
+                element: authRoute(<HelloWorld />)
             },
         ]
     },
@@ -64,18 +74,6 @@ const routes = [
         path: "*",
         element: <Navigate to="/" />,
     },
-    // {
-    //     path:'/home',
-    //     element: <Home />
-    // },
-    // {
-    //     path:'settings',
-    //     element: withLoadingComponent(<Settings />)
-    // },
-    // {
-    //     path:'community',
-    //     element: withLoadingComponent(<Community />)
-    // }
 ]
 
 export default routes
