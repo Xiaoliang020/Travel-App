@@ -34,21 +34,9 @@ export default function Paths() {
             title: 'Confirm Deletion',
             content: 'Are you sure you want to delete this path?',
             onOk: () => {
-                console.log(pathId);
-                const data = { pathId }; // Wrap pathId in an object
-                axios.post(`/api/paths-delete`, data)
-                    .then((response) => {
-                        // Check the response code
-                        if (response.data.code === '0') {
-                            // Delete successful
-                            console.log('Delete successful!', response.data);
-                            message.success('Delete success!');
-                            window.location.reload();
-                        } else if (response.data.code === '-1') {
-                            // Delete failed
-                            console.error('Delete failed:', response.data.msg);
-                        }
-                    })
+                // deletePath(pathId);
+                // console.log(`Delete button clicked for path with ID ${pathId}`);
+                // console.log(`Current number of saved paths is ${savedPaths.length}`);
             },
         });
     };
@@ -96,7 +84,7 @@ export default function Paths() {
             render: (text, record) => (
                 <div>
                     <Button onClick={() => handleDisplayPath(record.path)}>Display on map</Button>
-                    <Button onClick={() => handleDeletePath(record.id)}>Delete</Button>
+                    <Button onClick={() => handleDeletePath(record.key)}>Delete</Button>
                 </div>
             ),
         },
@@ -112,7 +100,6 @@ export default function Paths() {
     // Define the data for the table
     const data = paths.map((path, index) => ({
         key: index + 1,
-        id: path.id,
         path: path.path,
         startTime: path.startTime,
         endTime: path.endTime,

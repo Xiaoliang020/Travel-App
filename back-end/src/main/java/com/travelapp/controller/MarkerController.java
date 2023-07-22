@@ -23,6 +23,7 @@ public class MarkerController {
     @PostMapping("/marker-data")
     public Result<?> saveMarkerData(@RequestBody Marker markerData){
         // save the marker info in database
+        System.out.println(markerData.getMarkerLat());
         markerService.saveMarker(markerData);
         return Result.success();
     }
