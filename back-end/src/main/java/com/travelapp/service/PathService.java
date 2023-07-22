@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import com.travelapp.model.Path;
 import com.travelapp.repository.PathRepository;
 
+import java.util.List;
+
 @Service
 public class PathService {
     private final PathRepository pathRepository;
@@ -19,5 +21,7 @@ public class PathService {
         return pathRepository.save(path);
     }
 
-    // Add other service methods as needed
+    public List<Path> getPathsByUserId(String userid) {
+        return pathRepository.findByUserid(userid);
+    }
 }

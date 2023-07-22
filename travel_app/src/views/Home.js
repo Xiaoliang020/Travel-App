@@ -1,5 +1,6 @@
 import {
   HomeOutlined,
+  HistoryOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   TeamOutlined,
@@ -52,7 +53,7 @@ const Home = () => {
               },
               {
                 key: '/paths',
-                icon: <TeamOutlined />,
+                icon: <HistoryOutlined />,
                 label: 'Paths',
               }
             ]}

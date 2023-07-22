@@ -1,15 +1,31 @@
-import React, { useState, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Table, Modal, Button, Card, Row, Col, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import SavedPathsContext from '../SavedPathsContext';
+import axios from 'axios';
 
 export default function Paths() {
     const { savedPaths, setDisplayedPath, deletePath } = useContext(SavedPathsContext);
 
-    console.log(savedPaths);
+    const [paths, setPaths] = useState([]);
+    const navigate = useNavigate();
+    // Get the user info stored in sessionStorage
+    const user = JSON.parse(sessionStorage.getItem("user"));
+
+    useEffect(() => {
+        axios.get(`/api/paths/${user.id}`)
+          .then(response => {
+            console.log(response.data);
+            setPaths(response.data.data);
+          })
+          .catch(error => {
+            console.error('Error retrieving paths:', error);
+          });
+      }, []);
 
     const handleDisplayPath = (path) => {
-        // setDisplayedPath(path);
-        // navigate('/map');
+        setDisplayedPath(path);
+        navigate('/map');
     };
 
     const handleDeletePath = (pathId) => {
@@ -82,7 +98,7 @@ export default function Paths() {
     };
 
     // Define the data for the table
-    const data = savedPaths.map((path, index) => ({
+    const data = paths.map((path, index) => ({
         key: index + 1,
         path: path.path,
         startTime: path.startTime,
