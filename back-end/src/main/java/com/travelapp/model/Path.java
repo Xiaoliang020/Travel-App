@@ -11,7 +11,7 @@ import java.util.List;
 public class Path {
     @Id
     private String id;
-    private List<String> path;
+    private List<Coordinate> path;
     private String startTime;
     private String endTime;
     private int duration;

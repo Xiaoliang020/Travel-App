@@ -9,6 +9,7 @@ import { PlayCircleOutlined, StopOutlined, CompassOutlined, EyeOutlined, EyeInvi
 import html2canvas from 'html2canvas';
 import Geocode from "react-geocode";
 import { LoadingOutlined} from '@ant-design/icons';
+import axios from 'axios';
 import myImg from '../picture/1.jpg';
 import myImg2 from '../picture/2.jpg';
 
@@ -267,6 +268,8 @@ export default function Map() {
       onOk: () => {
         const startCoordinates = positions[0];
         const endCoordinates = positions[positions.length - 1];
+        // Get the user info stored in sessionStorage
+        const user = JSON.parse(sessionStorage.getItem("user"));
 
         // 使用逆地理编码服务获取开始点的地址
         Geocode.fromLatLng(startCoordinates.lat, startCoordinates.lng)
@@ -285,7 +288,22 @@ export default function Map() {
                   duration: duration,
                   startAddress: startAddress,
                   endAddress: endAddress,
+                  userid: user.id
                 };
+                
+                //send pathData to back end
+                axios.post('/api/path-data', pathData)
+                  .then(response => {
+                    // Check the response code
+                    if (response.data.code === '0') {
+                      console.log('Path data successfully sent to the backend:', response.data);
+                    }
+                  })
+                  .catch(error => {
+                    console.error('Error sending path data to the backend:', error);
+                  });
+                console.log(pathData);
+                //save pathData at front end
                 addPath(pathData);
               })
               .catch((error) => {
