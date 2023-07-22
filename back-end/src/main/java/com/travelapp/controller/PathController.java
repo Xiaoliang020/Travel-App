@@ -13,6 +13,7 @@ import com.travelapp.model.Path;
 import com.travelapp.service.PathService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -35,6 +36,17 @@ public class PathController {
     public Result<?> getPathsByUserId(@PathVariable String userid) {
         List<Path> userPaths = pathService.getPathsByUserId(userid);
         return Result.success(userPaths);
+    }
+
+    @PostMapping("/paths-delete")
+    public Result<?> deletePath(@RequestBody Map<String, String> requestBody) {
+        String pathId = requestBody.get("pathId");
+        boolean deleteResult = pathService.deletePathById(pathId);
+        if (deleteResult) {
+            return Result.success();
+        } else {
+            return Result.error("-1", "Delete failed");
+        }
     }
 }
 
