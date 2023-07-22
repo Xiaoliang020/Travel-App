@@ -53,6 +53,10 @@ export default function Paths() {
         });
     };
 
+    const handleSharePath = (pathId) => {
+
+    }
+
     // Define the columns for the table
     const columns = [
         {
@@ -97,6 +101,7 @@ export default function Paths() {
                 <div>
                     <Button onClick={() => handleDisplayPath(record.path)}>Display on map</Button>
                     <Button onClick={() => handleDeletePath(record.id)}>Delete</Button>
+                    <Button onClick={() => handleSharePath(record.id)}>Share</Button>
                 </div>
             ),
         },
