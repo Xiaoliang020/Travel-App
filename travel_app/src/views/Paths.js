@@ -70,7 +70,7 @@ export default function Paths() {
             key: 'start',
             render: (text, record) => (
                 <div>
-                    <p>Time: {record.startTime.toString()}</p>
+                    <p>Time: {new Date(record.startTime).toLocaleString()}</p>
                     <p>Place: {record.startAddress}</p>
                 </div>
             ),
@@ -81,7 +81,7 @@ export default function Paths() {
             key: 'end',
             render: (text, record) => (
                 <div>
-                    <p>Time: {record.endTime.toString()}</p>
+                    <p>Time: {new Date(record.endTime).toLocaleString()}</p>
                     <p>Place: {record.endAddress}</p>
                 </div>
             ),

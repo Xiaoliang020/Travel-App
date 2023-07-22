@@ -291,6 +291,8 @@ export default function Map() {
                   userid: user.id
                 };
 
+                console.log("PathData", pathData);
+
                 //send pathData to back end
                 axios.post('/api/path-data', pathData)
                   .then(response => {
@@ -298,11 +300,13 @@ export default function Map() {
                     if (response.data.code === '0') {
                       console.log('Path data successfully sent to the backend:', response.data);
                     }
+                    // Get pathId from back end
+                    console.log(response.data.data);
                   })
                   .catch(error => {
                     console.error('Error sending path data to the backend:', error);
                   });
-                console.log(pathData);
+
                 //save pathData at front end
                 addPath(pathData);
               })
@@ -524,7 +528,7 @@ export default function Map() {
           {markers.map((marker, index) => (
             <MarkerF
               key={marker}
-              position={{ lat: marker.lat, lng: marker.lng }}
+              position={{ lat: marker.markerLat, lng: marker.markerLng }}
               visible={marker.type === 'custom'}
               icon={marker.icon}
               onClick={() => handleMarkerClick(marker)}
