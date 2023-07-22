@@ -12,6 +12,7 @@ const Map = lazy(() => import("../views/Map"))
 const HelloWorld = lazy(() => import("../views/HelloWorld"))
 const Login = lazy(() => import("../views/Login"))
 const Register = lazy(() => import("../views/Register"))
+const Paths = lazy(() => import("../views/Paths"))
 
 const withLoadingComponent = (comp) => (
     <React.Suspense fallback={<div>Loading...</div>}>
@@ -55,6 +56,10 @@ const routes = [
             {
                 path: "/map",
                 element: authRoute(<Map />)
+            },
+            {
+                path: "/paths",
+                element: authRoute(<Paths />)
             },
             {
                 path: "/helloworld",

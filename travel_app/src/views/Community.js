@@ -1,6 +1,7 @@
 const Community = () => {
     let userStr = sessionStorage.getItem("user") || "{}"
-    let user = JSON.parse(userStr)
+    let user = JSON.parse(userStr);
+    console.log(user);
     return (
         <div className = 'community'>
             <header>

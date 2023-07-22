@@ -1,0 +1,29 @@
+[
+    {
+      "path": ["(10.123, 20.456)", "(11.234, 22.567)", "(12.345, 23.678)"],
+      "startTime": "2023-07-22T08:00:00Z",
+      "endTime": "2023-07-22T09:30:00Z",
+      "duration": 5400,
+      "startAddress": "123 Main St, City A",
+      "endAddress": "456 Park Ave, City B",
+      "userid": "64b5c66cf6dae42ad7f5c49a"
+    },
+    {
+      "path": ["(15.987, 30.123)", "(17.234, 32.567)", "(18.345, 33.678)"],
+      "startTime": "2023-07-22T10:00:00Z",
+      "endTime": "2023-07-22T11:15:00Z",
+      "duration": 4500,
+      "startAddress": "789 Elm St, City C",
+      "endAddress": "101 Oak Ave, City D",
+      "userid": "64b5c66cf6dae42ad7f5c49a"
+    },
+    {
+      "path": ["(25.345, 40.567)", "(27.234, 42.789)", "(29.876, 43.901)"],
+      "startTime": "2023-07-22T12:00:00Z",
+      "endTime": "2023-07-22T13:45:00Z",
+      "duration": 6300,
+      "startAddress": "555 Pine Rd, City E",
+      "endAddress": "777 Maple Blvd, City F",
+      "userid": "64b5c66cf6dae42ad7f5c49a"
+    }
+  ]

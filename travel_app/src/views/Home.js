@@ -50,6 +50,11 @@ const Home = () => {
                 icon: <TeamOutlined />,
                 label: 'Community',
               },
+              {
+                key: '/paths',
+                icon: <TeamOutlined />,
+                label: 'Paths',
+              }
             ]}
             onClick={menuClick}
           />
