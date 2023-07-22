@@ -14,14 +14,14 @@ export default function Paths() {
 
     useEffect(() => {
         axios.get(`/api/paths/${user.id}`)
-          .then(response => {
-            console.log(response.data);
-            setPaths(response.data.data);
-          })
-          .catch(error => {
-            console.error('Error retrieving paths:', error);
-          });
-      }, []);
+            .then(response => {
+                console.log(response.data);
+                setPaths(response.data.data);
+            })
+            .catch(error => {
+                console.error('Error retrieving paths:', error);
+            });
+    }, []);
 
     const handleDisplayPath = (path) => {
         setDisplayedPath(path);
@@ -52,10 +52,6 @@ export default function Paths() {
             },
         });
     };
-
-    const handleSharePath = (pathId) => {
-        
-    }
 
     // Define the columns for the table
     const columns = [
@@ -101,7 +97,6 @@ export default function Paths() {
                 <div>
                     <Button onClick={() => handleDisplayPath(record.path)}>Display on map</Button>
                     <Button onClick={() => handleDeletePath(record.id)}>Delete</Button>
-                    <Button onClick={() => handleSharePath(record.id)}>Share</Button>
                 </div>
             ),
         },
@@ -130,7 +125,7 @@ export default function Paths() {
         <div>
             <div>
                 <Card title="Saved Paths">
-                    
+
                     {/* Add the table here */}
                     <Table columns={columns} dataSource={data} />
                 </Card>

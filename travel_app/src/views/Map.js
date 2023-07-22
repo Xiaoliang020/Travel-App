@@ -8,7 +8,7 @@ import { ThemeContext } from '../App';
 import { PlayCircleOutlined, StopOutlined, CompassOutlined, EyeOutlined, EyeInvisibleOutlined, PlusOutlined, ClearOutlined, DownloadOutlined, ShareAltOutlined } from '@ant-design/icons';
 import html2canvas from 'html2canvas';
 import Geocode from "react-geocode";
-import { LoadingOutlined} from '@ant-design/icons';
+import { LoadingOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import myImg from '../picture/1.jpg';
 import myImg2 from '../picture/2.jpg';
@@ -55,7 +55,7 @@ export default function Map() {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
     }
-  
+
     setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
   };
@@ -100,7 +100,7 @@ export default function Map() {
       <div style={{ marginTop: 8 }}>Upload</div>
     </div>
   );
-  
+
   const handleChange = ({ file, fileList: newFileList }) => {
     if (file.status === 'uploading') {
       setLoading(true);
@@ -114,8 +114,8 @@ export default function Map() {
   };
 
 
-  function getLocation (){
-    return new Promise((resolve,reject) => {
+  function getLocation() {
+    return new Promise((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
@@ -290,7 +290,7 @@ export default function Map() {
                   endAddress: endAddress,
                   userid: user.id
                 };
-                
+
                 //send pathData to back end
                 axios.post('/api/path-data', pathData)
                   .then(response => {
@@ -339,15 +339,17 @@ export default function Map() {
           id: marker.id, // Assign a unique ID to the marker
           name: marker.name,
           text: inputText.current,
-          icon:  marker.icon
+          icon: marker.icon
         };
+
+
 
         setMarkers(markers.map(m => m === marker ? newMarker : m))
         close();
       },
     });
   };
-  
+
 
   // Group positions by pathId
   const positionByPathId = positions.reduce((acc, position) => {
@@ -372,7 +374,7 @@ export default function Map() {
   const handleAddPoint = () => {
     const { lat, lng } = currentPosition;
 
-    Modal.confirm({ 
+    Modal.confirm({
       title: 'Set a New Marker',
       content: (
         <div>
@@ -383,15 +385,15 @@ export default function Map() {
             onChange={handleChange}
           >
             {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
-         
+
           </Upload>
 
           Comment:
-          
+
           <Input
-          placeholder="Input something..."
-          onChange={(e) => inputText.current = e.target.value}
-        />
+            placeholder="Input something..."
+            onChange={(e) => inputText.current = e.target.value}
+          />
         </div>
       ),
       onOk: (close) => {
@@ -403,20 +405,33 @@ export default function Map() {
           id: Date.now(), // Assign a unique ID to the marker
           name: markerName,
           text: inputText.current,
-          icon:  markerIcon === 1 ? myImg : myImg2
+          icon: markerIcon === 1 ? myImg : myImg2
         };
-        
+
         console.log("inputText is:" + inputText.current);
-        console.log("marker Text is:" + newMarker.text)
+        console.log("marker Text is:" + newMarker.text);
+        console.log("marker ID is:" + newMarker.id);
+        console.log("marker lat is:" + newMarker.lat);
+
+        // send markerData to back end
+        axios.post('/api/marker-data', newMarker)
+          .then(response => {
+            if (response.data.code === '0') {
+              console.log('Marker data successfully sent to backend:', response.data);
+            }
+          })
+          .catch(error => {
+            console.log('Error sending marker data to the backend:', error);
+          });
 
 
         setMarkers((prev) => [...prev, newMarker]);
         setMarkerName(markerName + 1);
         console.log("Add an information point");
 
-        if (markerIcon === 1){
+        if (markerIcon === 1) {
           setMarkerIcon(2);
-        }  else {
+        } else {
           setMarkerIcon(1);
         }
 
@@ -508,9 +523,9 @@ export default function Map() {
           {markers.map((marker, index) => (
             <MarkerF
               key={marker}
-              position={{lat: marker.lat, lng: marker.lng}}
-              visible = {marker.type === 'custom'}
-              icon = {marker.icon}
+              position={{ lat: marker.lat, lng: marker.lng }}
+              visible={marker.type === 'custom'}
+              icon={marker.icon}
               onClick={() => handleMarkerClick(marker)}
             />
           ))}
