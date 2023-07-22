@@ -1,8 +1,6 @@
 package com.travelapp.controller;
 
 import org.springframework.beans.factory.annotation.Autowired; // For @Autowired annotation
-import org.springframework.http.ResponseEntity; // For ResponseEntity class
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping; // For @PostMapping annotation
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping; // For @RequestMapping annotation
