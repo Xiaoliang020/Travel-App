@@ -14,7 +14,7 @@ public class Marker {
     private double markerLng;
     private String type;
     private String markerID;
-    private String markerName;
+    private String name;
     private String text;
     private String icon;
 

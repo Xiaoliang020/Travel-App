@@ -399,19 +399,20 @@ export default function Map() {
       onOk: (close) => {
 
         const newMarker = {
-          lat: lat,
-          lng: lng,
+          markerLat: lat,
+          markerLng: lng,
           type: "custom",
-          id: Date.now(), // Assign a unique ID to the marker
+          markerID: Date.now(), // Assign a unique ID to the marker
           name: markerName,
           text: inputText.current,
           icon: markerIcon === 1 ? myImg : myImg2
         };
 
-        console.log("inputText is:" + inputText.current);
-        console.log("marker Text is:" + newMarker.text);
-        console.log("marker ID is:" + newMarker.id);
-        console.log("marker lat is:" + newMarker.lat);
+        // console.log("inputText is:" + inputText.current);
+        // console.log("marker Text is:" + newMarker.text);
+        // console.log("marker ID is:" + newMarker.id);
+        // console.log("marker lat is:" + newMarker.lat);
+        console.log(newMarker);
 
         // send markerData to back end
         axios.post('/api/marker-data', newMarker)
