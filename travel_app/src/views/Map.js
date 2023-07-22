@@ -12,6 +12,8 @@ import { LoadingOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import myImg from '../picture/1.jpg';
 import myImg2 from '../picture/2.jpg';
+import ImgCrop from 'antd-img-crop'
+import TextArea from 'antd/es/input/TextArea';
 
 export default function Map() {
   const [positions, setPositions] = useState([]);
@@ -328,11 +330,29 @@ export default function Map() {
     Modal.confirm({
       title: 'The comment you left in this place',
       content: (
-        <Input
-          placeholder="Input something..."
-          defaultValue={marker.text}
-          onChange={(e) => inputText.current = e.target.value}
-        />
+        <div>
+
+          <TextArea
+            showCount
+            maxLength = {200}
+            style = {{ heght: 250, marginBottom: 24}}
+            placeholder="Input something..."
+            defaultValue = {marker.text}
+            onChange={(e) => inputText.current = e.target.value}
+          />
+          Pictures:
+          <ImgCrop>
+            <Upload
+              listType = "picture-card"
+              onPreiew = {handlePreview}
+              onChange = {handleChange}
+            >
+            </Upload>
+            {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+          </ImgCrop>
+
+
+        </div>
       ),
       onOk: (close) => {
 
@@ -383,21 +403,45 @@ export default function Map() {
       content: (
         <div>
           Marker icon:
-          <Upload
-            listType="picture-circle"
-            onPreview={handlePreview}
-            onChange={handleChange}
+          <ImgCrop 
+            rotationSlider = {true}
+            zoomSlider = {true}
+            quality = {1}
+            cropShape = 'round'
           >
-            {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
 
-          </Upload>
+            <Upload
+              listType="picture-circle"
+              onPreview={handlePreview}
+              onChange={handleChange}
+            >
+              {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+
+            </Upload>
+
+          </ImgCrop>
 
           Comment:
 
-          <Input
+          <TextArea
+            showCount
+            maxLength = {200}
+            style = {{ heght: 250, marginBottom: 24}}
             placeholder="Input something..."
             onChange={(e) => inputText.current = e.target.value}
           />
+
+          Pictures:
+          <ImgCrop>
+            <Upload
+              listType = "picture-card"
+              onPreiew = {handlePreview}
+              onChange = {handleChange}
+            >
+              {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+            </Upload>
+          </ImgCrop>
+
         </div>
       ),
       onOk: (close) => {
