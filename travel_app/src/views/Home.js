@@ -54,7 +54,7 @@ const Home = () => {
               {
                 key: '/paths',
                 icon: <HistoryOutlined />,
-                label: 'Paths',
+                label: 'History Paths',
               }
             ]}
             onClick={menuClick}
