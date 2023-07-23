@@ -1,0 +1,14 @@
+[
+    {
+        "_id": {
+            "$oid": "617ab421e1672d34849bb5a1"
+          },
+        "markerLat": 37.7749,
+        "markerLng": -122.4194,
+        "type": "custom",
+        "markerID": "marker123",
+        "markerName": "San Francisco",
+        "text": "This is a marker",
+        "icon": "marker.png"
+    }
+]

@@ -222,6 +222,90 @@ export default function Map() {
     console.log("Start tracking");
   };
 
+  //TODO
+  const handleAddPoint = () => {
+    const { lat, lng } = currentPosition;
+
+    Modal.confirm({
+      title: 'Set a New Marker',
+      content: (
+        <div>
+          Marker icon:
+          <ImgCrop 
+            rotationSlider = {true}
+            zoomSlider = {true}
+            quality = {1}
+            cropShape = 'round'
+          >
+
+            <Upload
+              listType="picture-circle"
+              onPreview={handlePreview}
+              onChange={handleChange}
+            >
+              {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+
+            </Upload>
+
+          </ImgCrop>
+
+          Comment:
+
+          <TextArea
+            showCount
+            maxLength = {200}
+            style = {{ heght: 250, marginBottom: 24}}
+            placeholder="Input something..."
+            onChange={(e) => inputText.current = e.target.value}
+          />
+
+          Pictures:
+          <ImgCrop>
+            <Upload
+              listType = "picture-card"
+              onPreiew = {handlePreview}
+              onChange = {handleChange}
+            >
+              {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+            </Upload>
+          </ImgCrop>
+
+        </div>
+      ),
+      onOk: (close) => {
+
+        const newMarker = {
+          markerLat: lat,
+          markerLng: lng,
+          type: "custom",
+          markerID: Date.now(), // Assign a unique ID to the marker
+          name: markerName,
+          text: inputText.current,
+          icon: markerIcon === 1 ? myImg : myImg2,
+          pathID:""
+        };
+
+        // console.log("inputText is:" + inputText.current);
+        // console.log("marker Text is:" + newMarker.text);
+        // console.log("marker ID is:" + newMarker.id);
+        // console.log("marker lat is:" + newMarker.lat);
+        console.log(newMarker);
+
+        setMarkers((prev) => [...prev, newMarker]);
+        setMarkerName(markerName + 1);
+        console.log("Add an information point");
+
+        if (markerIcon === 1) {
+          setMarkerIcon(2);
+        } else {
+          setMarkerIcon(1);
+        }
+
+        close();
+      },
+    });
+  };
+
   Geocode.setApiKey(process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
 
   const handleStopTracking = () => {
@@ -278,10 +362,29 @@ export default function Map() {
                     }
                     // Get pathId from back end
                     console.log(response.data.data);
+                    const updatedMarkers = markers.map(item=>({...item, pathID: response.data.data}))
+                    console.log(updatedMarkers[0])
+
+                    // send markerData to back end
+                    updatedMarkers.forEach(marker=>{
+                      console.log(marker)
+                      axios.post('/api/marker-data', marker)
+                      .then(response => {
+                        if (response.data.code === '0') {
+                          console.log('Marker data successfully sent to backend:', response.data);
+                        }
+                      })
+                      .catch(error => {
+                        console.log('Error sending marker data to the backend:', error);
+                      });
+                    })
+
                   })
                   .catch(error => {
                     console.error('Error sending path data to the backend:', error);
                   });
+
+                
 
                 //save pathData at front end
                 addPath(pathData);
@@ -368,100 +471,7 @@ export default function Map() {
     setIsPathsVisible(!isPathsVisible);
   };
 
-  //TODO
-  const handleAddPoint = () => {
-    const { lat, lng } = currentPosition;
-
-    Modal.confirm({
-      title: 'Set a New Marker',
-      content: (
-        <div>
-          Marker icon:
-          <ImgCrop 
-            rotationSlider = {true}
-            zoomSlider = {true}
-            quality = {1}
-            cropShape = 'round'
-          >
-
-            <Upload
-              listType="picture-circle"
-              onPreview={handlePreview}
-              onChange={handleChange}
-            >
-              {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
-
-            </Upload>
-
-          </ImgCrop>
-
-          Comment:
-
-          <TextArea
-            showCount
-            maxLength = {200}
-            style = {{ heght: 250, marginBottom: 24}}
-            placeholder="Input something..."
-            onChange={(e) => inputText.current = e.target.value}
-          />
-
-          Pictures:
-          <ImgCrop>
-            <Upload
-              listType = "picture-card"
-              onPreiew = {handlePreview}
-              onChange = {handleChange}
-            >
-              {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
-            </Upload>
-          </ImgCrop>
-
-        </div>
-      ),
-      onOk: (close) => {
-
-        const newMarker = {
-          markerLat: lat,
-          markerLng: lng,
-          type: "custom",
-          markerID: Date.now(), // Assign a unique ID to the marker
-          name: markerName,
-          text: inputText.current,
-          icon: markerIcon === 1 ? myImg : myImg2
-        };
-
-        // console.log("inputText is:" + inputText.current);
-        // console.log("marker Text is:" + newMarker.text);
-        // console.log("marker ID is:" + newMarker.id);
-        // console.log("marker lat is:" + newMarker.lat);
-        console.log(newMarker);
-
-        // send markerData to back end
-        axios.post('/api/marker-data', newMarker)
-          .then(response => {
-            if (response.data.code === '0') {
-              console.log('Marker data successfully sent to backend:', response.data);
-            }
-          })
-          .catch(error => {
-            console.log('Error sending marker data to the backend:', error);
-          });
-
-
-        setMarkers((prev) => [...prev, newMarker]);
-        setMarkerName(markerName + 1);
-        console.log("Add an information point");
-
-        if (markerIcon === 1) {
-          setMarkerIcon(2);
-        } else {
-          setMarkerIcon(1);
-        }
-
-        close();
-      },
-    });
-  };
+  
 
   const handleScreenshot = async () => {
     setIsTakingScreenshot(true);

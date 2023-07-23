@@ -17,5 +17,6 @@ public class Marker {
     private String name;
     private String text;
     private String icon;
+    private String pathID;
 
 }
