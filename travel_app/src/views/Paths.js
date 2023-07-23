@@ -53,8 +53,37 @@ export default function Paths() {
         });
     };
 
-    const handleSharePath = (pathId) => {
+    const getCurrentWebsiteURL = () => {
+        const protocol = window.location.protocol;
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+        const path = window.location.pathname;
 
+        // If the port is empty or equal to 80 (HTTP) or 443 (HTTPS), don't include it in the URL
+        const portSuffix = (port && port !== '80' && port !== '443') ? `:${port}` : '';
+
+        // Assemble the website URL
+        const websiteURL = `${protocol}//${hostname}${portSuffix}`;
+
+        return websiteURL;
+    };
+
+    const handleSharePath = (pathId) => {
+        // axios.get(`/api/share/${pathId}`)
+        // .then((response) => {
+        //     // Get the shareable link from the response and show it to the user
+        //     const currentURL = getCurrentWebsiteURL();
+        //     console.log(currentURL);
+        //     message.success('Shareable link: ' + currentURL + `/share/${pathId}`);
+        // })
+        // .catch((error) => {
+        //     console.error('Error generating shareable link:', error);
+        //     message.error('Error generating shareable link');
+        // });
+        // Get the shareable link from the response and show it to the user
+        const currentURL = getCurrentWebsiteURL();
+        console.log(currentURL);
+        message.success('Shareable link: ' + currentURL + `/share/${pathId}`);
     }
 
     // Define the columns for the table
@@ -136,5 +165,5 @@ export default function Paths() {
                 </Card>
             </div>
         </div>
-    )
+    );
 }
