@@ -74,6 +74,7 @@ export default function Paths() {
                     <p>Place: {record.startAddress}</p>
                 </div>
             ),
+            sorter: (a, b) => new Date(a.startTime) - new Date(b.startTime)
         },
         {
             title: 'End place & time',
@@ -85,6 +86,7 @@ export default function Paths() {
                     <p>Place: {record.endAddress}</p>
                 </div>
             ),
+            sorter: (a, b) => new Date(a.endTime) - new Date(b.endTime)
         },
         {
             title: 'Duration',
@@ -93,6 +95,7 @@ export default function Paths() {
             render: (text, record) => (
                 <div>{formatDuration(record.duration)}</div>
             ),
+            sorter: (a, b) => a.duration - b.duration
         },
         {
             title: 'Action',

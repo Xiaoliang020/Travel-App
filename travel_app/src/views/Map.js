@@ -363,7 +363,6 @@ export default function Map() {
                     // Get pathId from back end
                     console.log(response.data.data);
                     const updatedMarkers = markers.map(item=>({...item, pathID: response.data.data}))
-                    console.log(updatedMarkers[0])
 
                     // send markerData to back end
                     updatedMarkers.forEach(marker=>{
