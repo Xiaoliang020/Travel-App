@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../App.css';
 
 const SharedPage = () => {
   const { pathId } = useParams();
-  console.log(pathId);
   const [path, setPath] = useState(null);
+  const [markers, setMarkers] = useState([]);
+  const [mapZoom, setMapZoom] = useState(15);
+
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+  });
 
   useEffect(() => {
     axios.get(`/api/share/${pathId}`)
@@ -17,11 +23,35 @@ const SharedPage = () => {
       .catch(error => {
         console.error('Error retrieving shared path:', error);
       });
+    // get markers binded with the path
+    axios.get(`/api/share/marker/${pathId}`)
+      .then(response => {
+        console.log(response.data.data);
+        setMarkers(response.data.data);
+        console.log("Successfully retrive shared markers:", response.data.data);
+      })
+      .catch(error => {
+        console.error('Error retrieving shared markers:', error);
+      });
   }, [pathId]);
+
+  // TODO
+  const handleMarkerClick = (marker) => {
+
+  };
 
   if (!path) {
     return <div>Loading...</div>;
   }
+
+  const mapCenter = {
+    lat: path.path[0].lat,
+    lng: path.path[0].lng,
+  };
+
+  const pathArray = path.path;
+
+  if (!isLoaded) return <div>Loading..</div>
 
   return (
     <div className="map-view">
@@ -31,9 +61,30 @@ const SharedPage = () => {
       <p>End Address: {path.endAddress}</p>
       <p>Start Time: {path.startTime}</p>
       <p>End Time: {path.endTime}</p>
-      <div>
-        <h2>Path Array:</h2>
-        <pre>{JSON.stringify(path.path, null, 1)}</pre>
+      <div className="map-container">
+      <GoogleMap
+          center={mapCenter}
+          zoom={mapZoom}
+          mapContainerClassName="map-container"
+        >
+          <PolylineF
+            path={pathArray}
+            options={{
+              strokeColor: '#5900FF',
+              strokeOpacity: 1.0,
+              strokeWeight: 5,
+            }}
+          />
+
+          {markers.map((marker, index) => (
+            <MarkerF
+              key={marker}
+              position={{ lat: marker.markerLat, lng: marker.markerLng }}
+              icon={marker.icon}
+              onClick={() => handleMarkerClick(marker)}
+            />
+          ))}
+        </GoogleMap>
       </div>
     </div>
   );

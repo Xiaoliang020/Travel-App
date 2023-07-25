@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import com.travelapp.model.Marker;
 import com.travelapp.repository.MarkerRepository;
 
+import java.util.List;
+
 @Service
 public class MarkerService {
     private final MarkerRepository markerRepository;
@@ -17,5 +19,9 @@ public class MarkerService {
 
     public Marker saveMarker(Marker marker) {
         return markerRepository.save(marker);
+    }
+
+    public List<Marker> getPathsByUserId(String pathid) {
+        return markerRepository.findByPathID(pathid);
     }
 }
