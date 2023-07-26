@@ -18,4 +18,5 @@ public class Path {
     private String startAddress;
     private String endAddress;
     private String userid;
+    private String name;
 }

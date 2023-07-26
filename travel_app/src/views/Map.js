@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
 import '../App.css';
-import { FloatButton, Button, Tooltip, Modal, Upload} from 'antd';
+import { FloatButton, Button, Tooltip, Modal, Upload, Input, message} from 'antd';
 import { useContext } from 'react';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
@@ -29,6 +29,7 @@ export default function Map() {
   const [endTime, setEndTime] = useState(null);
   const [markerName, setMarkerName] = useState(1);
 
+  const pathName = useRef("");
   const inputText = useRef("");
   const [markerIcon, setMarkerIcon] = useState(1);
 
@@ -325,7 +326,17 @@ export default function Map() {
     Modal.confirm({
       centered: true,
       title: 'Do you want to save this path?',
+      content: (
+        <div>
+          <p>Enter a name for the path:</p>
+          <Input
+            onChange={(e) => pathName.current = e.target.value}
+            placeholder="Path name"
+          />
+        </div>
+      ),
       onOk: () => {
+        console.log(pathName);
         const startCoordinates = positions[0];
         const endCoordinates = positions[positions.length - 1];
         // Get the user info stored in sessionStorage
@@ -348,7 +359,8 @@ export default function Map() {
                   duration: duration,
                   startAddress: startAddress,
                   endAddress: endAddress,
-                  userid: user.id
+                  userid: user.id,
+                  name: pathName.current,
                 };
 
                 console.log("PathData", pathData);
@@ -382,9 +394,6 @@ export default function Map() {
                   .catch(error => {
                     console.error('Error sending path data to the backend:', error);
                   });
-
-                
-
                 //save pathData at front end
                 addPath(pathData);
               })
