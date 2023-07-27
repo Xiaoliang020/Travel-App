@@ -28,6 +28,7 @@ export default function Map() {
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [markerName, setMarkerName] = useState(1);
+  const [pathNameProvided, setPathNameProvided] = useState(true);
 
   const pathName = useRef("");
   const inputText = useRef("");
@@ -330,7 +331,9 @@ export default function Map() {
         <div>
           <p>Enter a name for the path:</p>
           <Input
-            onChange={(e) => pathName.current = e.target.value}
+            onChange={(e) => {
+              pathName.current = e.target.value;
+            }}
             placeholder="Path name"
           />
         </div>

@@ -89,9 +89,9 @@ export default function Paths() {
     // Define the columns for the table
     const columns = [
         {
-            title: 'Path ID',
-            dataIndex: 'key',
-            key: 'key',
+            title: 'Path Name',
+            dataIndex: 'name',
+            key: 'name',
         },
         {
             title: 'Start place & time',
@@ -156,6 +156,7 @@ export default function Paths() {
         duration: path.duration,
         startAddress: path.startAddress,
         endAddress: path.endAddress,
+        name: path.name,
     }));
 
     return (
