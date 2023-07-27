@@ -12,7 +12,7 @@ export default function Login() {
     const onFinish = (values) => {
         console.log('Received values of form: ', values);
         // Make an HTTP POST request to the backend
-        axios.post('/api/login', values)
+        axios.post('http://34.162.232.130:8080/api/login', values)
         .then((response) => {
             // Check the response code
             if (response.data.code === '0') {
