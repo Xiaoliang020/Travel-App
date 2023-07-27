@@ -55,7 +55,7 @@
         <artifactId>maven-site-plugin</artifactId>
         <version>3.7.1</version>
       </plugin>
-      <plugin>
+      <!-- <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.1.0</version>
@@ -67,7 +67,20 @@
             <argument>com.travelapp.App</argument>
           </arguments>
         </configuration>
+      </plugin> -->
+      <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <executions>
+              <execution>
+                  <goals>
+                      <goal>repackage</goal>
+                  </goals>
+              </execution>
+          </executions>
       </plugin>
+
+
     </plugins>
     <pluginManagement>
       <!-- Upgrade default checkstyle version to allow for Java 14+ features. -->
@@ -97,6 +110,8 @@
             </dependency>
           </dependencies>
         </plugin>
+
+
       </plugins>
     </pluginManagement>
   </build>
