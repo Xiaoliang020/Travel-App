@@ -39,11 +39,12 @@ const tailFormItemLayout = {
 export default function Register() {
     const [form] = Form.useForm();
     const navigate = useNavigate();
+    const apiUrl = process.env.REACT_APP_API_BASE_URL;
 
     const onFinish = (values) => {
         console.log('Received values of form: ', values);
         // Make an HTTP POST request to the backend
-        axios.post('/api/register', values)
+        axios.post(`${apiUrl}/api/register`, values)
         .then((response) => {
             // Check the response code
             if (response.data.code === '0') {
