@@ -27,9 +27,12 @@ public class PathController {
 
     @PostMapping("/path-data")
     public Result<?> savePathData(@RequestBody Path pathData) {
+        if (pathData.getName().trim().equals("")) {
+            pathData.setName("Path (" + pathData.getEndTime() + ")");
+        }
         // save the path info in database
         pathService.savePath(pathData);
-        return Result.success(pathData.getId());
+        return Result.success();
     }
 
     @GetMapping("/paths/{userid}")
@@ -49,4 +52,3 @@ public class PathController {
         }
     }
 }
-
