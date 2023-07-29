@@ -29,7 +29,7 @@ const Home = () => {
   return (
     <div style={{ height: '100vh' }}>
       <Layout style={{ minHeight: '100%' }}>
-        <Sider trigger={null} collapsible collapsed={collapsed}>
+        <Sider trigger={null} collapsible collapsed={collapsed} collapsedWidth={0}>
           <div className="demo-logo-vertical" />
           <Menu
             theme="dark"
