@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
 import '../App.css';
-import { FloatButton, Button, Tooltip, Modal, Upload, Input, message} from 'antd';
+import { FloatButton, Button, Tooltip, Modal, Upload, Input, message } from 'antd';
 import { useContext } from 'react';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
@@ -14,7 +14,7 @@ import myImg from '../picture/1.jpg';
 import myImg2 from '../picture/2.jpg';
 import ImgCrop from 'antd-img-crop'
 import TextArea from 'antd/es/input/TextArea';
-import {darkMode} from './mapStyles';
+import { darkMode } from './mapStyles';
 
 export default function Map() {
   const [positions, setPositions] = useState([]);
@@ -233,11 +233,11 @@ export default function Map() {
       content: (
         <div>
           Marker icon:
-          <ImgCrop 
-            rotationSlider = {true}
-            zoomSlider = {true}
-            quality = {1}
-            cropShape = 'round'
+          <ImgCrop
+            rotationSlider={true}
+            zoomSlider={true}
+            quality={1}
+            cropShape='round'
           >
 
             <Upload
@@ -255,8 +255,8 @@ export default function Map() {
 
           <TextArea
             showCount
-            maxLength = {200}
-            style = {{ heght: 250, marginBottom: 24}}
+            maxLength={200}
+            style={{ heght: 250, marginBottom: 24 }}
             placeholder="Input something..."
             onChange={(e) => inputText.current = e.target.value}
           />
@@ -264,9 +264,9 @@ export default function Map() {
           Pictures:
           <ImgCrop>
             <Upload
-              listType = "picture-card"
-              onPreiew = {handlePreview}
-              onChange = {handleChange}
+              listType="picture-card"
+              onPreiew={handlePreview}
+              onChange={handleChange}
             >
               {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
             </Upload>
@@ -284,7 +284,7 @@ export default function Map() {
           name: markerName,
           text: inputText.current,
           icon: markerIcon === 1 ? myImg : myImg2,
-          pathID:""
+          pathID: ""
         };
 
         // console.log("inputText is:" + inputText.current);
@@ -309,6 +309,9 @@ export default function Map() {
   };
 
   Geocode.setApiKey(process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
+  // useEffect(() => {
+  //   setPathNameProvided(pathName.current.trim() === '');
+  // }, [pathName.current]);
 
   const handleStopTracking = () => {
     setTrackingEnabled(false);
@@ -377,20 +380,20 @@ export default function Map() {
                     }
                     // Get pathId from back end
                     console.log(response.data.data);
-                    const updatedMarkers = markers.map(item=>({...item, pathID: response.data.data}))
+                    const updatedMarkers = markers.map(item => ({ ...item, pathID: response.data.data }))
 
                     // send markerData to back end
-                    updatedMarkers.forEach(marker=>{
+                    updatedMarkers.forEach(marker => {
                       console.log(marker)
                       axios.post('/api/marker-data', marker)
-                      .then(response => {
-                        if (response.data.code === '0') {
-                          console.log('Marker data successfully sent to backend:', response.data);
-                        }
-                      })
-                      .catch(error => {
-                        console.log('Error sending marker data to the backend:', error);
-                      });
+                        .then(response => {
+                          if (response.data.code === '0') {
+                            console.log('Marker data successfully sent to backend:', response.data);
+                          }
+                        })
+                        .catch(error => {
+                          console.log('Error sending marker data to the backend:', error);
+                        });
                     })
 
                   })
@@ -422,18 +425,18 @@ export default function Map() {
 
           <TextArea
             showCount
-            maxLength = {200}
-            style = {{ heght: 250, marginBottom: 24}}
+            maxLength={200}
+            style={{ heght: 250, marginBottom: 24 }}
             placeholder="Input something..."
-            defaultValue = {marker.text}
+            defaultValue={marker.text}
             onChange={(e) => inputText.current = e.target.value}
           />
           Pictures:
           <ImgCrop>
             <Upload
-              listType = "picture-card"
-              onPreiew = {handlePreview}
-              onChange = {handleChange}
+              listType="picture-card"
+              onPreiew={handlePreview}
+              onChange={handleChange}
             >
             </Upload>
             {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
@@ -482,7 +485,7 @@ export default function Map() {
     setIsPathsVisible(!isPathsVisible);
   };
 
-  
+
 
   const handleScreenshot = async () => {
     setIsTakingScreenshot(true);

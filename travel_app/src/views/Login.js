@@ -1,5 +1,5 @@
 import { Button, Checkbox, Form, Input, message } from 'antd';
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { LockOutlined, UserOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useState, startTransition } from 'react';
 import '../App.css';
@@ -12,32 +12,32 @@ export default function Login() {
     const onFinish = (values) => {
         console.log('Received values of form: ', values);
         // Make an HTTP POST request to the backend
-        axios.post('http://34.162.232.130:8080/api/login', values)
-        .then((response) => {
-            // Check the response code
-            if (response.data.code === '0') {
-                // Login successful!
-                console.log('Login successful!', response.data);
+        axios.post('/api/login', values)
+            .then((response) => {
+                // Check the response code
+                if (response.data.code === '0') {
+                    // Login successful!
+                    console.log('Login successful!', response.data);
 
-                // Save the user info to sessionStorage
-                sessionStorage.setItem('user', JSON.stringify(response.data.data));
+                    // Save the user info to sessionStorage
+                    sessionStorage.setItem('user', JSON.stringify(response.data.data));
 
-                navigate("/map");
-                message.success('You have successfully logged in.');
+                    navigate("/map");
 
-                // Refresh the page to update the authentication status
-                window.location.reload();
-            } else if (response.data.code === '-1') {
-                // Login failed
-                console.error('Login failed:', response.data.msg);
-                message.error('Invalid username or password. Please try again.');
-            }
-        })
-        .catch((error) => {
-            // Handle network or other errors
-            console.error('Login failed:', error);
-            message.error('Login failed. Please try again later.');
-        });
+                    // Refresh the page to update the authentication status
+                    window.location.reload();
+
+                } else if (response.data.code === '-1') {
+                    // Login failed
+                    console.error('Login failed:', response.data.msg);
+                    message.error('Invalid username or password. Please try again.');
+                }
+            })
+            .catch((error) => {
+                // Handle network or other errors
+                console.error('Login failed:', error);
+                message.error('Login failed. Please try again later.');
+            });
     };
 
     const handleRegisterClick = () => {
@@ -66,9 +66,9 @@ export default function Login() {
                 name="password"
                 rules={[{ required: true, message: 'Please input your Password!' }]}
             >
-                <Input
+                <Input.Password
                     prefix={<LockOutlined className="site-form-item-icon" />}
-                    type="password"
+                    iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                     placeholder="Password"
                 />
             </Form.Item>
