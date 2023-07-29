@@ -289,10 +289,6 @@ export default function Map() {
           pathID: ""
         };
 
-        // console.log("inputText is:" + inputText.current);
-        // console.log("marker Text is:" + newMarker.text);
-        // console.log("marker ID is:" + newMarker.id);
-        // console.log("marker lat is:" + newMarker.lat);
         console.log(newMarker);
 
         setMarkers((prev) => [...prev, newMarker]);
@@ -311,9 +307,6 @@ export default function Map() {
   };
 
   Geocode.setApiKey(process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
-  // useEffect(() => {
-  //   setPathNameProvided(pathName.current.trim() === '');
-  // }, [pathName.current]);
 
   const handleStopTracking = () => {
     setTrackingEnabled(false);
