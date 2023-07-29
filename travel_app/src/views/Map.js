@@ -30,6 +30,8 @@ export default function Map() {
   const [markerName, setMarkerName] = useState(1);
   const [pathNameProvided, setPathNameProvided] = useState(true);
 
+  const apiUrl = process.env.REACT_APP_API_BASE_URL;
+
   const pathName = useRef("");
   const inputText = useRef("");
   const [markerIcon, setMarkerIcon] = useState(1);
@@ -369,7 +371,7 @@ export default function Map() {
                 console.log("PathData", pathData);
 
                 //send pathData to back end
-                axios.post('/api/path-data', pathData)
+                axios.post(`${apiUrl}/api/path-data`, pathData)
                   .then(response => {
                     // Check the response code
                     if (response.data.code === '0') {
@@ -382,7 +384,7 @@ export default function Map() {
                     // send markerData to back end
                     updatedMarkers.forEach(marker=>{
                       console.log(marker)
-                      axios.post('/api/marker-data', marker)
+                      axios.post(`${apiUrl}/api/marker-data`, marker)
                       .then(response => {
                         if (response.data.code === '0') {
                           console.log('Marker data successfully sent to backend:', response.data);

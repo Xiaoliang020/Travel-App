@@ -11,9 +11,10 @@ export default function Paths() {
     const navigate = useNavigate();
     // Get the user info stored in sessionStorage
     const user = JSON.parse(sessionStorage.getItem("user"));
+    const apiUrl = process.env.REACT_APP_API_BASE_URL;
 
     useEffect(() => {
-        axios.get(`/api/paths/${user.id}`)
+        axios.get(`${apiUrl}/api/paths/${user.id}`)
             .then(response => {
                 console.log(response.data);
                 setPaths(response.data.data);
@@ -36,7 +37,7 @@ export default function Paths() {
             onOk: () => {
                 console.log(pathId);
                 const data = { pathId }; // Wrap pathId in an object
-                axios.post(`/api/paths-delete`, data)
+                axios.post(`${apiUrl}/api/paths-delete`, data)
                     .then((response) => {
                         // Check the response code
                         if (response.data.code === '0') {
@@ -69,18 +70,6 @@ export default function Paths() {
     };
 
     const handleSharePath = (pathId) => {
-        // axios.get(`/api/share/${pathId}`)
-        // .then((response) => {
-        //     // Get the shareable link from the response and show it to the user
-        //     const currentURL = getCurrentWebsiteURL();
-        //     console.log(currentURL);
-        //     message.success('Shareable link: ' + currentURL + `/share/${pathId}`);
-        // })
-        // .catch((error) => {
-        //     console.error('Error generating shareable link:', error);
-        //     message.error('Error generating shareable link');
-        // });
-        // Get the shareable link from the response and show it to the user
         const currentURL = getCurrentWebsiteURL();
         console.log(currentURL);
         message.success('Shareable link: ' + currentURL + `/share/${pathId}`);

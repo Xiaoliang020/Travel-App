@@ -7,12 +7,13 @@ import axios from 'axios';
 
 export default function Login() {
     const navigate = useNavigate();
+    const apiUrl = process.env.REACT_APP_API_BASE_URL;
 
     // 提交表单且数据验证成功后回调事件
     const onFinish = (values) => {
         console.log('Received values of form: ', values);
         // Make an HTTP POST request to the backend
-        axios.post('http://34.162.232.130:8080/api/login', values)
+        axios.post(`${apiUrl}/api/login`, values)
         .then((response) => {
             // Check the response code
             if (response.data.code === '0') {

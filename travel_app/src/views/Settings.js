@@ -1,16 +1,21 @@
 import React, { useState, useContext } from 'react';
-import { Table, Modal, Button, Card, Row, Col, message } from 'antd';
+import { Table, Modal, Button, Card, Row, Col, message, Avatar, Upload } from 'antd';
+import { UploadOutlined, UserOutlined } from '@ant-design/icons';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
 import { useNavigate } from 'react-router-dom';
 import defaultImage from '../picture/Default.png'
 import nightImage from '../picture/Night.png'
+import axios from 'axios';
 
 export default function Settings() {
     const { savedPaths, setDisplayedPath, deletePath } = useContext(SavedPathsContext);
     const { theme, setTheme } = useContext(ThemeContext);
+    // State to store the selected avatar image file
+    const [avatarImage, setAvatarImage] = useState(null);
     const navigate = useNavigate();
     const { Meta } = Card;
+    const apiUrl = process.env.REACT_APP_API_BASE_URL;
 
     const handleDisplayPath = (path) => {
         setDisplayedPath(path);
@@ -33,6 +38,33 @@ export default function Settings() {
     const handleThemeChange = (newTheme) => {
         setTheme(newTheme);
         message.success('Theme switched successfully!');
+    };
+
+    const handleAvatarChange = (info) => {
+        if (info.file.status === 'done') {
+        message.success(`${info.file.name} uploaded successfully`);
+        } else if (info.file.status === 'error') {
+        message.error(`${info.file.name} upload failed.`);
+        }
+    };
+
+    const customRequest = async ({ file, onSuccess, onError }) => {
+        try {
+        const formData = new FormData();
+        formData.append('file', file);
+        // Change the URL to your backend endpoint that handles the avatar upload
+        const response = await axios.post(`${apiUrl}/api/upload-avatar`, formData);
+        if (response.data) {
+            // Save the file URL or file ID returned by the backend in your state or user profile
+            console.log('Avatar uploaded successfully:', response.data);
+            onSuccess();
+        } else {
+            onError(new Error('Failed to upload avatar'));
+        }
+        } catch (error) {
+        console.error('Error uploading avatar:', error);
+        onError(error);
+        }
     };
 
     // Define the columns for the table
@@ -104,6 +136,15 @@ export default function Settings() {
 
     return (
         <div>
+            <div style={{ textAlign: 'center' }}>
+                <Avatar size={100} src={avatarImage} icon={<UserOutlined  />} />
+
+                <div style={{ marginTop: 16, marginBottom: 16 }}>
+                    <Upload customRequest={customRequest} showUploadList={false} onChange={handleAvatarChange}>
+                        <Button icon={<UploadOutlined />}>Upload Avatar</Button>
+                    </Upload>
+                </div>
+            </div>
             <div>
                 <Card title="Saved Paths">
                     

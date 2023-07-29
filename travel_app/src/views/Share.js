@@ -14,8 +14,10 @@ const SharedPage = () => {
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
   });
 
+  const apiUrl = process.env.REACT_APP_API_BASE_URL;
+
   useEffect(() => {
-    axios.get(`/api/share/${pathId}`)
+    axios.get(`${apiUrl}/api/share/${pathId}`)
       .then(response => {
         setPath(response.data.data);
         console.log("Successfully retrive shared path:", response.data.data);
@@ -24,7 +26,7 @@ const SharedPage = () => {
         console.error('Error retrieving shared path:', error);
       });
     // get markers binded with the path
-    axios.get(`/api/share/marker/${pathId}`)
+    axios.get(`${apiUrl}/api/share/marker/${pathId}`)
       .then(response => {
         console.log(response.data.data);
         setMarkers(response.data.data);
