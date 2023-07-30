@@ -1,2 +1,0 @@
-"use strict";(self.webpackChunktravel_app=self.webpackChunktravel_app||[]).push([[304],{7304:function(e,s,r){r.r(s);var n=r(184);s.default=function(){var e=sessionStorage.getItem("user")||"{}",s=JSON.parse(e);return console.log(s),(0,n.jsxs)("div",{className:"community",children:[(0,n.jsx)("header",{children:s&&(0,n.jsxs)("p",{children:["Welcome, ",s.username,"!"]})}),(0,n.jsx)("p",{children:"This is Community"})]})}}}]);
-//# sourceMappingURL=304.6d32613c.chunk.js.map
