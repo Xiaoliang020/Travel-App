@@ -69,6 +69,18 @@ public class UserController {
     @PostMapping("/{userId}/upload-avatar")
     public Result<?> uploadAvatar(@PathVariable String userId, @RequestParam("file") MultipartFile file) {
         try {
+            // Retrieve the existing avatar URL for the user
+            Optional<User> user = userService.findUser(userId);
+            if (user.isPresent()) {
+                String avatarUrl = user.get().getAvatarUrl();
+                // If the user already has an avatar, delete the old avatar from the database
+                if (avatarUrl != null) {
+                    userService.deleteAvatar(avatarUrl);
+                }
+            } else {
+                return Result.error("-1", "User not found");
+            }
+
             String avatarUrl = userService.saveAvatar(userId, file);
             return Result.success(avatarUrl);
         } catch (IOException e) {
