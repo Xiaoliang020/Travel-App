@@ -5,10 +5,8 @@ import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -85,5 +83,19 @@ public class UserService {
         outputStream.close();
 
         return outputStream.toByteArray();
+    }
+
+    // Method to delete the avatar file from MongoDB GridFS
+    public void deleteAvatar(String avatarUrl) throws IOException {
+        // Extract the ObjectId from the avatarUrl
+        ObjectId avatarObjectId = new ObjectId(avatarUrl);
+
+        // Create a query to find the avatar file by its ObjectId in both fs.files and fs.chunks collections
+        Query fileQuery = Query.query(Criteria.where("_id").is(avatarObjectId));
+        Query chunksQuery = Query.query(Criteria.where("files_id").is(avatarObjectId));
+
+        // Use GridFsTemplate to delete the avatar file from both collections
+        gridFsTemplate.delete(fileQuery);
+        gridFsTemplate.delete(chunksQuery);
     }
 }
