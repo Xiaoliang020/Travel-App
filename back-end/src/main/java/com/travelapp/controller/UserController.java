@@ -77,7 +77,7 @@ public class UserController {
     }
 
     @GetMapping("/avatar/{userid}")
-    public Result<?> getPathsByUserId(@PathVariable String userid) {
+    public Result<?> getAvatarByUserId(@PathVariable String userid) {
         Optional<User> user = userService.findUser(userid);
         if (user.isPresent()) {
             String avatarUrl = user.get().getAvatarUrl();

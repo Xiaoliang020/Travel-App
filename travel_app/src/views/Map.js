@@ -28,13 +28,14 @@ export default function Map() {
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [markerName, setMarkerName] = useState(1);
-  const [pathNameProvided, setPathNameProvided] = useState(true);
 
   const apiUrl = process.env.REACT_APP_API_BASE_URL;
 
   const pathName = useRef("");
   const inputText = useRef("");
-  const [markerIcon, setMarkerIcon] = useState(1);
+  const markerIcon = useRef("");
+  // State to store the user's avatarUrl
+  const markerIconDataUrl = useRef("");
 
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState();
@@ -53,10 +54,31 @@ export default function Map() {
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
-  const [previewTitle, setPreviewTitle] = useState("");
-  const [uploadedFiles, setUploadedFiles] = useState([]);
+
 
   const handleCancel = () => setPreviewOpen(false);
+
+  const customRequest = async ({ file, onSuccess, onError }) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      // Change the URL to your backend endpoint that handles the avatar upload
+      const response = await axios.post(`${apiUrl}/api/upload-icon`, formData);
+      if (response.data.code === '0') {
+        // Save the file URL or file ID returned by the backend in your state or user profile
+        console.log('Icon uploaded successfully:', response.data);
+        console.log(response.data.data)
+        markerIcon.current = response.data.data;
+        console.log(markerIcon.current)
+        onSuccess();
+      } else {
+        onError(new Error('Failed to upload icon'));
+      }
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      onError(error);
+    }
+  };
 
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {
@@ -81,18 +103,24 @@ export default function Map() {
     </div>
   );
 
-  const handleChange = ({ file, fileList: newFileList }) => {
-    if (file.status === 'uploading') {
-      setLoading(true);
-      return;
-    }
-    if (file.status === 'done') {
-      // Get this url from response in real world.
-      setImageUrl(URL.createObjectURL(file.originFileObj));
-      setLoading(false);
+  // const handleChange = ({ file, fileList: newFileList }) => {
+  //   if (file.status === 'uploading') {
+  //     setLoading(true);
+  //     return;
+  //   }
+  //   if (file.status === 'done') {
+  //     // Get this url from response in real world.
+  //     setImageUrl(URL.createObjectURL(file.originFileObj));
+  //     setLoading(false);
+  //   }
+  // };
+  const handleChange = (info) => {
+    if (info.file.status === 'done') {
+      message.success(`${info.file.name} uploaded successfully`);
+    } else if (info.file.status === 'error') {
+      message.error(`${info.file.name} upload failed.`);
     }
   };
-
 
   function getLocation() {
     return new Promise((resolve, reject) => {
@@ -243,11 +271,12 @@ export default function Map() {
           >
 
             <Upload
+              customRequest={customRequest}
               listType="picture-circle"
               onPreview={handlePreview}
               onChange={handleChange}
             >
-              {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+              {uploadButton}
 
             </Upload>
 
@@ -278,28 +307,46 @@ export default function Map() {
       ),
       onOk: (close) => {
 
-        const newMarker = {
-          markerLat: lat,
-          markerLng: lng,
-          type: "custom",
-          markerID: Date.now(), // Assign a unique ID to the marker
-          name: markerName,
-          text: inputText.current,
-          icon: markerIcon === 1 ? myImg : myImg2,
-          pathID: ""
-        };
+        axios.get(`${apiUrl}/api/icon/${markerIcon.current}`)
+          .then((response) => {
+            if (response.data.code === '0') {
+              console.log(response.data.data);
+              const imageBase64 = response.data.data;
+              // Set the userAvatarUrl state with the fetched avatar data
+              markerIconDataUrl.current = `data:image/png;base64,${imageBase64}`;
+              console.log(markerIconDataUrl.current)
 
-        console.log(newMarker);
+              const customMarkerIcon = {
+                url: markerIconDataUrl.current, // your base64 data url
+                scaledSize: new google.maps.Size(64, 64) // the size you want to scale to
+              };
 
-        setMarkers((prev) => [...prev, newMarker]);
-        setMarkerName(markerName + 1);
-        console.log("Add an information point");
+              const newMarker = {
+                markerLat: lat,
+                markerLng: lng,
+                type: "custom",
+                markerID: Date.now(), // Assign a unique ID to the marker
+                name: markerName,
+                text: inputText.current,
+                url: customMarkerIcon, // Only for display, will not stored in database
+                icon: markerIcon.current,
+                pathID: ""
+              };
 
-        if (markerIcon === 1) {
-          setMarkerIcon(2);
-        } else {
-          setMarkerIcon(1);
-        }
+              console.log(newMarker);
+
+              setMarkers((prev) => [...prev, newMarker]);
+              setMarkerName(markerName + 1);
+              console.log("Add an information point");
+
+            } else {
+              console.log("Icon not found");
+            }
+          })
+          .catch((error) => {
+            console.error('Error fetching icon data:', error);
+          });
+
 
         close();
       },
@@ -381,14 +428,14 @@ export default function Map() {
                     updatedMarkers.forEach(marker => {
                       console.log(marker)
                       axios.post(`${apiUrl}/api/marker-data`, marker)
-                      .then(response => {
-                        if (response.data.code === '0') {
-                          console.log('Marker data successfully sent to backend:', response.data);
-                        }
-                      })
-                      .catch(error => {
-                        console.log('Error sending marker data to the backend:', error);
-                      });
+                        .then(response => {
+                          if (response.data.code === '0') {
+                            console.log('Marker data successfully sent to backend:', response.data);
+                          }
+                        })
+                        .catch(error => {
+                          console.log('Error sending marker data to the backend:', error);
+                        });
                     })
 
                   })
@@ -527,6 +574,7 @@ export default function Map() {
   if (!isLoaded) return <div>Loading..</div>
 
   return (
+    /*global google*/
     <div className="map-view">
       <div className="map-container">
         <GoogleMap
@@ -567,7 +615,8 @@ export default function Map() {
               key={marker}
               position={{ lat: marker.markerLat, lng: marker.markerLng }}
               visible={marker.type === 'custom'}
-              icon={marker.icon}
+              icon={marker.url}
+
               onClick={() => handleMarkerClick(marker)}
             />
           ))}
