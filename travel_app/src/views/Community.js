@@ -26,31 +26,58 @@ export default function Community() {
     let userStr = sessionStorage.getItem("user") || "{}"
     let user = JSON.parse(userStr);
     const apiUrl = process.env.REACT_APP_API_BASE_URL;
-    // State to store the user's avatarUrl
-    const [userAvatarDataUrl, setUserAvatarDataUrl] = useState(null);
 
+    const [isLoading, setIsLoading] = useState(true);
     const [isModalVisible, setModalVisible] = useState(false);
     const [form] = Form.useForm();
 
-    // Fetch the user's avatarUrl when the component mounts
-    // useEffect(() => {
-    //     // Make an API call to fetch the user data, including the avatarUrl
-    //     axios.get(`${apiUrl}/api/avatar/${user.id}`)
-    //         .then((response) => {
-    //             if (response.data.code === '0') {
-    //                 console.log(response.data.data);
+    const [posts, setPosts] = useState([]);
 
-    //                 const imageBase64 = response.data.data;
-    //                 // Set the userAvatarUrl state with the fetched avatar data
-    //                 setUserAvatarDataUrl(`data:image/png;base64,${imageBase64}`);
-    //             } else {
-    //                 console.log("User not found");
-    //             }
-    //         })
-    //         .catch((error) => {
-    //             console.error('Error fetching user data:', error);
-    //         });
-    // }, []);
+    const fetchPosts = () => {
+        axios
+            .get(`${apiUrl}/api/posts`)
+            .then((response) => {
+                if (response.data.code === '0') {
+                    console.log('Successfully fetched post data');
+                    const postData = response.data.data;
+                    // Fetch the user avatar for each post and update the data array
+                    const fetchUserAvatars = postData.map((post) => {
+                        return axios
+                        .get(`${apiUrl}/api/avatar/${post.userid}`)
+                        .then((avatarResponse) => {
+                            if (avatarResponse.data.code === '0') {
+                                const avatarData = avatarResponse.data.data;
+                                post.avatar = `data:image/png;base64,${avatarData}`;
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching user avatar:', error);
+                        });
+                    });
+
+                    // Wait for all the avatar fetch calls to finish before updating the data array
+                    Promise.all(fetchUserAvatars)
+                        .then(() => {
+                            setPosts(postData);
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching user avatars:', error);
+                        });
+                } else {
+                    console.log('Error fetching post data:', response.data.message);
+                }
+                // Clear loading state when API call is completed
+                setIsLoading(false);
+            })
+            .catch((error) => {
+                console.error('Error fetching post data:', error);
+                setIsLoading(false);
+            });
+    };
+
+    useEffect(() => {
+        fetchPosts();
+    }, []);
 
     const handleMakePost = () => {
         setModalVisible(true);
@@ -72,7 +99,7 @@ export default function Community() {
             console.log(postData);
 
             // Make the API call using axios
-            axios.post(`${apiUrl}/api/posts`, postData)
+            axios.post(`${apiUrl}/api/make-post`, postData)
                 .then((response) => {
                     // Handle successful response
                     if (response.data.code === '0') {
@@ -94,6 +121,9 @@ export default function Community() {
 
     return (
         <div className='community'>
+            {isLoading ? (
+            <div>Loading...</div> // Show a loading indicator while fetching data
+            ) : (
             <List
                 itemLayout="vertical"
                 size="large"
@@ -103,7 +133,7 @@ export default function Community() {
                     },
                     pageSize: 3,
                 }}
-                dataSource={data}
+                dataSource={posts}
                 footer={
                     <div>
                         <b>travel app</b> footer part
@@ -136,6 +166,7 @@ export default function Community() {
                     </List.Item>
                 )}
             />
+            )}
             <FloatButton.Group shape="circle" style={{ left: 250, top: '85%', transform: 'translateY(-50%)' }}>
                 <FloatButton
                     icon={<FormOutlined />}

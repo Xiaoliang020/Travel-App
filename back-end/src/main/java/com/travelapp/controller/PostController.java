@@ -25,9 +25,14 @@ public class PostController {
         this.postService = postService;
     }
 
-    @PostMapping("/posts")
+    @PostMapping("/make-post")
     public Result<?> savePathData(@RequestBody Post postData) {
         postService.savePost(postData);
         return Result.success();
+    }
+
+    @GetMapping("/posts")
+    public Result<?> getAllPosts() {
+        return Result.success(postService.getAllPosts());
     }
 }
