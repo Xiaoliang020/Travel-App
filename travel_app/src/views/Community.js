@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FormOutlined, LikeOutlined, MessageOutlined, StarOutlined } from '@ant-design/icons';
-import { Avatar, List, Space, FloatButton, Form, Modal, Input, message } from 'antd';
+import { Avatar, List, Space, FloatButton, Form, Modal, Input, message, Select } from 'antd';
 import axios from 'axios';
 import '../assets/styles/community.css';
 
@@ -32,8 +32,14 @@ export default function Community() {
     const [form] = Form.useForm();
 
     const [posts, setPosts] = useState([]);
+    const [selectedPathId, setSelectedPathId] = useState('');
+    const [paths, setPaths] = useState([]);
+    // Add state to store the list of paths for the user to select
+    const [pathOptions, setPathOptions] = useState([]);
 
     const fetchPosts = () => {
+        setIsLoading(true);
+
         axios
             .get(`${apiUrl}/api/posts`)
             .then((response) => {
@@ -58,6 +64,8 @@ export default function Community() {
                     // Wait for all the avatar fetch calls to finish before updating the data array
                     Promise.all(fetchUserAvatars)
                         .then(() => {
+                            // Sort the posts by createdAt in descending order (newest first)
+                            postData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                             setPosts(postData);
                         })
                         .catch((error) => {
@@ -79,6 +87,23 @@ export default function Community() {
         fetchPosts();
     }, []);
 
+    useEffect(() => {
+        axios.get(`${apiUrl}/api/paths/${user.id}`)
+            .then(response => {
+                console.log(response.data);
+                setPaths(response.data.data);
+                // Format the paths data into options for the Select component
+                const formattedOptions = response.data.data.map((path) => ({
+                    value: path.id,
+                    label: path.name,
+                }));
+                setPathOptions(formattedOptions);
+            })
+            .catch(error => {
+                console.error('Error retrieving paths:', error);
+            });
+    }, []);
+
     const handleMakePost = () => {
         setModalVisible(true);
     };
@@ -95,7 +120,11 @@ export default function Community() {
                 content: values.content,
                 userid: user.id,
                 avatarid: user.avatarUrl,
+                pathid: selectedPathId,
             };
+            // Get the current date and time to set the createdAt field
+            const currentDate = new Date();
+            postData.createdAt = currentDate.toISOString(); // Convert date to ISO string format
             console.log(postData);
 
             // Make the API call using axios
@@ -104,6 +133,8 @@ export default function Community() {
                     // Handle successful response
                     if (response.data.code === '0') {
                         console.log('Post saved successfully:', response.data);
+                        // After successfully adding the post, fetch the posts data again
+                        fetchPosts();
                     } else {
                         message.error('Failed to make a post');
                     }
@@ -116,6 +147,7 @@ export default function Community() {
             // Close the modal after form submission
             setModalVisible(false);
             form.resetFields();
+            setSelectedPathId(''); // Reset the selectedPathId state
         });
     };
 
@@ -196,6 +228,25 @@ export default function Community() {
                         rules={[{ required: true, message: 'Please enter the content' }]}
                     >
                         <Input.TextArea />
+                    </Form.Item>
+                    
+                    {/* Add a list of paths for the user to select */}
+                    <Form.Item label="Select a path">
+                        <Select
+                            showSearch
+                            style={{
+                            width: 200,
+                            }}
+                            placeholder="Search to Select"
+                            optionFilterProp="children"
+                            filterOption={(input, option) => (option?.label ?? '').includes(input)}
+                            filterSort={(optionA, optionB) =>
+                            (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                            }
+                            options={pathOptions}
+                            value={selectedPathId} // Set the selected value for the Select component
+                            onChange={setSelectedPathId} // Handle selecting a path
+                        />
                     </Form.Item>
                 </Form>
             </Modal>

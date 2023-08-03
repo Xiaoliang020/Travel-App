@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
 import java.util.List;
 
 @Document(collection = "posts")
@@ -17,4 +18,5 @@ public class Post {
     private String avatarid;
     private String pathid;
     private List<Comment> comments;
+    private Date createdAt;
 }
