@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FormOutlined, LikeOutlined, MessageOutlined, StarOutlined } from '@ant-design/icons';
-import { Avatar, List, Space, FloatButton, Form, Modal, Input, message, Select } from 'antd';
+import { Avatar, List, Space, FloatButton, Form, Modal, Input, message, Select, Menu, Dropdown } from 'antd';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import '../assets/styles/community.css';
 
@@ -36,6 +37,23 @@ export default function Community() {
     const [paths, setPaths] = useState([]);
     // Add state to store the list of paths for the user to select
     const [pathOptions, setPathOptions] = useState([]);
+
+    const getCurrentWebsiteURL = () => {
+        const protocol = window.location.protocol;
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+        const path = window.location.pathname;
+
+        // If the port is empty or equal to 80 (HTTP) or 443 (HTTPS), don't include it in the URL
+        const portSuffix = (port && port !== '80' && port !== '443') ? `:${port}` : '';
+
+        // Assemble the website URL
+        const websiteURL = `${protocol}//${hostname}${portSuffix}`;
+
+        return websiteURL;
+    };
+
+    const currentURL = getCurrentWebsiteURL();
 
     const fetchPosts = () => {
         setIsLoading(true);
@@ -83,6 +101,28 @@ export default function Community() {
             });
     };
 
+    const calculateTimeAgo = (createdAt) => {
+        const postDate = new Date(createdAt);
+        const currentDate = new Date();
+        const timeDiff = currentDate.getTime() - postDate.getTime();
+
+        // Calculate the time in seconds, minutes, hours, or days
+        const seconds = Math.floor(timeDiff / 1000);
+        const minutes = Math.floor(timeDiff / (1000 * 60));
+        const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+        if (days > 0) {
+            return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+        } else if (hours > 0) {
+            return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+        } else if (minutes > 0) {
+            return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+        } else {
+            return `${seconds} ${seconds === 1 ? 'second' : 'seconds'} ago`;
+        }
+    };
+
     useEffect(() => {
         fetchPosts();
     }, []);
@@ -119,6 +159,7 @@ export default function Community() {
                 title: values.title,
                 content: values.content,
                 userid: user.id,
+                username: user.username,
                 avatarid: user.avatarUrl,
                 pathid: selectedPathId,
             };
@@ -154,50 +195,63 @@ export default function Community() {
     return (
         <div className='community'>
             {isLoading ? (
-            <div>Loading...</div> // Show a loading indicator while fetching data
+                <div>Loading...</div> // Show a loading indicator while fetching data
             ) : (
-            <List
-                itemLayout="vertical"
-                size="large"
-                pagination={{
-                    onChange: (page) => {
-                        console.log(page);
-                    },
-                    pageSize: 3,
-                }}
-                dataSource={posts}
-                footer={
-                    <div>
-                        <b>travel app</b> footer part
-                    </div>
-                }
-                renderItem={(item) => (
-                    <List.Item
-                        key={item.title}
-                        actions={[
-                            <IconText icon={StarOutlined} text="156" key="list-vertical-star-o" />,
-                            <IconText icon={LikeOutlined} text="156" key="list-vertical-like-o" />,
-                            <IconText icon={MessageOutlined} text="2" key="list-vertical-message" />,
-                        ]}
-                        extra={
-                        <img
-                            width={272}
-                            alt="logo"
-                            src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
-                        />
-                        }
-                    >
-                        <List.Item.Meta
-                            avatar={<Avatar src={item.avatar} />}
-                            title={<a href={item.href}>{item.title}</a>}
-                            description={item.description}
-                        />
-                        <div style={{ textAlign: 'left' }}>
-                            {item.content}
+                <List
+                    itemLayout="vertical"
+                    size="large"
+                    pagination={{
+                        onChange: (page) => {
+                            console.log(page);
+                        },
+                        pageSize: 3,
+                    }}
+                    dataSource={posts}
+                    footer={
+                        <div>
+                            <b>travel app</b> footer part
                         </div>
-                    </List.Item>
-                )}
-            />
+                    }
+                    renderItem={(item) => (
+                        <Link to={`/post/${item.id}`}>
+                            <List.Item
+                                key={item.title}
+                                className="post-item"
+                                actions={[
+                                    <IconText icon={StarOutlined} text="156" key="list-vertical-star-o" />,
+                                    <IconText icon={LikeOutlined} text="156" key="list-vertical-like-o" />,
+                                    <IconText icon={MessageOutlined} text="2" key="list-vertical-message" />,
+                                ]}
+                                extra={
+                                    item.pathid ? (
+                                        <a href={`${currentURL}/share/${item.pathid}`} target="_blank" rel="noopener noreferrer">
+                                            <img
+                                                width={272}
+                                                alt="logo"
+                                                src={`https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png`}
+                                            />
+                                        </a>
+                                    ) : (
+                                        <img
+                                        width={272}
+                                        alt="logo"
+                                        src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
+                                        />
+                                    )
+                                }
+                            >
+                                <List.Item.Meta
+                                    avatar={<Avatar src={item.avatar} />}
+                                    title={item.username}
+                                    description={`Posted ${calculateTimeAgo(item.createdAt)}`}
+                                />
+                                <div className="post-content" style={{ textAlign: 'left' }}>
+                                    {item.content}
+                                </div>
+                            </List.Item>
+                        </Link>
+                    )}
+                />
             )}
             <FloatButton.Group shape="circle" style={{ left: 250, top: '85%', transform: 'translateY(-50%)' }}>
                 <FloatButton
@@ -235,13 +289,13 @@ export default function Community() {
                         <Select
                             showSearch
                             style={{
-                            width: 200,
+                                width: 200,
                             }}
                             placeholder="Search to Select"
                             optionFilterProp="children"
                             filterOption={(input, option) => (option?.label ?? '').includes(input)}
                             filterSort={(optionA, optionB) =>
-                            (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                                (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                             }
                             options={pathOptions}
                             value={selectedPathId} // Set the selected value for the Select component

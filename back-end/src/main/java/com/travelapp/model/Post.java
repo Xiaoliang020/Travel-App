@@ -14,6 +14,7 @@ public class Post {
     private String id;
     private String title;
     private String content;
+    private String username;
     private String userid;
     private String avatarid;
     private String pathid;

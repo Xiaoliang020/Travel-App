@@ -14,6 +14,7 @@ const Login = lazy(() => import("../views/Login"))
 const Register = lazy(() => import("../views/Register"))
 const Paths = lazy(() => import("../views/Paths"))
 const SharedPage = lazy(() => import("../views/Share"))
+const Post = lazy(() => import("../views/Post"))
 
 const withLoadingComponent = (comp) => (
     <React.Suspense fallback={<div>Loading...</div>}>
@@ -66,6 +67,10 @@ const routes = [
                 path: "/helloworld",
                 element: authRoute(<HelloWorld />)
             },
+            {
+                path: "/post/:postId",
+                element: authRoute(<Post />)
+            }
         ]
     },
     {

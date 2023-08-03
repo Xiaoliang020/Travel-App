@@ -11,3 +11,12 @@
 .ant-list-item-meta-description {
   text-align: left;
 }
+
+.community .post-item:hover {
+  background-color: #f0f0f0; /* Set your desired background color */
+  cursor: pointer; /* Change the cursor to indicate it's clickable */
+}
+
+.community .post-content {
+  font-size: 16px; /* Set your desired font size */
+}
