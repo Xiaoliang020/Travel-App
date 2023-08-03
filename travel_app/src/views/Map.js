@@ -99,6 +99,7 @@ export default function Map() {
         markerPicture.current = response.data.data; // picture's objectID
         console.log(markerPicture.current)
         setPictureGroup((prev) => [...prev, markerPicture.current]);
+        console.log("函数内"+pictureGroup);
         onSuccess();
       } else {
         onError(new Error('Failed to upload picture'));
@@ -351,6 +352,7 @@ export default function Map() {
                 scaledSize: new google.maps.Size(64, 64) // the size you want to scale to
               };
 
+              console.log("现在"+pictureGroup)
               const newMarker = {
                 markerLat: lat,
                 markerLng: lng,
@@ -360,7 +362,8 @@ export default function Map() {
                 text: inputText.current,
                 url: customMarkerIcon, // Only for display, will not stored in database
                 icon: markerIcon.current,
-                pathID: ""
+                pathID: "",
+                picture: pictureGroup
               };
 
               console.log(newMarker);
