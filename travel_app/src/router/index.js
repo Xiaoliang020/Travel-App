@@ -15,6 +15,7 @@ const Register = lazy(() => import("../views/Register"))
 const Paths = lazy(() => import("../views/Paths"))
 const SharedPage = lazy(() => import("../views/Share"))
 const Post = lazy(() => import("../views/Post"))
+const Image = lazy(() => import("../views/Image"))
 
 const withLoadingComponent = (comp) => (
     <React.Suspense fallback={<div>Loading...</div>}>
@@ -84,6 +85,10 @@ const routes = [
     {
         path: "/share/:pathId",
         element: <SharedPage />,
+    },
+    {
+        path: "/img/:imageId.png",
+        element: <Image />,
     }
 ]
 

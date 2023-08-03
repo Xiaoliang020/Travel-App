@@ -67,16 +67,16 @@ export default function Community() {
                     // Fetch the user avatar for each post and update the data array
                     const fetchUserAvatars = postData.map((post) => {
                         return axios
-                        .get(`${apiUrl}/api/avatar/${post.userid}`)
-                        .then((avatarResponse) => {
-                            if (avatarResponse.data.code === '0') {
-                                const avatarData = avatarResponse.data.data;
-                                post.avatar = `data:image/png;base64,${avatarData}`;
-                            }
-                        })
-                        .catch((error) => {
-                            console.error('Error fetching user avatar:', error);
-                        });
+                            .get(`${apiUrl}/api/avatar/${post.userid}`)
+                            .then((avatarResponse) => {
+                                if (avatarResponse.data.code === '0') {
+                                    const avatarData = avatarResponse.data.data;
+                                    post.avatar = `data:image/png;base64,${avatarData}`;
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Error fetching user avatar:', error);
+                            });
                     });
 
                     // Wait for all the avatar fetch calls to finish before updating the data array
@@ -233,9 +233,9 @@ export default function Community() {
                                         </a>
                                     ) : (
                                         <img
-                                        width={272}
-                                        alt="logo"
-                                        src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
+                                            width={272}
+                                            alt="logo"
+                                            src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
                                         />
                                     )
                                 }
