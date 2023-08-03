@@ -18,5 +18,5 @@ public class User {
     private String password;
     private String email;
     private String gender;
-    private String avatarUrl;
+    private String avatarUrl; //fs.files ObjectID
 }

@@ -61,6 +61,27 @@ public class MarkerService {
         return iconUrlOrId;
     }
 
+    // Save the picture image to MongoDB GridFS and update the marker's picture
+    // field
+    public String savePicture(MultipartFile file) throws IOException {
+        // Save the icon image to MongoDB GridFS
+        DBObject metaData = new BasicDBObject();
+        metaData.put("type", "picture");
+        ObjectId fileId = gridFsTemplate.store(file.getInputStream(), file.getOriginalFilename(), file.getContentType(),
+                metaData);
+
+        // Save the icon image to MongoDB GridFS and get the icon URL or ID
+        String pictureUrlOrId = fileId.toString();
+
+        // Update the marker's icon field with the new icon URL or ID
+        // Marker marker = markerRepository.findByMarkerID(markerID).orElseThrow(() ->
+        // new RuntimeException("Marker not found"));
+        // marker.setIcon(iconUrlOrId);
+        // markerRepository.save(marker);
+
+        return pictureUrlOrId;
+    }
+
     // Method to fetch icon data by URL
     public byte[] getIconDataByIconId(String icon) throws IOException {
         // Convert the icon string to ObjectId
@@ -74,7 +95,7 @@ public class MarkerService {
         // Create a query to find the icon with the given ObjectId
         Query query = new Query(Criteria.where("_id").is(iconObjectId));
 
-        // Find the avatar in GridFS
+        // Find the icon in GridFS
         GridFSFile gridFSFile = gridFsTemplate.findOne(query);
 
         if (gridFSFile == null) {
@@ -96,4 +117,41 @@ public class MarkerService {
 
         return outputStream.toByteArray();
     }
+
+    // Method to fetch picture data by URL
+    public byte[] getPictureDataByPictureId(String picture) throws IOException {
+        // Convert the picture string to ObjectId
+        ObjectId pictureObjectId;
+        try {
+            pictureObjectId = new ObjectId(picture);
+        } catch (IllegalArgumentException e) {
+            throw new FileNotFoundException("Invalid picture URL format.");
+        }
+
+        // Create a query to find the picture with the given ObjectId
+        Query query = new Query(Criteria.where("_id").is(pictureObjectId));
+
+        // Find the picture in GridFS
+        GridFSFile gridFSFile = gridFsTemplate.findOne(query);
+
+        if (gridFSFile == null) {
+            throw new FileNotFoundException("Picture not found for the given URL.");
+        }
+
+        // Get the InputStream of the icon file
+        GridFsResource resource = gridFsTemplate.getResource(gridFSFile);
+        InputStream inputStream = resource.getInputStream();
+
+        // Read the picture data and convert it to a byte array
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        int data;
+        while ((data = inputStream.read()) != -1) {
+            outputStream.write(data);
+        }
+        inputStream.close();
+        outputStream.close();
+
+        return outputStream.toByteArray();
+    }
+
 }

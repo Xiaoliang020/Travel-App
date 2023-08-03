@@ -47,6 +47,16 @@ public class MarkerController {
         }
     }
 
+    @PostMapping("/upload-picture")
+    public Result<?> uploadPicture(@RequestParam("file") MultipartFile file) {
+        try {
+            String picture = markerService.savePicture(file);
+            return Result.success(picture);
+        } catch (IOException e) {
+            return Result.error("-1", "Failed to upload the picture");
+        }
+    }
+
     @GetMapping("/icon/{iconid}")
     public Result<?> getIconByIconId(@PathVariable String iconid) {
         try {
@@ -54,6 +64,19 @@ public class MarkerController {
             return Result.success(iconData);
         } catch (FileNotFoundException e) {
             return Result.error("-1", "Icon File not found");
+        } catch (IOException e) {
+            return Result.error("-1", "Output stream error");
+        }
+
+    }
+
+    @GetMapping("/picture/{pictureid}")
+    public Result<?> getPictureByPictureId(@PathVariable String pictureid) {
+        try {
+            byte[] pictureData = markerService.getPictureDataByPictureId(pictureid);
+            return Result.success(pictureData);
+        } catch (FileNotFoundException e) {
+            return Result.error("-1", "Picture File not found");
         } catch (IOException e) {
             return Result.error("-1", "Output stream error");
         }
