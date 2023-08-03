@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Modal, Button, Card, Row, Col, message, Avatar, Upload } from 'antd';
 import { UploadOutlined, UserOutlined } from '@ant-design/icons';
 import { ThemeContext } from '../App';
-import { useNavigate } from 'react-router-dom';
 import defaultImage from '../picture/Default.png'
 import nightImage from '../picture/Night.png'
 import ImgCrop from 'antd-img-crop'
@@ -10,7 +9,6 @@ import axios from 'axios';
 
 export default function Settings() {
     const { theme, setTheme } = useContext(ThemeContext);
-    const navigate = useNavigate();
     const { Meta } = Card;
     // State to store the user's avatarData
     const [userAvatarData, setUserAvatarData] = useState(null);

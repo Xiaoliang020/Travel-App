@@ -4,6 +4,8 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Document(collection = "markers")
 @Data
 public class Marker {
@@ -18,5 +20,7 @@ public class Marker {
     private String text;
     private String icon;
     private String pathID;
+    private String picture;
+    // private List<String> picture;
 
 }

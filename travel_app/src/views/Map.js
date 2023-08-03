@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
 import '../App.css';
-import { FloatButton, Button, Tooltip, Modal, Upload, Input, message } from 'antd';
+import { FloatButton, Button, Tooltip, Modal, Upload, Input, message, Image } from 'antd';
 import { useContext } from 'react';
 import SavedPathsContext from '../SavedPathsContext';
 import { ThemeContext } from '../App';
@@ -10,8 +10,6 @@ import html2canvas from 'html2canvas';
 import Geocode from "react-geocode";
 import { LoadingOutlined } from '@ant-design/icons';
 import axios from 'axios';
-import myImg from '../picture/1.jpg';
-import myImg2 from '../picture/2.jpg';
 import ImgCrop from 'antd-img-crop'
 import TextArea from 'antd/es/input/TextArea';
 import { darkMode } from './mapStyles';
@@ -34,8 +32,11 @@ export default function Map() {
   const pathName = useRef("");
   const inputText = useRef("");
   const markerIcon = useRef("");
+  const markerPicture = useRef("");
+  // const [pictureGroup, setPictureGroup] = useState([]);
   // State to store the user's avatarUrl
   const markerIconDataUrl = useRef("");
+  const markerPictureDataUrl = useRef("");
 
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState();
@@ -62,20 +63,48 @@ export default function Map() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      // Change the URL to your backend endpoint that handles the avatar upload
+      // Change the URL to your backend endpoint that handles the icon upload
       const response = await axios.post(`${apiUrl}/api/upload-icon`, formData);
       if (response.data.code === '0') {
         // Save the file URL or file ID returned by the backend in your state or user profile
         console.log('Icon uploaded successfully:', response.data);
         console.log(response.data.data)
-        markerIcon.current = response.data.data;
+        markerIcon.current = response.data.data; // icon's objectID
         console.log(markerIcon.current)
         onSuccess();
       } else {
         onError(new Error('Failed to upload icon'));
       }
     } catch (error) {
-      console.error('Error uploading avatar:', error);
+      console.error('Error uploading icon:', error);
+      onError(error);
+    }
+  };
+
+  // 监听每一个marker的图片数组
+  // useEffect(() => {
+  //   console.log(pictureGroup);
+  // }, [pictureGroup]);
+
+  const customPictureRequest = async ({ file, onSuccess, onError }) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      // Change the URL to your backend endpoint that handles the picture upload
+      const response = await axios.post(`${apiUrl}/api/upload-picture`, formData);
+      if (response.data.code === '0') {
+        // Save the file URL or file ID returned by the backend in your state or user profile
+        console.log('Picture uploaded successfully:', response.data);
+        console.log(response.data.data)
+        markerPicture.current = response.data.data; // picture's objectID
+        console.log(markerPicture.current)
+        // setPictureGroup((prev) => [...prev, markerPicture.current]);
+        onSuccess();
+      } else {
+        onError(new Error('Failed to upload picture'));
+      }
+    } catch (error) {
+      console.error('Error uploading picture:', error);
       onError(error);
     }
   };
@@ -282,13 +311,13 @@ export default function Map() {
 
           </ImgCrop>
 
-          Comment:
+          Type something at this moment:
 
           <TextArea
             showCount
             maxLength={200}
             style={{ heght: 250, marginBottom: 24 }}
-            placeholder="Input something..."
+            placeholder="It is memorable that ..."
             onChange={(e) => inputText.current = e.target.value}
           />
 
@@ -296,6 +325,7 @@ export default function Map() {
           <ImgCrop>
             <Upload
               listType="picture-card"
+              customRequest={customPictureRequest}
               onPreiew={handlePreview}
               onChange={handleChange}
             >
@@ -460,35 +490,67 @@ export default function Map() {
   // TODO
   const handleMarkerClick = (marker) => {
     console.log("marker text is:" + marker.text)
+
+    axios.get(`${apiUrl}/api/picture/${markerPicture.current}`)
+      .then((response) => {
+        if (response.data.code === '0') {
+          console.log(response.data.data);
+          const imageBase64 = response.data.data;
+          // Set the userAvatarUrl state with the fetched picture data
+          markerPictureDataUrl.current = `data:image/png;base64,${imageBase64}`;
+          console.log(markerPictureDataUrl.current)
+
+          // Open the modal after successfully fetching the picture data
+          openModal(marker);
+        } else {
+          console.log("Picture not found");
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching picture data:', error);
+      });
+  };
+
+  const openModal = (marker) => {
     Modal.confirm({
       title: 'The comment you left in this place',
       content: (
         <div>
-
+          Do you want to add something new?
           <TextArea
             showCount
             maxLength={200}
-            style={{ heght: 250, marginBottom: 24 }}
+            style={{ height: 250, marginBottom: 24 }}
             placeholder="Input something..."
             defaultValue={marker.text}
             onChange={(e) => inputText.current = e.target.value}
           />
           Pictures:
+          <div>
+            <Image.PreviewGroup
+              preview={{
+                onChange: (current, prev) => console.log(`current index: ${current}, prev index: ${prev}`),
+              }}
+            >
+              <Image width={100} src={markerPictureDataUrl.current} />
+              <Image
+                width={100}
+                src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg"
+              />
+            </Image.PreviewGroup>
+          </div>
           <ImgCrop>
             <Upload
               listType="picture-card"
-              onPreiew={handlePreview}
+              onPreview={handlePreview}
               onChange={handleChange}
             >
+              {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
             </Upload>
-            {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
           </ImgCrop>
-
-
         </div>
       ),
       onOk: (close) => {
-
         const newMarker = {
           lat: marker.lat,
           lng: marker.lng,
@@ -499,13 +561,12 @@ export default function Map() {
           icon: marker.icon
         };
 
-
-
         setMarkers(markers.map(m => m === marker ? newMarker : m))
         close();
       },
     });
   };
+
 
 
   // Group positions by pathId
