@@ -20,7 +20,7 @@ public class Marker {
     private String text;
     private String icon;
     private String pathID;
-    private String picture;
-    // private List<String> picture;
+    // private String picture;
+    private List<String> picture;
 
 }

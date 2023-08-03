@@ -33,7 +33,8 @@ export default function Map() {
   const inputText = useRef("");
   const markerIcon = useRef("");
   const markerPicture = useRef("");
-  // const [pictureGroup, setPictureGroup] = useState([]);
+  const [pictureGroup, setPictureGroup] = useState([]);
+  const [pictureDataGroup, setPictureDataGroup] = useState([]);
   // State to store the user's avatarUrl
   const markerIconDataUrl = useRef("");
   const markerPictureDataUrl = useRef("");
@@ -82,9 +83,9 @@ export default function Map() {
   };
 
   // 监听每一个marker的图片数组
-  // useEffect(() => {
-  //   console.log(pictureGroup);
-  // }, [pictureGroup]);
+  useEffect(() => {
+    console.log(pictureGroup);
+  }, [pictureGroup]);
 
   const customPictureRequest = async ({ file, onSuccess, onError }) => {
     try {
@@ -95,10 +96,10 @@ export default function Map() {
       if (response.data.code === '0') {
         // Save the file URL or file ID returned by the backend in your state or user profile
         console.log('Picture uploaded successfully:', response.data);
-        console.log(response.data.data)
         markerPicture.current = response.data.data; // picture's objectID
         console.log(markerPicture.current)
-        // setPictureGroup((prev) => [...prev, markerPicture.current]);
+        setPictureGroup((prev) => [...prev, markerPicture.current]);
+        console.log("函数内"+pictureGroup);
         onSuccess();
       } else {
         onError(new Error('Failed to upload picture'));
@@ -351,6 +352,7 @@ export default function Map() {
                 scaledSize: new google.maps.Size(64, 64) // the size you want to scale to
               };
 
+              console.log("现在"+pictureGroup)
               const newMarker = {
                 markerLat: lat,
                 markerLng: lng,
@@ -360,7 +362,8 @@ export default function Map() {
                 text: inputText.current,
                 url: customMarkerIcon, // Only for display, will not stored in database
                 icon: markerIcon.current,
-                pathID: ""
+                pathID: "",
+                picture: pictureGroup
               };
 
               console.log(newMarker);
@@ -451,7 +454,7 @@ export default function Map() {
                       console.log('Path data successfully sent to the backend:', response.data);
                     }
                     // Get pathId from back end
-                    console.log("path ID is: "+response.data.data);
+                    console.log("path ID is: " + response.data.data);
                     const updatedMarkers = markers.map(item => ({ ...item, pathID: response.data.data }))
 
                     // send markerData to back end
@@ -487,27 +490,36 @@ export default function Map() {
     });
   };
 
+
   // TODO
   const handleMarkerClick = (marker) => {
-    console.log("marker text is:" + marker.text)
+    console.log("marker text is:" + marker.text);
 
-    axios.get(`${apiUrl}/api/picture/${markerPicture.current}`)
-      .then((response) => {
-        if (response.data.code === '0') {
-          console.log(response.data.data);
-          const imageBase64 = response.data.data;
-          // Set the userAvatarUrl state with the fetched picture data
-          markerPictureDataUrl.current = `data:image/png;base64,${imageBase64}`;
-          console.log(markerPictureDataUrl.current)
+    // 预先加载图片数据
+    const promises = pictureGroup.map(pictureID => {
+      return axios.get(`${apiUrl}/api/picture/${pictureID}`)
+        .then((response) => {
+          if (response.data.code === '0') {
+            return response.data.data;
+          } else {
+            console.log("Picture not found");
+            return null;
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching picture data:', error);
+          return null;
+        });
+    });
 
-          // Open the modal after successfully fetching the picture data
-          openModal(marker);
-        } else {
-          console.log("Picture not found");
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching picture data:', error);
+    // 等待所有图片数据加载完成后再打开 Modal
+    Promise.all(promises)
+      .then((imageBase64Array) => {
+        // 过滤掉加载失败的图片数据
+        const filteredImageBase64Array = imageBase64Array.filter(imageBase64 => imageBase64 !== null);
+        setPictureDataGroup(filteredImageBase64Array);
+        // 打开 Modal
+        openModal(marker);
       });
   };
 
@@ -532,15 +544,14 @@ export default function Map() {
                 onChange: (current, prev) => console.log(`current index: ${current}, prev index: ${prev}`),
               }}
             >
-              <Image width={100} src={markerPictureDataUrl.current} />
-              <Image
-                width={100}
-                src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg"
-              />
+              {pictureDataGroup.map((pictureData, index) => (
+                <Image key={index} width={100} src={`data:image/png;base64,${pictureData}`} />
+              ))}
             </Image.PreviewGroup>
           </div>
           <ImgCrop>
             <Upload
+              customRequest={customPictureRequest}
               listType="picture-card"
               onPreview={handlePreview}
               onChange={handleChange}
@@ -551,17 +562,17 @@ export default function Map() {
         </div>
       ),
       onOk: (close) => {
-        const newMarker = {
-          lat: marker.lat,
-          lng: marker.lng,
-          type: "custom",
-          id: marker.id, // Assign a unique ID to the marker
-          name: marker.name,
-          text: inputText.current,
-          icon: marker.icon
-        };
+        // const newMarker = {
+        //   lat: marker.lat,
+        //   lng: marker.lng,
+        //   type: "custom",
+        //   id: marker.id, // Assign a unique ID to the marker
+        //   name: marker.name,
+        //   text: inputText.current,
+        //   icon: marker.icon
+        // };
 
-        setMarkers(markers.map(m => m === marker ? newMarker : m))
+        // setMarkers(markers.map(m => m === marker ? newMarker : m))
         close();
       },
     });
