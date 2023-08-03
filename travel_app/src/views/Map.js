@@ -548,6 +548,7 @@ export default function Map() {
           </div>
           <ImgCrop>
             <Upload
+              customRequest={customPictureRequest}
               listType="picture-card"
               onPreview={handlePreview}
               onChange={handleChange}
@@ -558,17 +559,17 @@ export default function Map() {
         </div>
       ),
       onOk: (close) => {
-        const newMarker = {
-          lat: marker.lat,
-          lng: marker.lng,
-          type: "custom",
-          id: marker.id, // Assign a unique ID to the marker
-          name: marker.name,
-          text: inputText.current,
-          icon: marker.icon
-        };
+        // const newMarker = {
+        //   lat: marker.lat,
+        //   lng: marker.lng,
+        //   type: "custom",
+        //   id: marker.id, // Assign a unique ID to the marker
+        //   name: marker.name,
+        //   text: inputText.current,
+        //   icon: marker.icon
+        // };
 
-        setMarkers(markers.map(m => m === marker ? newMarker : m))
+        // setMarkers(markers.map(m => m === marker ? newMarker : m))
         close();
       },
     });
