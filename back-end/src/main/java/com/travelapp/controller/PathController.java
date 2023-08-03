@@ -32,7 +32,7 @@ public class PathController {
         }
         // save the path info in database
         pathService.savePath(pathData);
-        return Result.success();
+        return Result.success(pathData.getId());
     }
 
     @GetMapping("/paths/{userid}")

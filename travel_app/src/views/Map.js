@@ -451,7 +451,7 @@ export default function Map() {
                       console.log('Path data successfully sent to the backend:', response.data);
                     }
                     // Get pathId from back end
-                    console.log(response.data.data);
+                    console.log("path ID is: "+response.data.data);
                     const updatedMarkers = markers.map(item => ({ ...item, pathID: response.data.data }))
 
                     // send markerData to back end
