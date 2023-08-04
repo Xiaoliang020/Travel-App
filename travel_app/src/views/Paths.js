@@ -1,12 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Table, Modal, Button, Card, Row, Col, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import SavedPathsContext from '../SavedPathsContext';
 import axios from 'axios';
 
 export default function Paths() {
-    const { savedPaths, setDisplayedPath, deletePath } = useContext(SavedPathsContext);
-
     const [paths, setPaths] = useState([]);
     const navigate = useNavigate();
     // Get the user info stored in sessionStorage
@@ -24,9 +21,8 @@ export default function Paths() {
             });
     }, []);
 
-    const handleDisplayPath = (path) => {
-        setDisplayedPath(path);
-        navigate('/map');
+    const handleDisplayPath = (pathId) => {
+        window.open(`/share/${pathId}`);
     };
 
     const handleDeletePath = (pathId) => {
@@ -72,7 +68,23 @@ export default function Paths() {
     const handleSharePath = (pathId) => {
         const currentURL = getCurrentWebsiteURL();
         console.log(currentURL);
-        message.success('Shareable link: ' + currentURL + `/share/${pathId}`);
+
+        // Concatenate the URL with the pathId to create the shareable link
+        const shareableLink = currentURL + `/share/${pathId}`;
+
+        // Use the Clipboard API to copy the shareable link to the clipboard
+        navigator.clipboard.writeText(shareableLink)
+            .then(() => {
+                // Show a success message to the user
+                message.success('Shareable link copied to clipboard! ' + shareableLink);
+            })
+            .catch((error) => {
+                // In case copying to clipboard fails, handle the error here
+                console.error('Failed to copy link to clipboard:', error);
+
+                // Show an error message to the user
+                message.error('Failed to copy link to clipboard. Please try again.');
+            });
     }
 
     // Define the columns for the table
@@ -120,7 +132,7 @@ export default function Paths() {
             key: 'action',
             render: (text, record) => (
                 <div>
-                    <Button onClick={() => handleDisplayPath(record.path)}>Display on map</Button>
+                    <Button onClick={() => handleDisplayPath(record.id)}>Display on map</Button>
                     <Button onClick={() => handleDeletePath(record.id)}>Delete</Button>
                     <Button onClick={() => handleSharePath(record.id)}>Share</Button>
                 </div>
