@@ -1,0 +1,23 @@
+/* Post.css */
+
+.post-title {
+  align-self: left;
+}
+
+.avatar-container {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.post-details {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.avatar-info-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+

@@ -14,6 +14,7 @@ import com.travelapp.service.PostService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -34,5 +35,15 @@ public class PostController {
     @GetMapping("/posts")
     public Result<?> getAllPosts() {
         return Result.success(postService.getAllPosts());
+    }
+
+    @GetMapping("/post/{postid}")
+    public Result<?> getPostById(@PathVariable String postid) {
+        Optional<Post> post = postService.getPost(postid);
+        if (post.isPresent()) {
+            return Result.success(post.get());
+        } else {
+            return Result.error("-1", "Post not found");
+        }
     }
 }

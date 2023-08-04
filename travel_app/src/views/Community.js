@@ -192,6 +192,12 @@ export default function Community() {
         });
     };
 
+    const onDeletePost = (postId, e) => {
+        // Call the API or perform any necessary actions to delete the post with postId
+        // ...
+        console.log(`Post with ID ${postId} is deleted.`);
+    };
+
     return (
         <div className='community'>
             {isLoading ? (
@@ -213,7 +219,7 @@ export default function Community() {
                         </div>
                     }
                     renderItem={(item) => (
-                        <Link to={`/post/${item.id}`}>
+                        <Link to={`/post/${item.id}`} >
                             <List.Item
                                 key={item.title}
                                 className="post-item"
@@ -229,6 +235,7 @@ export default function Community() {
                                                 width={272}
                                                 alt="logo"
                                                 src={`https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png`}
+                                                onClick={(e) => e.stopPropagation()} // Prevent the click event from propagating
                                             />
                                         </a>
                                     ) : (
@@ -240,11 +247,30 @@ export default function Community() {
                                     )
                                 }
                             >
-                                <List.Item.Meta
-                                    avatar={<Avatar src={item.avatar} />}
-                                    title={item.username}
-                                    description={`Posted ${calculateTimeAgo(item.createdAt)}`}
-                                />
+                                <Dropdown
+                                    overlayStyle={{ minWidth: 160 }} // Set the desired width for the dropdown menu
+                                    trigger={['contextMenu']}
+                                    // Hide the default right-click menu
+                                    getPopupContainer={(trigger) => trigger.parentElement}
+                                    overlayRender={(menu) => (
+                                    <Menu>
+                                        {item.userid === user.id && ( // Show the Delete option only for the user's own posts
+                                        <Menu.Item key="delete" onClick={() => onDeletePost(item.id)}>
+                                            Delete
+                                        </Menu.Item>
+                                        )}
+                                        {menu}
+                                    </Menu>
+                                    )}
+                                >
+                                    <div>
+                                        <List.Item.Meta
+                                            avatar={<Avatar src={item.avatar} />}
+                                            title={item.username}
+                                            description={`Posted ${calculateTimeAgo(item.createdAt)}`}
+                                        />
+                                    </div>
+                                </Dropdown>
                                 <div className="post-content" style={{ textAlign: 'left' }}>
                                     {item.content}
                                 </div>
