@@ -9,7 +9,7 @@ import {
 import { Button, Layout, Menu, theme } from 'antd';
 import { useState } from 'react';
 import '../App.css';
-import { Outlet, useNavigate } from "react-router-dom"
+import { Outlet, useNavigate, useLocation } from "react-router-dom"
 
 const { Header, Sider, Content } = Layout;
 const Home = () => {
@@ -17,13 +17,20 @@ const Home = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const navigateTo = useNavigate()
+  const navigateTo = useNavigate();
+  const location = useLocation();
+  // Extract the pathname from the current URL
+  const currentPathname = location.pathname;
 
   const menuClick = (e) => {
     console.log("Side bar clicked", e.key);
-
-    // Navigate to corresponding router
-    navigateTo(e.key)
+    if (location.pathname === '/map' && e.key !== '/map') {
+      // open a new window when user at map view
+      window.open(e.key);
+    } else {
+      // Navigate to corresponding router
+      navigateTo(e.key);
+    }
   }
 
   return (
@@ -34,7 +41,8 @@ const Home = () => {
           <Menu
             theme="dark"
             mode="inline"
-            defaultSelectedKeys={['1']}
+            defaultSelectedKeys={['/map']}
+            selectedKeys={[currentPathname]}
             items={[
               {
                 key: '/settings',
