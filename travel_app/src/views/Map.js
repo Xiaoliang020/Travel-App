@@ -293,7 +293,7 @@ export default function Map() {
   //TODO
   const handleAddPoint = () => {
     const { lat, lng } = currentPosition;
-
+    setPictureGroup([])
     Modal.confirm({
       title: 'Set a New Marker',
       content: (
