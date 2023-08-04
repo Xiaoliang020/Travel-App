@@ -34,6 +34,7 @@ export default function Map() {
   const markerIcon = useRef("");
   const markerPicture = useRef("");
   const [pictureGroup, setPictureGroup] = useState([]);
+  const pictureGroupRef = useRef([]);
   const [pictureDataGroup, setPictureDataGroup] = useState([]);
   // State to store the user's avatarUrl
   const markerIconDataUrl = useRef("");
@@ -85,6 +86,7 @@ export default function Map() {
   // 监听每一个marker的图片数组
   useEffect(() => {
     console.log(pictureGroup);
+
   }, [pictureGroup]);
 
   const customPictureRequest = async ({ file, onSuccess, onError }) => {
@@ -96,10 +98,14 @@ export default function Map() {
       if (response.data.code === '0') {
         // Save the file URL or file ID returned by the backend in your state or user profile
         console.log('Picture uploaded successfully:', response.data);
-        markerPicture.current = response.data.data; // picture's objectID
-        console.log(markerPicture.current)
-        setPictureGroup((prev) => [...prev, markerPicture.current]);
-        console.log("函数内"+pictureGroup);
+        console.log(response.data.data);
+        const pictureObjectID = response.data.data; // picture's objectID
+        setPictureGroup((prev) => {
+          const newPictureGroup = [...prev, pictureObjectID];
+          pictureGroupRef.current = newPictureGroup; // 更新引用
+          return newPictureGroup;
+        });
+
         onSuccess();
       } else {
         onError(new Error('Failed to upload picture'));
@@ -287,12 +293,12 @@ export default function Map() {
   //TODO
   const handleAddPoint = () => {
     const { lat, lng } = currentPosition;
-
+    setPictureGroup([])
     Modal.confirm({
       title: 'Set a New Marker',
       content: (
         <div>
-          Marker icon:
+          Choose an unique icon:
           <ImgCrop
             rotationSlider={true}
             zoomSlider={true}
@@ -337,7 +343,6 @@ export default function Map() {
         </div>
       ),
       onOk: (close) => {
-
         axios.get(`${apiUrl}/api/icon/${markerIcon.current}`)
           .then((response) => {
             if (response.data.code === '0') {
@@ -352,7 +357,8 @@ export default function Map() {
                 scaledSize: new google.maps.Size(64, 64) // the size you want to scale to
               };
 
-              console.log("现在"+pictureGroup)
+            
+              console.log("现在" + pictureGroupRef.current)
               const newMarker = {
                 markerLat: lat,
                 markerLng: lng,
@@ -363,7 +369,7 @@ export default function Map() {
                 url: customMarkerIcon, // Only for display, will not stored in database
                 icon: markerIcon.current,
                 pathID: "",
-                picture: pictureGroup
+                picture: pictureGroupRef.current
               };
 
               console.log(newMarker);
