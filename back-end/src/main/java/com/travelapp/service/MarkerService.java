@@ -156,7 +156,7 @@ public class MarkerService {
     }
 
     public Marker updateMarker(Marker marker) {
-        Optional<Marker> optionalMarker = markerRepository.findById(marker.getId());
+        Optional<Marker> optionalMarker = markerRepository.findByMarkerID(marker.getMarkerID());
         if (!optionalMarker.isPresent()) {
             throw new RuntimeException("Marker not found");
         }
