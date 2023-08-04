@@ -82,4 +82,12 @@ public class MarkerController {
         }
 
     }
+
+    @PostMapping("/update-marker")
+    public Result<?> updateMarkerData(@RequestBody Marker markerData) {
+        // update the marker info in database
+        markerService.updateMarker(markerData);
+        return Result.success();
+    }
+
 }

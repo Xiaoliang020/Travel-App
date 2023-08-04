@@ -116,6 +116,34 @@ export default function Map() {
     }
   };
 
+  const customPictureRequestForClickedMarker = async ({ file, onSuccess, onError, marker }) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await axios.post(`${apiUrl}/api/upload-picture`, formData);
+      if (response.data.code === '0') {
+        console.log('Picture uploaded successfully:', response.data);
+        const pictureObjectID = response.data.data; // picture's objectID
+        // Add the objectID to the marker's picture array
+        marker.picture = [...marker.picture, pictureObjectID];
+
+        // Then update the marker in the markers array
+        setMarkers(markers.map(m => m === marker ? marker : m));
+
+        // Then update the marker in the database
+        await axios.post(`${apiUrl}/api/update-marker`, marker);
+
+        onSuccess();
+      } else {
+        onError(new Error('Failed to upload picture'));
+      }
+    } catch (error) {
+      console.error('Error uploading picture:', error);
+      onError(error);
+    }
+  };
+
+
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
@@ -293,7 +321,7 @@ export default function Map() {
   //TODO
   const handleAddPoint = () => {
     const { lat, lng } = currentPosition;
-    setPictureGroup([])
+
     Modal.confirm({
       title: 'Set a New Marker',
       content: (
@@ -357,7 +385,7 @@ export default function Map() {
                 scaledSize: new google.maps.Size(64, 64) // the size you want to scale to
               };
 
-            
+
               console.log("现在" + pictureGroupRef.current)
               const newMarker = {
                 markerLat: lat,
@@ -390,6 +418,10 @@ export default function Map() {
         close();
       },
     });
+
+    // 清空图片集
+    setPictureGroup([]);
+    pictureGroupRef.current = [];
   };
 
   Geocode.setApiKey(process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
@@ -502,7 +534,7 @@ export default function Map() {
     console.log("marker text is:" + marker.text);
 
     // 预先加载图片数据
-    const promises = pictureGroup.map(pictureID => {
+    const promises = marker.picture.map(pictureID => {
       return axios.get(`${apiUrl}/api/picture/${pictureID}`)
         .then((response) => {
           if (response.data.code === '0') {
@@ -528,6 +560,8 @@ export default function Map() {
         openModal(marker);
       });
   };
+
+
 
   const openModal = (marker) => {
     Modal.confirm({
@@ -557,7 +591,7 @@ export default function Map() {
           </div>
           <ImgCrop>
             <Upload
-              customRequest={customPictureRequest}
+              customRequest={(params) => customPictureRequestForClickedMarker({ ...params, marker })}
               listType="picture-card"
               onPreview={handlePreview}
               onChange={handleChange}

@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MarkerService {
@@ -73,7 +74,7 @@ public class MarkerService {
         // Save the icon image to MongoDB GridFS and get the icon URL or ID
         String pictureUrlOrId = fileId.toString();
 
-        // Update the marker's icon field with the new icon URL or ID
+        // // Update the marker's picture field with the new picture objectID
         // Marker marker = markerRepository.findByMarkerID(markerID).orElseThrow(() ->
         // new RuntimeException("Marker not found"));
         // marker.setIcon(iconUrlOrId);
@@ -152,6 +153,25 @@ public class MarkerService {
         outputStream.close();
 
         return outputStream.toByteArray();
+    }
+
+    public Marker updateMarker(Marker marker) {
+        Optional<Marker> optionalMarker = markerRepository.findById(marker.getId());
+        if (!optionalMarker.isPresent()) {
+            throw new RuntimeException("Marker not found");
+        }
+
+        Marker oldMarker = optionalMarker.get();
+        oldMarker.setMarkerLat(marker.getMarkerLat());
+        oldMarker.setMarkerLng(marker.getMarkerLng());
+        oldMarker.setType(marker.getType());
+        oldMarker.setName(marker.getName());
+        oldMarker.setText(marker.getText());
+        oldMarker.setIcon(marker.getIcon());
+        oldMarker.setPathID(marker.getPathID());
+        oldMarker.setPicture(marker.getPicture());
+
+        return markerRepository.save(oldMarker);
     }
 
 }
