@@ -21,3 +21,11 @@
   margin-bottom: 16px;
 }
 
+.ant-list-item-meta-title {
+  text-align: left;
+}
+
+.ant-list-item-meta-description {
+  text-align: left;
+}
+
