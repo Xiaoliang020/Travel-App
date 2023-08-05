@@ -62,7 +62,7 @@ export default function Community() {
             .get(`${apiUrl}/api/posts`)
             .then((response) => {
                 if (response.data.code === '0') {
-                    console.log('Successfully fetched post data');
+                    console.log('Successfully fetched post data', response.data.data);
                     const postData = response.data.data;
                     // Fetch the user avatar for each post and update the data array
                     const fetchUserAvatars = postData.map((post) => {
@@ -79,8 +79,22 @@ export default function Community() {
                             });
                     });
 
+                    const fetchPostScreenshot = postData.map((post) => {
+                        return axios
+                            .get(`${apiUrl}/api/screenshot/${post.pathid}`)
+                            .then((screenshotResponse) => {
+                                if (screenshotResponse.data.code === '0') {
+                                    const screenshotData = screenshotResponse.data.data;
+                                    post.screenshot = `data:image/png;base64,${screenshotData}`;
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Error fetching user screenshot:', error);
+                            });
+                    });
+
                     // Wait for all the avatar fetch calls to finish before updating the data array
-                    Promise.all(fetchUserAvatars)
+                    Promise.all([...fetchUserAvatars, ...fetchPostScreenshot])
                         .then(() => {
                             // Sort the posts by createdAt in descending order (newest first)
                             postData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -192,12 +206,6 @@ export default function Community() {
         });
     };
 
-    const onDeletePost = (postId, e) => {
-        // Call the API or perform any necessary actions to delete the post with postId
-        // ...
-        console.log(`Post with ID ${postId} is deleted.`);
-    };
-
     return (
         <div className='community'>
             {isLoading ? (
@@ -234,7 +242,7 @@ export default function Community() {
                                             <img
                                                 width={272}
                                                 alt="logo"
-                                                src={`https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png`}
+                                                src={item.screenshot}
                                                 onClick={(e) => e.stopPropagation()} // Prevent the click event from propagating
                                             />
                                         </a>
@@ -247,32 +255,15 @@ export default function Community() {
                                     )
                                 }
                             >
-                                <Dropdown
-                                    overlayStyle={{ minWidth: 160 }} // Set the desired width for the dropdown menu
-                                    trigger={['contextMenu']}
-                                    // Hide the default right-click menu
-                                    getPopupContainer={(trigger) => trigger.parentElement}
-                                    overlayRender={(menu) => (
-                                    <Menu>
-                                        {item.userid === user.id && ( // Show the Delete option only for the user's own posts
-                                        <Menu.Item key="delete" onClick={() => onDeletePost(item.id)}>
-                                            Delete
-                                        </Menu.Item>
-                                        )}
-                                        {menu}
-                                    </Menu>
-                                    )}
-                                >
-                                    <div>
-                                        <List.Item.Meta
-                                            avatar={<Avatar src={item.avatar} />}
-                                            title={item.username}
-                                            description={`Posted ${calculateTimeAgo(item.createdAt)}`}
-                                        />
-                                    </div>
-                                </Dropdown>
+                                <div>
+                                    <List.Item.Meta
+                                        avatar={<Avatar src={item.avatar} />}
+                                        title={item.username}
+                                        description={`Posted ${calculateTimeAgo(item.createdAt)}`}
+                                    />
+                                </div>
                                 <div className="post-content" style={{ textAlign: 'left' }}>
-                                    {item.content}
+                                    {item.title}
                                 </div>
                             </List.Item>
                         </Link>

@@ -1,24 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Button, Input, Avatar, Typography, List, message } from 'antd';
+import { Button, Input, Avatar, Typography, List, message, Image } from 'antd';
 import axios from 'axios';
 import '../assets/styles/post.css';
 
 const { Title, Paragraph } = Typography;
-const data = [
-  {
-    title: 'Ant Design Title 1',
-  },
-  {
-    title: 'Ant Design Title 2',
-  },
-  {
-    title: 'Ant Design Title 3',
-  },
-  {
-    title: 'Ant Design Title 4',
-  },
-];
 const positionOptions = ['top', 'bottom', 'both'];
 const alignOptions = ['start', 'center', 'end'];
 
@@ -59,6 +45,18 @@ export default function Post() {
               console.error('Error fetching post avatar:', error);
             });
             
+            const fetchPostScreenshot = axios
+              .get(`${apiUrl}/api/screenshot/${postData.pathid}`)
+              .then((screenshotResponse) => {
+                if (screenshotResponse.data.code === '0') {
+                  const screenshotData = screenshotResponse.data.data;
+                  postData.screenshot = `data:image/png;base64,${screenshotData}`;
+                }
+              })
+              .catch((error) => {
+                console.error('Error fetching post avatar:', error);
+              });
+
             // Fetch the user avatar for each post and update the data array
             const fetchCommentAvatars = commentData.map((comment) => {
               return axios
@@ -74,12 +72,13 @@ export default function Post() {
                 });
             });
             // Wait for all the avatar fetch calls to finish before updating the data array
-            Promise.all([fetchPostAvatar, ...fetchCommentAvatars])
+            Promise.all([fetchPostAvatar, fetchPostScreenshot, ...fetchCommentAvatars])
               .then(() => {
                 // Sort the posts by createdAt in descending order (newest first)
                 commentData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 setPost(postData);
                 setComments(commentData);
+                console.log(postData.screenshot);
               })
               .catch((error) => {
                 console.error('Error fetching user avatars:', error);
@@ -149,6 +148,11 @@ export default function Post() {
       </div>
       <div className='post-content' style={{ textAlign: 'left' }}>
         <Paragraph>{post.content}</Paragraph>
+      </div>
+      <div className='post-screenshot'>
+        <Image
+          src={post.screenshot}
+        />
       </div>
       <Input.TextArea
         value={replyText}

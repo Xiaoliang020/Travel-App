@@ -19,4 +19,5 @@ public class Path {
     private String endAddress;
     private String userid;
     private String name;
+    private String screenshotUrl;
 }

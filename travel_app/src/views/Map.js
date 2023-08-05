@@ -29,6 +29,7 @@ export default function Map() {
 
   const apiUrl = process.env.REACT_APP_API_BASE_URL;
 
+  const savedPathId = useRef("");
   const pathName = useRef("");
   const inputText = useRef("");
   const markerIcon = useRef("");
@@ -493,6 +494,8 @@ export default function Map() {
                     }
                     // Get pathId from back end
                     console.log("path ID is: " + response.data.data);
+                    savedPathId.current = response.data.data;
+
                     const updatedMarkers = markers.map(item => ({ ...item, pathID: response.data.data }))
 
                     // send markerData to back end
@@ -508,6 +511,57 @@ export default function Map() {
                           console.log('Error sending marker data to the backend:', error);
                         });
                     })
+
+
+                    // Generate the screenshot
+                    const mapContainer = document.querySelector('.map-container');
+                    const screenshotBlob = html2canvas(mapContainer, {
+                      useCORS: true,
+                      allowTaint: true,
+                    }).then((canvas) => {
+                      // Convert the canvas to a blob
+                      canvas.toBlob((blob) => {
+                        // Create a File object from the blob
+                        const screenshotFile = new File([blob], 'screenshot.png', { type: 'image/png' });
+
+                        // Continue with your code to upload the screenshot
+                        const formData = new FormData();
+                        formData.append('screenshot', screenshotFile);
+
+                        axios.post(`${apiUrl}/api/${savedPathId.current}/upload-screenshot`, formData)
+                          .then(response => {
+                            if (response.data.code === '0') {
+                              console.log('Screenshot uploaded successfully:', response.data);
+                            } else {
+                              console.log('Screenshot uploaded failed:');
+                            }
+                          })
+                          .catch(error => {
+                            console.error('Error uploading Screenshot:', error);
+                          });
+                      }, 'image/png');
+                    });
+
+                    // // Convert the screenshot to a File object
+                    // const screenshotFile = new File([screenshotBlob], 'screenshot.png', { type: 'image/png' });
+
+                    // // Change the URL to your backend endpoint that handles the avatar upload
+                    // const formData = new FormData();
+                    // formData.append('screenshot', screenshotFile);
+
+                    // // Use .then() to handle the response
+                    // axios.post(`${apiUrl}/api/${savedPathId.current}/upload-screenshot`, formData)
+                    //   .then(response => {
+                    //     if (response.data.code === '0') {
+                    //       // Save the file URL or file ID returned by the backend
+                    //       console.log('Screenshot uploaded successfully:', response.data);
+                    //     } else {
+                    //       console.log('Screenshot uploaded failed:');
+                    //     }
+                    //   })
+                    //   .catch(error => {
+                    //     console.error('Error uploading Screenshot:', error);
+                    //   });
 
                   })
                   .catch(error => {
