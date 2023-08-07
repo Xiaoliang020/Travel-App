@@ -188,6 +188,10 @@ export default function Map() {
         },
         (error) => {
           reject(error);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
         }
       );
     });
