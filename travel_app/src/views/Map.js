@@ -609,6 +609,8 @@ export default function Map() {
         const filteredImageBase64Array = imageBase64Array.filter(imageBase64 => imageBase64 !== null);
         setPictureDataGroup(filteredImageBase64Array);
         // 打开 Modal
+        //TODO
+        // 这里可能出现异步逻辑问题
         openModal(marker, filteredImageBase64Array);
       });
   };
@@ -689,8 +691,10 @@ export default function Map() {
         }
         const updatedMarker = {
           ...marker, // 获取原始marker的所有属性
-          // text: inputText.current // 更新 text 属性
-          text: marker.text
+          text: inputText.current // 更新 text 属性
+          //TODO
+          //这里应该用change，不应该用inputText.current
+          // text: marker.text
         };
 
         // 更新数据库
@@ -700,6 +704,9 @@ export default function Map() {
               console.log("Marker updated successfully in database");
 
               // 更新前端的 state
+              // TODO
+              // id是什么？？？（大概率）
+              // 可能是异步的问题？？？
               setMarkers(markers.map(m => m.id === marker.id ? updatedMarker : m));
             } else {
               console.log("Error updating marker in database:", response.data.message);
