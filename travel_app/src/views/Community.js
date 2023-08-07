@@ -6,10 +6,10 @@ import axios from 'axios';
 import '../assets/styles/community.css';
 
 const IconText = ({ icon, text }) => (
-  <Space>
-    {React.createElement(icon)}
-    {text}
-  </Space>
+    <Space>
+        {React.createElement(icon)}
+        {text}
+    </Space>
 );
 
 export default function Community() {
@@ -26,6 +26,12 @@ export default function Community() {
     const [paths, setPaths] = useState([]);
     // Add state to store the list of paths for the user to select
     const [pathOptions, setPathOptions] = useState([]);
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const filteredPosts = posts.filter(post => {
+        const combinedString = `${user.username} ${post.title} ${post.content} ${pathOptions.find(path => path.value === post.pathid)?.startAddress || ''}`.toLowerCase();
+        return combinedString.includes(searchTerm.toLowerCase());
+    });
 
     const getCurrentWebsiteURL = () => {
         const protocol = window.location.protocol;
@@ -139,6 +145,8 @@ export default function Community() {
                 const formattedOptions = response.data.data.map((path) => ({
                     value: path.id,
                     label: path.name,
+                    startAddress: path.startAddress, // Assuming the path object contains startAddress
+                    endAddress: path.endAddress      // and endAddress fields.
                 }));
                 setPathOptions(formattedOptions);
             })
@@ -201,6 +209,12 @@ export default function Community() {
 
     return (
         <div className='community'>
+            <Input
+                placeholder="Search for posts..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                style={{ marginBottom: '20px' }}
+            />
             {isLoading ? (
                 <div>Loading...</div> // Show a loading indicator while fetching data
             ) : (
@@ -213,7 +227,7 @@ export default function Community() {
                         },
                         pageSize: 3,
                     }}
-                    dataSource={posts}
+                    dataSource={filteredPosts}
                     footer={
                         <div>
                             <b>travel app</b> footer part
@@ -225,11 +239,11 @@ export default function Community() {
                                 key={item.title}
                                 className="post-item"
                                 actions={[
-                                    <IconText 
-                                        icon={LikeOutlined} 
-                                        text="56" 
-                                        key="list-vertical-like-o" 
-                                        onClick={() => handleLikePost(item.id)} 
+                                    <IconText
+                                        icon={LikeOutlined}
+                                        text="56"
+                                        key="list-vertical-like-o"
+                                        onClick={() => handleLikePost(item.id)}
                                     />,
                                     <IconText icon={MessageOutlined} text={item.comments ? item.comments.length : 0} key="list-vertical-message" />,
                                 ]}
@@ -256,18 +270,31 @@ export default function Community() {
                                     <List.Item.Meta
                                         avatar={<Avatar src={item.avatar} />}
                                         title={item.username}
-                                        description={`Posted ${calculateTimeAgo(item.createdAt)}`}
+                                        description={
+                                            <>
+                                                {`Posted ${calculateTimeAgo(item.createdAt)}`}
+                                                <br />
+                                                {`Start: ${pathOptions.find(path => path.value === item.pathid)?.startAddress}`}
+                                                <br />
+                                                {`End: ${pathOptions.find(path => path.value === item.pathid)?.endAddress}`}
+                                            </>
+                                        }
                                     />
                                 </div>
+
                                 <div className="post-content" style={{ textAlign: 'left' }}>
-                                    {item.title}
+                                    <div style={{ fontSize: 'larger', fontWeight: 'bold' }}>
+                                        {item.title}
+                                    </div>
+                                    <br />
+                                    {item.content}
                                 </div>
                             </List.Item>
                         </Link>
                     )}
                 />
             )}
-            <FloatButton.Group shape="circle" style={{ left: 250, top: '85%', transform: 'translateY(-50%)' }}>
+            <FloatButton.Group shape="circle" style={{ left: 250, top: '95%', transform: 'translateY(-50%)' }}>
                 <FloatButton
                     icon={<FormOutlined />}
                     tooltip='Make a Post'
@@ -297,7 +324,7 @@ export default function Community() {
                     >
                         <Input.TextArea />
                     </Form.Item>
-                    
+
                     {/* Add a list of paths for the user to select */}
                     <Form.Item label="Select a path">
                         <Select
