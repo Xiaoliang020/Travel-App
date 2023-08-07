@@ -30,7 +30,6 @@ export default function Map() {
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [markerName, setMarkerName] = useState(1);
-  const [startPosition, setStartPosition] = useState(null);
   const [stopPosition, setStopPosition] = useState(null);
   const [startPositionSet, setStartPositionSet] = useState(false);
 
@@ -241,7 +240,6 @@ export default function Map() {
     setCurrentPositions({ lat: position.latitude, lng: position.longitude });
     if (!startPositionSet) {
       setStartPositionSet(true);
-      setStartPosition({ lat: position.latitude, lng: position.longitude });
     }
 
     console.log(position);
@@ -318,8 +316,8 @@ export default function Map() {
 
   const handleStartTracking = () => {
     setPositions([]); // clear positions before a new tracking
-    setStartPosition(null);
     setStopPosition(null);
+    setStartPositionSet(false);
     setMarkers([]);
     setTrackingEnabled(true);
     setPathId(prevPathId => prevPathId + 1); // 使用回调函数更新 pathId
@@ -439,8 +437,6 @@ export default function Map() {
   const handleStopTracking = () => {
     setTrackingEnabled(false);
     setStopPosition(currentPosition);
-    setStartPositionSet(false);
-    console.log('Start pos after stop:', startPosition);
     console.log("Stop tracking");
 
     const duration = (endTime - startTime) / 1000; // Calculate the duration in seconds
@@ -831,9 +827,9 @@ export default function Map() {
             />
           ))}
 
-          {startPosition && (
+          {startPositionSet && (
             <MarkerF
-              position={startPosition}
+              position={positions[0]}
               icon={{
                 url: startMarker,
                 scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
