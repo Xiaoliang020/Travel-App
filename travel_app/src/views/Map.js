@@ -13,10 +13,8 @@ import axios from 'axios';
 import ImgCrop from 'antd-img-crop'
 import TextArea from 'antd/es/input/TextArea';
 import { darkMode } from './mapStyles';
-import startMarker from '../picture/start-marker.png'
-import stopMarker from '../picture/stop-marker.png'
-import { RcFile, UploadProps } from 'antd/es/upload';
-import { UploadFile } from 'antd/es/upload/interface';
+import startMarker from '../picture/flagred.svg'
+import stopMarker from '../picture/flagblue.svg'
 
 export default function Map() {
   const [positions, setPositions] = useState([]);
@@ -39,7 +37,6 @@ export default function Map() {
   const pathName = useRef("");
   const inputText = useRef("");
   const markerIcon = useRef("");
-  const markerPicture = useRef("");
   const [pictureGroup, setPictureGroup] = useState([]);
   const pictureGroupRef = useRef([]);
   const [pictureDataGroup, setPictureDataGroup] = useState([]);
