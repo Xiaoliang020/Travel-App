@@ -1,21 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { FormOutlined, LikeOutlined, MessageOutlined, StarOutlined } from '@ant-design/icons';
-import { Avatar, List, Space, FloatButton, Form, Modal, Input, message, Select, Menu, Dropdown } from 'antd';
+import { FormOutlined, LikeOutlined, MessageOutlined } from '@ant-design/icons';
+import { Avatar, List, Space, FloatButton, Form, Modal, Input, message, Select } from 'antd';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import '../assets/styles/community.css';
 
-const data = Array.from({
-  length: 23,
-}).map((_, i) => ({
-  href: 'https://ant.design',
-  title: `ant design part ${i}`,
-  avatar: `https://xsgames.co/randomusers/avatar.php?g=pixel&key=${i}`,
-  description:
-    'Ant Design, a design language for background applications, is refined by Ant UED Team.',
-  content:
-    'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.',
-}));
 const IconText = ({ icon, text }) => (
   <Space>
     {React.createElement(icon)}
@@ -42,7 +31,6 @@ export default function Community() {
         const protocol = window.location.protocol;
         const hostname = window.location.hostname;
         const port = window.location.port;
-        const path = window.location.pathname;
 
         // If the port is empty or equal to 80 (HTTP) or 443 (HTTPS), don't include it in the URL
         const portSuffix = (port && port !== '80' && port !== '443') ? `:${port}` : '';
@@ -99,6 +87,7 @@ export default function Community() {
                             // Sort the posts by createdAt in descending order (newest first)
                             postData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                             setPosts(postData);
+                            console.log("Post Data: ", postData);
                         })
                         .catch((error) => {
                             console.error('Error fetching user avatars:', error);
@@ -232,9 +221,8 @@ export default function Community() {
                                 key={item.title}
                                 className="post-item"
                                 actions={[
-                                    <IconText icon={StarOutlined} text="156" key="list-vertical-star-o" />,
-                                    <IconText icon={LikeOutlined} text="156" key="list-vertical-like-o" />,
-                                    <IconText icon={MessageOutlined} text="2" key="list-vertical-message" />,
+                                    <IconText icon={LikeOutlined} text="56" key="list-vertical-like-o" />,
+                                    <IconText icon={MessageOutlined} text={item.comments.length} key="list-vertical-message" />,
                                 ]}
                                 extra={
                                     item.pathid ? (
