@@ -609,8 +609,6 @@ export default function Map() {
         const filteredImageBase64Array = imageBase64Array.filter(imageBase64 => imageBase64 !== null);
         setPictureDataGroup(filteredImageBase64Array);
         // 打开 Modal
-        //TODO
-        // 这里可能出现异步逻辑问题
         openModal(marker, filteredImageBase64Array);
       });
   };
@@ -619,8 +617,9 @@ export default function Map() {
   const MarkerModalContent = ({
     marker,
     pictureDataGroup,
-    inputText,
-    trackingEnabled,}) => {
+    trackingEnabled,
+    onSaveText, }) => {
+    const [localText, setLocalText] = useState(marker.text); // 使用局部状态保存文本
     return (
       <div>
         {trackingEnabled ?
@@ -638,8 +637,13 @@ export default function Map() {
                 maxLength={200}
                 style={{ height: 250, marginBottom: 24 }}
                 placeholder="Input something..."
-                defaultValue={marker.text}
-                onChange={(e) => inputText.current = e.target.value}
+                value={localText} // 使用局部状态作为文本区的值
+                onChange={(e) => {
+                  setLocalText(e.target.value);
+                  onSaveText && onSaveText(e.target.value); // 当文本改变时调用onSaveText
+                }}
+              // defaultValue={marker.text}
+              // onChange={(e) => inputText.current = e.target.value}
               />
             </div>
           )}
@@ -674,13 +678,15 @@ export default function Map() {
   }
 
   const openModal = (marker, imageBase64Array) => {
+    let newText = marker.text; // 用来保存模态框中更改的文本
     Modal.confirm({
       title: 'The marker you left in this place',
       content: <MarkerModalContent
         key={new Date().getTime()} // 强制更新
         marker={marker}
         pictureDataGroup={imageBase64Array}
-        inputText={marker.text}
+        // inputText={marker.text}
+        onSaveText={(text) => newText = text} // 将文本保存到newText变量中
         trackingEnabled={trackingEnabled} // 确保您传递了trackingEnabled
       // ... 其他props ...
       />,
@@ -691,10 +697,8 @@ export default function Map() {
         }
         const updatedMarker = {
           ...marker, // 获取原始marker的所有属性
-          text: inputText.current // 更新 text 属性
+          text: newText // 更新 text 属性
           //TODO
-          //这里应该用change，不应该用inputText.current
-          // text: marker.text
         };
 
         // 更新数据库
@@ -704,9 +708,6 @@ export default function Map() {
               console.log("Marker updated successfully in database");
 
               // 更新前端的 state
-              // TODO
-              // id是什么？？？（大概率）
-              // 可能是异步的问题？？？
               setMarkers(markers.map(m => m.markerID === marker.markerID ? updatedMarker : m));
             } else {
               console.log("Error updating marker in database:", response.data.message);
