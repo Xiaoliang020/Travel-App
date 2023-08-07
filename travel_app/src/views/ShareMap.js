@@ -186,6 +186,7 @@ const ShareMap = ({ pathId }) => {
               icon={{
                 url: startMarker,
                 scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
+                anchor: new window.google.maps.Point(0, 32)
               }}
             />
 

@@ -30,6 +30,7 @@ export default function Map() {
   const [markerName, setMarkerName] = useState(1);
   const [stopPosition, setStopPosition] = useState(null);
   const [startPositionSet, setStartPositionSet] = useState(false);
+  const [flagVisible, setFlagVisible] = useState(true);
 
   const apiUrl = process.env.REACT_APP_API_BASE_URL;
 
@@ -235,9 +236,6 @@ export default function Map() {
 
     setPositions((prev) => [...prev, { lat: position.latitude, lng: position.longitude, type: "default", pathId }]);
     setCurrentPositions({ lat: position.latitude, lng: position.longitude });
-    if (!startPositionSet) {
-      setStartPositionSet(true);
-    }
 
     console.log(position);
     setEndTime(new Date()); // Save the end time
@@ -291,6 +289,9 @@ export default function Map() {
           setPositions((prev) => [...prev, { lat: latitude, lng: longitude, type: "default", pathId }]);
           setCurrentPositions({ lat: latitude, lng: longitude });
           console.log("Got first location after click the button");
+          if (!startPositionSet) {
+            setStartPositionSet(true);
+          }
         },
         (error) => {
           console.error('Error retrieving geolocation:', error);
@@ -722,12 +723,15 @@ export default function Map() {
     setPositions([]);
     setMarkers([]);
     setMarkerName(1);
+    setStartPositionSet(false);
+    setStopPosition();
     setPathId(0);
     setDisplayedPath([]);
   }
 
   const togglePathsVisibility = () => {
     setIsPathsVisible(!isPathsVisible);
+    setFlagVisible(!flagVisible);
   };
 
 
@@ -824,7 +828,7 @@ export default function Map() {
             />
           ))}
 
-          {startPositionSet && (
+          {flagVisible && startPositionSet && (
             <MarkerF
               position={positions[0]}
               icon={{
@@ -834,7 +838,7 @@ export default function Map() {
             />
           )}
 
-          {stopPosition && (
+          {flagVisible && stopPosition && (
             <MarkerF
               position={stopPosition}
               icon={{
