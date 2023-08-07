@@ -13,8 +13,8 @@ import axios from 'axios';
 import ImgCrop from 'antd-img-crop'
 import TextArea from 'antd/es/input/TextArea';
 import { darkMode } from './mapStyles';
-import startMarker from '../picture/flagred.svg'
-import stopMarker from '../picture/flagblue.svg'
+import startMarker from '../picture/flaggreen.svg'
+import stopMarker from '../picture/flagred.svg'
 
 export default function Map() {
   const [positions, setPositions] = useState([]);
@@ -834,6 +834,7 @@ export default function Map() {
               icon={{
                 url: startMarker,
                 scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
+                anchor: new window.google.maps.Point(1,32)
               }}
             />
           )}
@@ -844,6 +845,7 @@ export default function Map() {
               icon={{
                 url: stopMarker,
                 scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
+                anchor: new window.google.maps.Point(1,32)
               }}
             />
           )}

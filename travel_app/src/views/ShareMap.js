@@ -4,8 +4,8 @@ import { useParams } from 'react-router-dom';
 import { Modal, Image } from 'antd';
 import axios from 'axios';
 import '../assets/styles/share.css';
-import startMarker from '../picture/flagred.svg'
-import stopMarker from '../picture/flagblue.svg'
+import startMarker from '../picture/flaggreen.svg'
+import stopMarker from '../picture/flagred.svg'
 
 const ShareMap = ({ pathId }) => {
 //   const { pathId } = useParams();
