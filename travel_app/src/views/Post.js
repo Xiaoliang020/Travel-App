@@ -76,7 +76,6 @@ export default function Post() {
                 commentData.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
                 setPost(postData);
                 setComments(commentData);
-                console.log(postData.screenshot);
               })
               .catch((error) => {
                 console.error('Error fetching user avatars:', error);

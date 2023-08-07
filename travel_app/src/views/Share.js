@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
 import { useParams } from 'react-router-dom';
 import { Modal, Image } from 'antd';
 import axios from 'axios';
-import '../App.css';
+import '../assets/styles/share.css';
 
 const SharedPage = () => {
   const { pathId } = useParams();
@@ -11,6 +11,8 @@ const SharedPage = () => {
   const [markers, setMarkers] = useState([]);
   const [mapZoom, setMapZoom] = useState(15);
   const [isMarkersReady, setIsMarkersReady] = useState(false);
+
+  const markerText = useRef("");
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -63,6 +65,7 @@ const SharedPage = () => {
   // TODO
   const handleMarkerClick = (marker) => {
     console.log("marker text is:" + marker.text);
+    markerText.current = marker.text;
 
     // 预先加载图片数据
     const promises = marker.picture.map(pictureID => {
@@ -86,7 +89,6 @@ const SharedPage = () => {
       .then((imageBase64Array) => {
         // 过滤掉加载失败的图片数据
         const filteredImageBase64Array = imageBase64Array.filter(imageBase64 => imageBase64 !== null);
-        // setPictureDataGroup(filteredImageBase64Array);
         // 打开 Modal
         openModal(marker, filteredImageBase64Array);
       });
@@ -100,7 +102,7 @@ const SharedPage = () => {
     return (
       <div>
         <div>
-          Text:
+          Text: {markerText.current}
         </div>
         <br></br>
         Pictures:
@@ -149,11 +151,13 @@ const SharedPage = () => {
 
   return (
     <div className="map-view">
-      <h1>Path Name: {path.name}</h1>
-      <p>Start Address: {path.startAddress}</p>
-      <p>End Address: {path.endAddress}</p>
-      <p>Start Time: {path.startTime}</p>
-      <p>End Time: {path.endTime}</p>
+      <div className="path-info">
+        <h1>Path Name: {path.name}</h1>
+        <p>Start Address: {path.startAddress}</p>
+        <p>End Address: {path.endAddress}</p>
+        <p>Start Time: {path.startTime}</p>
+        <p>End Time: {path.endTime}</p>
+      </div>
       <div className="map-container">
         {isMarkersReady && isLoaded && ( // Check if markers are ready and Google Map is loaded
           <GoogleMap

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FormOutlined, LikeOutlined, MessageOutlined } from '@ant-design/icons';
-import { Avatar, List, Space, FloatButton, Form, Modal, Input, message, Select } from 'antd';
+import { Avatar, List, Space, FloatButton, Form, Modal, Input, message, Select, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import '../assets/styles/community.css';
@@ -195,6 +195,10 @@ export default function Community() {
         });
     };
 
+    const handleLikePost = (postId) => {
+        console.log("Liked ", postId);
+    }
+
     return (
         <div className='community'>
             {isLoading ? (
@@ -221,7 +225,12 @@ export default function Community() {
                                 key={item.title}
                                 className="post-item"
                                 actions={[
-                                    <IconText icon={LikeOutlined} text="56" key="list-vertical-like-o" />,
+                                    <IconText 
+                                        icon={LikeOutlined} 
+                                        text="56" 
+                                        key="list-vertical-like-o" 
+                                        onClick={() => handleLikePost(item.id)}
+                                    />,
                                     <IconText icon={MessageOutlined} text={item.comments.length} key="list-vertical-message" />,
                                 ]}
                                 extra={

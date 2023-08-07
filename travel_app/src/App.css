@@ -121,19 +121,6 @@
   border-radius: 50%;
 }
 
-/* #poster {
-  background-position: center;
-  height: 100%;
-  width: 100%;
-  background-size: cover;
-  position: fixed;
-}
-
-Typography {
-  margin: 0px;
-  padding: 0px;
-} */
-
 .login-form {
   border-radius: 15px;
   background-clip: padding-box;
