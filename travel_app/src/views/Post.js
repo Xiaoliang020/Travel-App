@@ -131,7 +131,7 @@ export default function Post() {
       <div className='post-content' style={{ textAlign: 'left' }}>
         <Paragraph>{post.content}</Paragraph>
       </div>
-      <div>
+      <div className='post-map'>
         <ShareMap pathId={post.pathid}/>
       </div>
       <Input.TextArea
@@ -140,14 +140,19 @@ export default function Post() {
         rows={4}
         placeholder="Enter your reply..."
       />
-      <Button onClick={handleReplySubmit}>Reply</Button>
+      <div className='post-button'>
+        <Button onClick={handleReplySubmit}>Reply</Button>
+      </div>
+      {comments.length === 0 ? (
+        <div className='post-noreply'> No replies yet </div>
+      ) : (
       <List
         pagination={{
           position,
           align,
         }}
         dataSource={comments}
-        renderItem={(comment, index) => (
+        renderItem={(comment) => (
           <List.Item>
             <List.Item.Meta
               avatar={
@@ -159,6 +164,7 @@ export default function Post() {
           </List.Item>
         )}
       />
+      )}
     </div>
   );
 }
