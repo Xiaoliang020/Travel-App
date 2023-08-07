@@ -168,7 +168,6 @@ public class MarkerService {
         oldMarker.setName(marker.getName());
         oldMarker.setText(marker.getText());
         oldMarker.setIcon(marker.getIcon());
-        oldMarker.setPathID(marker.getPathID());
         oldMarker.setPicture(marker.getPicture());
 
         return markerRepository.save(oldMarker);

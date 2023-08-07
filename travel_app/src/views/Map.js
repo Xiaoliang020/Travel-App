@@ -13,6 +13,8 @@ import axios from 'axios';
 import ImgCrop from 'antd-img-crop'
 import TextArea from 'antd/es/input/TextArea';
 import { darkMode } from './mapStyles';
+import { RcFile, UploadProps } from 'antd/es/upload';
+import { UploadFile } from 'antd/es/upload/interface';
 
 export default function Map() {
   const [positions, setPositions] = useState([]);
@@ -37,9 +39,10 @@ export default function Map() {
   const [pictureGroup, setPictureGroup] = useState([]);
   const pictureGroupRef = useRef([]);
   const [pictureDataGroup, setPictureDataGroup] = useState([]);
+
+
   // State to store the user's avatarUrl
   const markerIconDataUrl = useRef("");
-  const markerPictureDataUrl = useRef("");
 
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState();
@@ -58,7 +61,6 @@ export default function Map() {
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
-
 
   const handleCancel = () => setPreviewOpen(false);
 
@@ -144,7 +146,6 @@ export default function Map() {
     }
   };
 
-
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
@@ -168,17 +169,7 @@ export default function Map() {
     </div>
   );
 
-  // const handleChange = ({ file, fileList: newFileList }) => {
-  //   if (file.status === 'uploading') {
-  //     setLoading(true);
-  //     return;
-  //   }
-  //   if (file.status === 'done') {
-  //     // Get this url from response in real world.
-  //     setImageUrl(URL.createObjectURL(file.originFileObj));
-  //     setLoading(false);
-  //   }
-  // };
+
   const handleChange = (info) => {
     if (info.file.status === 'done') {
       message.success(`${info.file.name} uploaded successfully`);
@@ -186,6 +177,7 @@ export default function Map() {
       message.error(`${info.file.name} upload failed.`);
     }
   };
+
 
   function getLocation() {
     return new Promise((resolve, reject) => {
@@ -319,6 +311,7 @@ export default function Map() {
     console.log("Start tracking");
   };
 
+
   //TODO
   const handleAddPoint = () => {
     const { lat, lng } = currentPosition;
@@ -340,6 +333,7 @@ export default function Map() {
               listType="picture-circle"
               onPreview={handlePreview}
               onChange={handleChange}
+
             >
               {uploadButton}
 
@@ -611,38 +605,54 @@ export default function Map() {
         const filteredImageBase64Array = imageBase64Array.filter(imageBase64 => imageBase64 !== null);
         setPictureDataGroup(filteredImageBase64Array);
         // 打开 Modal
-        openModal(marker);
+        openModal(marker, filteredImageBase64Array);
       });
   };
 
 
-
-  const openModal = (marker) => {
-    Modal.confirm({
-      title: 'The comment you left in this place',
-      content: (
-        <div>
-          Do you want to add something new?
-          <TextArea
-            showCount
-            maxLength={200}
-            style={{ height: 250, marginBottom: 24 }}
-            placeholder="Input something..."
-            defaultValue={marker.text}
-            onChange={(e) => inputText.current = e.target.value}
-          />
-          Pictures:
-          <div>
-            <Image.PreviewGroup
-              preview={{
-                onChange: (current, prev) => console.log(`current index: ${current}, prev index: ${prev}`),
-              }}
-            >
-              {pictureDataGroup.map((pictureData, index) => (
-                <Image key={index} width={100} src={`data:image/png;base64,${pictureData}`} />
-              ))}
-            </Image.PreviewGroup>
+  const MarkerModalContent = ({
+    marker,
+    pictureDataGroup,
+    inputText,
+    trackingEnabled,
+  }) => {
+    return (
+      <div>
+        {trackingEnabled ?
+          (<div>
+            Comment:
+            <br></br>
+            {inputText.current}
           </div>
+          ) :
+          (
+            <div>
+              Do you want to add something new?
+              <TextArea
+                showCount
+                maxLength={200}
+                style={{ height: 250, marginBottom: 24 }}
+                placeholder="Input something..."
+                defaultValue={marker.text}
+                onChange={(e) => inputText.current = e.target.value}
+              />
+            </div>
+          )}
+        <br></br>
+        Pictures:
+        <div>
+          <Image.PreviewGroup
+            preview={{
+              onChange: (current, prev) => console.log(`current index: ${current}, prev index: ${prev}`),
+            }}
+          >
+            {pictureDataGroup.map((pictureData, index) => (
+              <Image key={index} width={100} src={`data:image/png;base64,${pictureData}`} />
+            ))}
+          </Image.PreviewGroup>
+        </div>
+
+        {!trackingEnabled &&
           <ImgCrop>
             <Upload
               customRequest={(params) => customPictureRequestForClickedMarker({ ...params, marker })}
@@ -653,21 +663,49 @@ export default function Map() {
               {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
             </Upload>
           </ImgCrop>
-        </div>
-      ),
-      onOk: (close) => {
-        // const newMarker = {
-        //   lat: marker.lat,
-        //   lng: marker.lng,
-        //   type: "custom",
-        //   id: marker.id, // Assign a unique ID to the marker
-        //   name: marker.name,
-        //   text: inputText.current,
-        //   icon: marker.icon
-        // };
+        }
+      </div>
+    );
+  }
 
-        // setMarkers(markers.map(m => m === marker ? newMarker : m))
-        close();
+  const openModal = (marker, imageBase64Array) => {
+    Modal.confirm({
+      title: 'The marker you left in this place',
+      content: <MarkerModalContent
+        key={new Date().getTime()} // 强制更新
+        marker={marker}
+        pictureDataGroup={imageBase64Array}
+        inputText={inputText}
+        trackingEnabled={trackingEnabled} // 确保您传递了trackingEnabled
+      // ... 其他props ...
+      />,
+      onOk: (close) => {
+        if (trackingEnabled) {
+          close();
+          return; // 如果在路径记录状态，直接返回，不执行后续代码
+        }
+        const updatedMarker = {
+          ...marker, // 获取原始marker的所有属性
+          text: inputText.current // 更新 text 属性
+        };
+
+        // 更新数据库
+        axios.post(`${apiUrl}/api/update-marker`, updatedMarker)
+          .then(response => {
+            if (response.data.code === '0') {
+              console.log("Marker updated successfully in database");
+
+              // 更新前端的 state
+              setMarkers(markers.map(m => m.id === marker.id ? updatedMarker : m));
+            } else {
+              console.log("Error updating marker in database:", response.data.message);
+            }
+            close();
+          })
+          .catch(error => {
+            console.error("Error sending request to update marker:", error);
+            close();
+          });
       },
     });
   };
@@ -776,9 +814,9 @@ export default function Map() {
             />
           )}
 
-          {markers.map((marker, index) => (
+          {markers.map(marker => (
             <MarkerF
-              key={marker}
+              key={marker.markerID}
               position={{ lat: marker.markerLat, lng: marker.markerLng }}
               visible={marker.type === 'custom'}
               icon={marker.url}
