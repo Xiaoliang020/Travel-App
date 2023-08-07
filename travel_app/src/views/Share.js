@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolylineF } from '@react-google-maps/api';
 import { useParams } from 'react-router-dom';
+import { Modal, Image } from 'antd';
 import axios from 'axios';
 import '../App.css';
 
@@ -61,8 +62,77 @@ const SharedPage = () => {
 
   // TODO
   const handleMarkerClick = (marker) => {
-    
+    console.log("marker text is:" + marker.text);
+
+    // 预先加载图片数据
+    const promises = marker.picture.map(pictureID => {
+      return axios.get(`${apiUrl}/api/picture/${pictureID}`)
+        .then((response) => {
+          if (response.data.code === '0') {
+            return response.data.data;
+          } else {
+            console.log("Picture not found");
+            return null;
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching picture data:', error);
+          return null;
+        });
+    });
+
+    // 等待所有图片数据加载完成后再打开 Modal
+    Promise.all(promises)
+      .then((imageBase64Array) => {
+        // 过滤掉加载失败的图片数据
+        const filteredImageBase64Array = imageBase64Array.filter(imageBase64 => imageBase64 !== null);
+        // setPictureDataGroup(filteredImageBase64Array);
+        // 打开 Modal
+        openModal(marker, filteredImageBase64Array);
+      });
   };
+
+  const MarkerModalContent = ({
+    marker,
+    pictureDataGroup,
+    inputText,
+  }) => {
+    return (
+      <div>
+        <div>
+          Text:
+        </div>
+        <br></br>
+        Pictures:
+        <div>
+          <Image.PreviewGroup
+            preview={{
+              onChange: (current, prev) => console.log(`current index: ${current}, prev index: ${prev}`),
+            }}
+          >
+            {pictureDataGroup.map((pictureData, index) => (
+              <Image key={index} width={100} src={`data:image/png;base64,${pictureData}`} />
+            ))}
+          </Image.PreviewGroup>
+        </div>
+      </div>
+    );
+  }
+
+  const openModal = (marker, imageBase64Array) => {
+    Modal.confirm({
+      title: 'The marker you left in this place',
+      content: <MarkerModalContent
+        key={new Date().getTime()} // 强制更新
+        marker={marker}
+        pictureDataGroup={imageBase64Array}
+      />,
+      onOk: (close) => {
+        close()
+      },
+    });
+  };
+
 
   if (!path || !isMarkersReady || !isLoaded) {
     return <div>Loading...</div>;
@@ -100,7 +170,7 @@ const SharedPage = () => {
               }}
             />
 
-            {markers.map((marker, index) => (
+            {markers.map(marker => (
               <MarkerF
                 key={marker.id} // Assuming there's a unique id for each marker
                 position={{ lat: marker.markerLat, lng: marker.markerLng }}
