@@ -13,6 +13,8 @@ import axios from 'axios';
 import ImgCrop from 'antd-img-crop'
 import TextArea from 'antd/es/input/TextArea';
 import { darkMode } from './mapStyles';
+import startMarker from '../picture/start-marker.png'
+import stopMarker from '../picture/stop-marker.png'
 import { RcFile, UploadProps } from 'antd/es/upload';
 import { UploadFile } from 'antd/es/upload/interface';
 
@@ -28,6 +30,9 @@ export default function Map() {
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [markerName, setMarkerName] = useState(1);
+  const [startPosition, setStartPosition] = useState(null);
+  const [stopPosition, setStopPosition] = useState(null);
+  const [startPositionSet, setStartPositionSet] = useState(false);
 
   const apiUrl = process.env.REACT_APP_API_BASE_URL;
 
@@ -234,6 +239,10 @@ export default function Map() {
 
     setPositions((prev) => [...prev, { lat: position.latitude, lng: position.longitude, type: "default", pathId }]);
     setCurrentPositions({ lat: position.latitude, lng: position.longitude });
+    if (!startPositionSet) {
+      setStartPositionSet(true);
+      setStartPosition({ lat: position.latitude, lng: position.longitude });
+    }
 
     console.log(position);
     setEndTime(new Date()); // Save the end time
@@ -427,6 +436,9 @@ export default function Map() {
 
   const handleStopTracking = () => {
     setTrackingEnabled(false);
+    setStopPosition(currentPosition);
+    setStartPositionSet(false);
+    console.log('Start pos after stop:', startPosition);
     console.log("Stop tracking");
 
     const duration = (endTime - startTime) / 1000; // Calculate the duration in seconds
@@ -539,27 +551,6 @@ export default function Map() {
                           });
                       }, 'image/png');
                     });
-
-                    // // Convert the screenshot to a File object
-                    // const screenshotFile = new File([screenshotBlob], 'screenshot.png', { type: 'image/png' });
-
-                    // // Change the URL to your backend endpoint that handles the avatar upload
-                    // const formData = new FormData();
-                    // formData.append('screenshot', screenshotFile);
-
-                    // // Use .then() to handle the response
-                    // axios.post(`${apiUrl}/api/${savedPathId.current}/upload-screenshot`, formData)
-                    //   .then(response => {
-                    //     if (response.data.code === '0') {
-                    //       // Save the file URL or file ID returned by the backend
-                    //       console.log('Screenshot uploaded successfully:', response.data);
-                    //     } else {
-                    //       console.log('Screenshot uploaded failed:');
-                    //     }
-                    //   })
-                    //   .catch(error => {
-                    //     console.error('Error uploading Screenshot:', error);
-                    //   });
 
                   })
                   .catch(error => {
@@ -836,6 +827,26 @@ export default function Map() {
               onClick={() => handleMarkerClick(marker)}
             />
           ))}
+
+          {startPosition && (
+            <MarkerF
+              position={startPosition}
+              icon={{
+                url: startMarker,
+                scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
+              }}
+            />
+          )}
+
+          {stopPosition && (
+            <MarkerF
+              position={stopPosition}
+              icon={{
+                url: stopMarker,
+                scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
+              }}
+            />
+          )}
         </GoogleMap>
 
         {/* Main start/stop button */}
