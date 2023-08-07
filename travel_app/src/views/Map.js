@@ -318,6 +318,8 @@ export default function Map() {
 
   const handleStartTracking = () => {
     setPositions([]); // clear positions before a new tracking
+    setStartPosition(null);
+    setStopPosition(null);
     setMarkers([]);
     setTrackingEnabled(true);
     setPathId(prevPathId => prevPathId + 1); // 使用回调函数更新 pathId
@@ -443,6 +445,7 @@ export default function Map() {
 
     const duration = (endTime - startTime) / 1000; // Calculate the duration in seconds
     if (duration < 10) {
+      setStopPosition(null);
       Modal.warning({
         centered: true,
         title: 'Warning',

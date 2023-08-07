@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom';
 import { Modal, Image } from 'antd';
 import axios from 'axios';
 import '../assets/styles/share.css';
+import startMarker from '../picture/start-marker.png'
+import stopMarker from '../picture/stop-marker.png'
 
 const SharedPage = () => {
   const { pathId } = useParams();
@@ -147,6 +149,9 @@ const SharedPage = () => {
 
   const pathArray = path.path;
 
+  const startPosition = pathArray[0];
+  const stopPosition = pathArray[pathArray.length - 1];
+
   if (!isLoaded) return <div>Loading..</div>
 
   return (
@@ -182,6 +187,22 @@ const SharedPage = () => {
                 onClick={() => handleMarkerClick(marker)}
               />
             ))}
+
+            <MarkerF
+              position={startPosition}
+              icon={{
+                url: startMarker,
+                scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
+              }}
+            />
+
+            <MarkerF
+              position={stopPosition}
+              icon={{
+                url: stopMarker,
+                scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
+              }}
+            />
           </GoogleMap>
         )}
       </div>
