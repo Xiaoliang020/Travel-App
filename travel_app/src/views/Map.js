@@ -614,15 +614,14 @@ export default function Map() {
     marker,
     pictureDataGroup,
     inputText,
-    trackingEnabled,
-  }) => {
+    trackingEnabled,}) => {
     return (
       <div>
         {trackingEnabled ?
           (<div>
             Comment:
             <br></br>
-            {inputText.current}
+            {marker.text}
           </div>
           ) :
           (
@@ -675,7 +674,7 @@ export default function Map() {
         key={new Date().getTime()} // 强制更新
         marker={marker}
         pictureDataGroup={imageBase64Array}
-        inputText={inputText}
+        inputText={marker.text}
         trackingEnabled={trackingEnabled} // 确保您传递了trackingEnabled
       // ... 其他props ...
       />,
@@ -686,7 +685,8 @@ export default function Map() {
         }
         const updatedMarker = {
           ...marker, // 获取原始marker的所有属性
-          text: inputText.current // 更新 text 属性
+          // text: inputText.current // 更新 text 属性
+          text: marker.text
         };
 
         // 更新数据库
