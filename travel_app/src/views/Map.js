@@ -707,7 +707,7 @@ export default function Map() {
               // TODO
               // id是什么？？？（大概率）
               // 可能是异步的问题？？？
-              setMarkers(markers.map(m => m.id === marker.id ? updatedMarker : m));
+              setMarkers(markers.map(m => m.markerID === marker.markerID ? updatedMarker : m));
             } else {
               console.log("Error updating marker in database:", response.data.message);
             }
