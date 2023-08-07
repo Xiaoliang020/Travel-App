@@ -5,8 +5,6 @@ import axios from 'axios';
 import '../assets/styles/post.css';
 
 const { Title, Paragraph } = Typography;
-const positionOptions = ['top', 'bottom', 'both'];
-const alignOptions = ['start', 'center', 'end'];
 
 export default function Post() {
   let userStr = sessionStorage.getItem("user") || "{}"
@@ -18,8 +16,8 @@ export default function Post() {
   const [post, setPost] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [position, setPosition] = useState('bottom');
-  const [align, setAlign] = useState('center');
+  const position = 'bottom';
+  const align = 'center';
 
   const [comments, setComments] = useState([]);
 
@@ -75,7 +73,7 @@ export default function Post() {
             Promise.all([fetchPostAvatar, fetchPostScreenshot, ...fetchCommentAvatars])
               .then(() => {
                 // Sort the posts by createdAt in descending order (newest first)
-                commentData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                commentData.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
                 setPost(postData);
                 setComments(commentData);
                 console.log(postData.screenshot);
@@ -129,10 +127,6 @@ export default function Post() {
     return <div>Loading...</div>; // Show a loading indicator while fetching data
   }
 
-  // if (!post) {
-  //   return <div>Post not found</div>; // Show a message if the post is not found
-  // }
-
   return (
     <div>
       <div className='post-title' style={{ textAlign: 'left' }}>
@@ -173,7 +167,7 @@ export default function Post() {
               avatar={
                 <Avatar src={comment.avatar} />
               }
-              title={<a href="https://ant.design">{comment.username}</a>}
+              title={comment.username}
               description={comment.content}
             />
           </List.Item>
