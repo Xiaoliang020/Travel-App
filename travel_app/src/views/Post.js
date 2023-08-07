@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Input, Avatar, Typography, List, message, Image } from 'antd';
+import ShareMap from './ShareMap';
 import axios from 'axios';
 import '../assets/styles/post.css';
 
@@ -42,18 +43,6 @@ export default function Post() {
             .catch((error) => {
               console.error('Error fetching post avatar:', error);
             });
-            
-            const fetchPostScreenshot = axios
-              .get(`${apiUrl}/api/screenshot/${postData.pathid}`)
-              .then((screenshotResponse) => {
-                if (screenshotResponse.data.code === '0') {
-                  const screenshotData = screenshotResponse.data.data;
-                  postData.screenshot = `data:image/png;base64,${screenshotData}`;
-                }
-              })
-              .catch((error) => {
-                console.error('Error fetching post avatar:', error);
-              });
 
             // Fetch the user avatar for each post and update the data array
             const fetchCommentAvatars = commentData.map((comment) => {
@@ -70,7 +59,7 @@ export default function Post() {
                 });
             });
             // Wait for all the avatar fetch calls to finish before updating the data array
-            Promise.all([fetchPostAvatar, fetchPostScreenshot, ...fetchCommentAvatars])
+            Promise.all([fetchPostAvatar, ...fetchCommentAvatars])
               .then(() => {
                 // Sort the posts by createdAt in descending order (newest first)
                 commentData.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
@@ -142,10 +131,8 @@ export default function Post() {
       <div className='post-content' style={{ textAlign: 'left' }}>
         <Paragraph>{post.content}</Paragraph>
       </div>
-      <div className='post-screenshot'>
-        <Image
-          src={post.screenshot}
-        />
+      <div>
+        <ShareMap pathId={post.pathid}/>
       </div>
       <Input.TextArea
         value={replyText}

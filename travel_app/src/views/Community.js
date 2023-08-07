@@ -229,9 +229,9 @@ export default function Community() {
                                         icon={LikeOutlined} 
                                         text="56" 
                                         key="list-vertical-like-o" 
-                                        onClick={() => handleLikePost(item.id)}
+                                        onClick={() => handleLikePost(item.id)} 
                                     />,
-                                    <IconText icon={MessageOutlined} text={item.comments.length} key="list-vertical-message" />,
+                                    <IconText icon={MessageOutlined} text={item.comments ? item.comments.length : 0} key="list-vertical-message" />,
                                 ]}
                                 extra={
                                     item.pathid ? (
