@@ -29,7 +29,7 @@ export default function Community() {
 
     const [searchTerm, setSearchTerm] = useState('');
     const filteredPosts = posts.filter(post => {
-        const combinedString = `${user.username} ${post.title} ${post.content} ${pathOptions.find(path => path.value === post.pathid)?.startAddress || ''}`.toLowerCase();
+        const combinedString = `${user.username} ${post.title} ${post.content} `.toLowerCase();
         return combinedString.includes(searchTerm.toLowerCase());
     });
 
@@ -145,8 +145,6 @@ export default function Community() {
                 const formattedOptions = response.data.data.map((path) => ({
                     value: path.id,
                     label: path.name,
-                    startAddress: path.startAddress, // Assuming the path object contains startAddress
-                    endAddress: path.endAddress      // and endAddress fields.
                 }));
                 setPathOptions(formattedOptions);
             })
@@ -273,10 +271,6 @@ export default function Community() {
                                         description={
                                             <>
                                                 {`Posted ${calculateTimeAgo(item.createdAt)}`}
-                                                <br />
-                                                {`Start: ${pathOptions.find(path => path.value === item.pathid)?.startAddress}`}
-                                                <br />
-                                                {`End: ${pathOptions.find(path => path.value === item.pathid)?.endAddress}`}
                                             </>
                                         }
                                     />
