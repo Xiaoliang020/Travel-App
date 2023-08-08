@@ -237,12 +237,6 @@ export default function Community() {
                                 key={item.title}
                                 className="post-item"
                                 actions={[
-                                    <IconText
-                                        icon={LikeOutlined}
-                                        text="56"
-                                        key="list-vertical-like-o"
-                                        onClick={() => handleLikePost(item.id)}
-                                    />,
                                     <IconText icon={MessageOutlined} text={item.comments ? item.comments.length : 0} key="list-vertical-message" />,
                                 ]}
                                 extra={
