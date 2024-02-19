@@ -42,19 +42,26 @@ export default function Register() {
     const apiUrl = process.env.REACT_APP_API_BASE_URL;
 
     const onFinish = (values) => {
-        console.log('Received values of form: ', values);
+        // 转换性别值：如果选择的是"male"，则设置为1；如果是"female"，则设置为0。
+        const genderValue = values.gender === 'male' ? 1 : 0;
+        // 更新values对象中的gender值
+        const updatedValues = { ...values, gender: genderValue };
+
+        console.log('Received values of form: ', updatedValues);
+
         // Make an HTTP POST request to the backend
-        axios.post(`${apiUrl}/api/register`, values)
+        axios.post(`${apiUrl}/user/user`, updatedValues)
         .then((response) => {
+            console.log(response);
             // Check the response code
-            if (response.data.code === '0') {
+            if (response.data.code === 1) {
                 // Registration successful
                 console.log('Registration successful!', response.data);
                 message.success('Registration success! Log in now!');
                 startTransition(() => {
                     navigate('/login');
                 });
-            } else if (response.data.code === '-1') {
+            } else {
                 // Registration failed due to user already existing
                 console.error('Registration failed:', response.data.msg);
                 if (response.data.msg === 'The email already exists') {
@@ -147,6 +154,24 @@ export default function Register() {
             </Form.Item>
 
             <Form.Item
+                name="phone"
+                label="Phone Number"
+                rules={[
+                    {
+                        required: true,
+                        message: 'Please input your phone number!',
+                    },
+                    {
+                        pattern: /^1[3-9]\d{9}$/,
+                        message: 'The input is not a valid phone number!',
+                    },
+                ]}
+            >
+                <Input style={{ width: '100%' }} />
+            </Form.Item>
+
+
+            <Form.Item
                 name="gender"
                 label="Gender"
                 rules={[{ required: true, message: 'Please select gender!' }]}
@@ -154,7 +179,8 @@ export default function Register() {
                 <Select placeholder="select your gender">
                     <Option value="male">Male</Option>
                     <Option value="female">Female</Option>
-                    <Option value="other">Other</Option>
+                    {/* 别搞LGBT */}
+                    {/* <Option value="other">Other</Option> */}
                 </Select>
             </Form.Item>
 

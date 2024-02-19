@@ -8,7 +8,7 @@ import '../assets/styles/post.css';
 const { Title, Paragraph } = Typography;
 
 export default function Post() {
-  let userStr = sessionStorage.getItem("user") || "{}"
+  let userStr = localStorage.getItem("user") || "{}"
   let user = JSON.parse(userStr);
   const apiUrl = process.env.REACT_APP_API_BASE_URL;
   const { postId } = useParams(); // Get the postId from the URL parameters

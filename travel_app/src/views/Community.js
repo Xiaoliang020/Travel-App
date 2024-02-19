@@ -13,7 +13,7 @@ const IconText = ({ icon, text }) => (
 );
 
 export default function Community() {
-    let userStr = sessionStorage.getItem("user") || "{}"
+    let userStr = localStorage.getItem("user") || "{}"
     let user = JSON.parse(userStr);
     const apiUrl = process.env.REACT_APP_API_BASE_URL;
 

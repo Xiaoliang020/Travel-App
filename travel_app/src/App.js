@@ -3,8 +3,25 @@ import './App.css';
 import { useRoutes } from "react-router-dom"
 import router from "./router"
 import SavedPathsContext from "./SavedPathsContext"
+import axios from 'axios';
 
 export const ThemeContext = React.createContext();
+
+axios.interceptors.request.use(
+  config => {
+    // 从 localStorage 获取用户信息
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.token) {
+      // 将 JWT 令牌设置到请求头的 "token" 字段
+      config.headers['token'] = user.token;
+    }
+    console.log(config); // 调试输出，查看请求配置
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
 
 function App() {
   const [savedPaths, setSavedPaths] = useState([]);

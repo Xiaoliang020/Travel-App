@@ -12,26 +12,13 @@ export default function Settings() {
     const { Meta } = Card;
     // State to store the user's avatarData
     const [userAvatarData, setUserAvatarData] = useState(null);
-    // Get the user info stored in sessionStorage
-    const user = JSON.parse(sessionStorage.getItem("user"));
+    // Get the user info stored in localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
     const apiUrl = process.env.REACT_APP_API_BASE_URL;
 
     // Fetch the user's avatarUrl when the component mounts
     useEffect(() => {
-        // Make an API call to fetch the user data, including the avatarUrl
-        axios.get(`${apiUrl}/api/avatar/${user.id}`)
-        .then((response) => {
-            if (response.data.code === '0') {
-                const imageBase64 = response.data.data;
-                // Set the userAvatarUrl state with the fetched avatar data
-                setUserAvatarData(`data:image/png;base64,${imageBase64}`);
-            } else {
-                console.log(response.data.msg);
-            }
-        })
-        .catch((error) => {
-            console.error('Error fetching user data:', error);
-        });
+        setUserAvatarData(user.avatar);
     }, []);
 
     const handleThemeChange = (newTheme) => {
@@ -47,17 +34,50 @@ export default function Settings() {
         }
     };
 
+    const updateAvatar = async (avatar) => {
+        try {
+            // 这里替换成后端处理头像更新的API
+            const user = JSON.parse(localStorage.getItem('user'));
+            const id = user.id; // 假设用户信息中包含id
+            
+            // 构造一个UserDTO对象
+            const userDTO = {
+                id: user.id, // 假设localStorage中保存的用户信息有id
+                avatar: avatar
+            };
+
+            const response = await axios.put(`${apiUrl}/user`, userDTO);
+            if (response.data.code === 1) {
+                console.log('Avatar updated in database successfully:', response.data);
+            } else {
+                console.error('Failed to update avatar in database:', response.data.message);
+            }
+        } catch (error) {
+            console.error('Error updating avatar in database:', error);
+        }
+    };
+
     const customRequest = async ({ file, onSuccess, onError }) => {
         try {
         const formData = new FormData();
         formData.append('file', file);
         // Change the URL to your backend endpoint that handles the avatar upload
-        const response = await axios.post(`${apiUrl}/api/${user.id}/upload-avatar`, formData);
-        if (response.data.code === '0') {
+        const response = await axios.post(`${apiUrl}/user/common/upload`, formData);
+        if (response.data.code === 1) {
             // Save the file URL or file ID returned by the backend
             console.log('Avatar uploaded successfully:', response.data);
+            const avatarUrl = response.data.data
+
+            // 更新localStorage
+            user.avatar = avatarUrl;
+            localStorage.setItem('user', JSON.stringify(user));
+
+            // 发送给后端更新数据库
+            await updateAvatar(avatarUrl);
+
             onSuccess();
-            window.location.reload();
+            // window.location.reload();
+            setUserAvatarData(avatarUrl);
         } else {
             onError(new Error('Failed to upload avatar'));
         }

@@ -6,8 +6,8 @@ import axios from 'axios';
 export default function Paths() {
     const [paths, setPaths] = useState([]);
     const navigate = useNavigate();
-    // Get the user info stored in sessionStorage
-    const user = JSON.parse(sessionStorage.getItem("user"));
+    // Get the user info stored in localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
     const apiUrl = process.env.REACT_APP_API_BASE_URL;
 
     useEffect(() => {

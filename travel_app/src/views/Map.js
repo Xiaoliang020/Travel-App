@@ -466,8 +466,8 @@ export default function Map() {
         console.log(pathName);
         const startCoordinates = positions[0];
         const endCoordinates = positions[positions.length - 1];
-        // Get the user info stored in sessionStorage
-        const user = JSON.parse(sessionStorage.getItem("user"));
+        // Get the user info stored in localStorage
+        const user = JSON.parse(localStorage.getItem("user"));
 
         // 使用逆地理编码服务获取开始点的地址
         Geocode.fromLatLng(startCoordinates.lat, startCoordinates.lng)

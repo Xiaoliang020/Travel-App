@@ -24,8 +24,8 @@ const withLoadingComponent = (comp) => (
 )
 
 const isAuthenticated = () => {
-    // Retrieve the user info from sessionStorage
-    const userStr = sessionStorage.getItem("user") || "{}"
+    // Retrieve the user info from localStorage
+    const userStr = localStorage.getItem("user") || "{}"
     const user = JSON.parse(userStr)
     return !!user.username; // Return true if the user is authenticated, false otherwise
 };

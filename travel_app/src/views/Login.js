@@ -13,22 +13,22 @@ export default function Login() {
     const onFinish = (values) => {
         console.log('Received values of form: ', values);
         // Make an HTTP POST request to the backend
-        axios.post(`${apiUrl}/api/login`, values)
+        axios.post(`${apiUrl}/user/login`, values)
         .then((response) => {
             // Check the response code
-            if (response.data.code === '0') {
+            if (response.data.code === 1) {
                 // Login successful!
                 console.log('Login successful!', response.data);
 
-                    // Save the user info to sessionStorage
-                    sessionStorage.setItem('user', JSON.stringify(response.data.data));
+                    // Save the user info to localStorage
+                    localStorage.setItem('user', JSON.stringify(response.data.data));
 
                     navigate("/map");
 
                     // Refresh the page to update the authentication status
                     window.location.reload();
 
-                } else if (response.data.code === '-1') {
+                } else {
                     // Login failed
                     console.error('Login failed:', response.data.msg);
                     message.error('Invalid username or password. Please try again.');
