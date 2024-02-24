@@ -5,21 +5,33 @@ import axios from 'axios';
 
 export default function Paths() {
     const [paths, setPaths] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10); // 默认的每页大小
+    const [total, setTotal] = useState(0);
     const navigate = useNavigate();
     // Get the user info stored in localStorage
     const user = JSON.parse(localStorage.getItem("user"));
     const apiUrl = process.env.REACT_APP_API_BASE_URL;
 
     useEffect(() => {
-        axios.get(`${apiUrl}/api/paths/${user.id}`)
+        const queryParams = `?userId=${user.id}&page=${currentPage}&pageSize=${pageSize}`;
+
+        axios.get(`${apiUrl}/user/path/page${queryParams}`)
             .then(response => {
                 console.log(response.data);
-                setPaths(response.data.data);
+                setTotal(response.data.data.total);
+                setPaths(response.data.data.records);
             })
             .catch(error => {
                 console.error('Error retrieving paths:', error);
             });
-    }, []);
+    }, [currentPage, pageSize]);
+
+    function convertToDate(timeArray) {
+        // 注意：月份减1，因为JavaScript中月份是从0开始的
+        const [year, month, day, hour, minute, second] = timeArray;
+        return new Date(year, month - 1, day, hour, minute, second);
+    }
 
     const handleDisplayPath = (pathId) => {
         window.open(`/share/${pathId}`);
@@ -32,11 +44,10 @@ export default function Paths() {
             content: 'Are you sure you want to delete this path?',
             onOk: () => {
                 console.log(pathId);
-                const data = { pathId }; // Wrap pathId in an object
-                axios.post(`${apiUrl}/api/paths-delete`, data)
+                axios.delete(`${apiUrl}/user/path?pathId=${pathId}`)
                     .then((response) => {
                         // Check the response code
-                        if (response.data.code === '0') {
+                        if (response.data.code === 1) {
                             // Delete successful
                             console.log('Delete successful!', response.data);
                             message.success('Delete success!');
@@ -151,9 +162,8 @@ export default function Paths() {
     const data = paths.map((path, index) => ({
         key: index + 1,
         id: path.id,
-        path: path.path,
-        startTime: path.startTime,
-        endTime: path.endTime,
+        startTime: convertToDate(path.startTime),
+        endTime: convertToDate(path.endTime),
         duration: path.duration,
         startAddress: path.startAddress,
         endAddress: path.endAddress,
@@ -166,7 +176,19 @@ export default function Paths() {
                 <Card title="Saved Paths">
 
                     {/* Add the table here */}
-                    <Table columns={columns} dataSource={data} />
+                    <Table 
+                        columns={columns} 
+                        dataSource={data}
+                        pagination={{
+                            current: currentPage,
+                            pageSize: pageSize,
+                            total: total, // 后端返回的总条目数
+                            onChange: (page, pageSize) => {
+                                setCurrentPage(page);
+                                setPageSize(pageSize);
+                            },
+                        }}
+                    />
                 </Card>
             </div>
         </div>

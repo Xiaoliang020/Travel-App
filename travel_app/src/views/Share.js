@@ -64,6 +64,12 @@ const SharedPage = () => {
       });
   }, [pathId]);
 
+  function convertToDate(timeArray) {
+    // 注意：月份减1，因为JavaScript中月份是从0开始的
+    const [year, month, day, hour, minute, second] = timeArray;
+    return new Date(year, month - 1, day, hour, minute, second);
+  }
+
   // TODO
   const handleMarkerClick = (marker) => {
     console.log("marker text is:" + marker.text);

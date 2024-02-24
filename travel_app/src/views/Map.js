@@ -40,11 +40,7 @@ export default function Map() {
   const markerIcon = useRef("");
   const [pictureGroup, setPictureGroup] = useState([]);
   const pictureGroupRef = useRef([]);
-  const [pictureDataGroup, setPictureDataGroup] = useState([]);
 
-
-  // State to store the user's avatarUrl
-  const markerIconDataUrl = useRef("");
 
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState();
@@ -52,14 +48,14 @@ export default function Map() {
   const { addPath, displayedPath, setDisplayedPath } = useContext(SavedPathsContext);
   const { theme } = useContext(ThemeContext);
 
-  const getBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
-  };
+  // const getBase64 = (file) => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.readAsDataURL(file);
+  //     reader.onload = () => resolve(reader.result);
+  //     reader.onerror = (error) => reject(error);
+  //   });
+  // };
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
@@ -71,12 +67,12 @@ export default function Map() {
       const formData = new FormData();
       formData.append('file', file);
       // Change the URL to your backend endpoint that handles the icon upload
-      const response = await axios.post(`${apiUrl}/api/upload-icon`, formData);
-      if (response.data.code === '0') {
+      const response = await axios.post(`${apiUrl}/user/common/upload`, formData);
+      if (response.data.code === 1) {
         // Save the file URL or file ID returned by the backend in your state or user profile
         console.log('Icon uploaded successfully:', response.data);
         console.log(response.data.data)
-        markerIcon.current = response.data.data; // icon's objectID
+        markerIcon.current = response.data.data; // icon's objectUrl
         console.log(markerIcon.current)
         onSuccess();
       } else {
@@ -99,8 +95,8 @@ export default function Map() {
       const formData = new FormData();
       formData.append('file', file);
       // Change the URL to your backend endpoint that handles the picture upload
-      const response = await axios.post(`${apiUrl}/api/upload-picture`, formData);
-      if (response.data.code === '0') {
+      const response = await axios.post(`${apiUrl}/user/common/upload`, formData);
+      if (response.data.code === 1) {
         // Save the file URL or file ID returned by the backend in your state or user profile
         console.log('Picture uploaded successfully:', response.data);
         console.log(response.data.data);
@@ -125,18 +121,18 @@ export default function Map() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const response = await axios.post(`${apiUrl}/api/upload-picture`, formData);
-      if (response.data.code === '0') {
+      const response = await axios.post(`${apiUrl}/user/common/upload`, formData);
+      if (response.data.code === 1) {
         console.log('Picture uploaded successfully:', response.data);
-        const pictureObjectID = response.data.data; // picture's objectID
+        const pictureUrl = response.data.data; // picture's objectID
         // Add the objectID to the marker's picture array
-        marker.picture = [...marker.picture, pictureObjectID];
+        marker.picture = [...marker.picture, pictureUrl];
 
         // Then update the marker in the markers array
         setMarkers(markers.map(m => m === marker ? marker : m));
 
         // Then update the marker in the database
-        await axios.post(`${apiUrl}/api/update-marker`, marker);
+        await axios.put(`${apiUrl}/user/marker`, marker);
 
         onSuccess();
       } else {
@@ -149,9 +145,9 @@ export default function Map() {
   };
 
   const handlePreview = async (file) => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
+    // if (!file.url && !file.preview) {
+    //   file.preview = await getBase64(file.originFileObj);
+    // }
 
     setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
@@ -377,49 +373,32 @@ export default function Map() {
         </div>
       ),
       onOk: (close) => {
-        axios.get(`${apiUrl}/api/icon/${markerIcon.current}`)
-          .then((response) => {
-            if (response.data.code === '0') {
-              console.log(response.data.data);
-              const imageBase64 = response.data.data;
-              // Set the userAvatarUrl state with the fetched avatar data
-              markerIconDataUrl.current = `data:image/png;base64,${imageBase64}`;
-              console.log(markerIconDataUrl.current)
-
-              const customMarkerIcon = {
-                url: markerIconDataUrl.current, // your base64 data url
-                scaledSize: new google.maps.Size(64, 64) // the size you want to scale to
-              };
+        
+        const customMarkerIcon = {
+          url: markerIcon.current, // your base64 data url
+          scaledSize: new google.maps.Size(64, 64) // the size you want to scale to
+        };
 
 
-              console.log("现在" + pictureGroupRef.current)
-              const newMarker = {
-                markerLat: lat,
-                markerLng: lng,
-                type: "custom",
-                markerID: Date.now(), // Assign a unique ID to the marker
-                name: markerName,
-                text: inputText.current,
-                url: customMarkerIcon, // Only for display, will not stored in database
-                icon: markerIcon.current,
-                pathID: "",
-                picture: pictureGroupRef.current
-              };
+        console.log("现在" + pictureGroupRef.current)
+        const newMarker = {
+          markerLat: lat,
+          markerLng: lng,
+          type: "custom",
+          markerID: Date.now(), // Assign a unique ID to the marker
+          name: markerName,
+          text: inputText.current,
+          url: customMarkerIcon, // Only for display, will not stored in database
+          icon: markerIcon.current,
+          pathID: "",
+          picture: pictureGroupRef.current
+        };
 
-              console.log(newMarker);
+        console.log(newMarker);
 
-              setMarkers((prev) => [...prev, newMarker]);
-              setMarkerName(markerName + 1);
-              console.log("Add an information point");
-
-            } else {
-              console.log("Icon not found");
-            }
-          })
-          .catch((error) => {
-            console.error('Error fetching icon data:', error);
-          });
-
+        setMarkers((prev) => [...prev, newMarker]);
+        setMarkerName(markerName + 1);
+        console.log("Add an information point");
 
         close();
       },
@@ -486,17 +465,17 @@ export default function Map() {
                   duration: duration,
                   startAddress: startAddress,
                   endAddress: endAddress,
-                  userid: user.id,
+                  userId: user.id,
                   name: pathName.current,
                 };
 
                 console.log("PathData", pathData);
 
                 //send pathData to back end
-                axios.post(`${apiUrl}/api/path-data`, pathData)
+                axios.post(`${apiUrl}/user/path`, pathData)
                   .then(response => {
                     // Check the response code
-                    if (response.data.code === '0') {
+                    if (response.data.code === 1) {
                       console.log('Path data successfully sent to the backend:', response.data);
                     }
                     // Get pathId from back end
@@ -508,9 +487,9 @@ export default function Map() {
                     // send markerData to back end
                     updatedMarkers.forEach(marker => {
                       console.log(marker)
-                      axios.post(`${apiUrl}/api/marker-data`, marker)
+                      axios.post(`${apiUrl}/user/marker`, marker)
                         .then(response => {
-                          if (response.data.code === '0') {
+                          if (response.data.code === 1) {
                             console.log('Marker data successfully sent to backend:', response.data);
                           }
                         })
@@ -533,12 +512,21 @@ export default function Map() {
 
                         // Continue with your code to upload the screenshot
                         const formData = new FormData();
-                        formData.append('screenshot', screenshotFile);
+                        formData.append('file', screenshotFile);
 
-                        axios.post(`${apiUrl}/api/${savedPathId.current}/upload-screenshot`, formData)
+                        axios.post(`${apiUrl}/user/common/upload`, formData)
                           .then(response => {
-                            if (response.data.code === '0') {
+                            if (response.data.code === 1) {
                               console.log('Screenshot uploaded successfully:', response.data);
+                              
+                              const screenshot = response.data.data;
+                              const pathImageDTO = {
+                                id: savedPathId.current, // 假设localStorage中保存的用户信息有id
+                                screenshot: screenshot
+                              };
+
+                              axios.put(`${apiUrl}/user/path`, pathImageDTO);
+
                             } else {
                               console.log('Screenshot uploaded failed:');
                             }
@@ -571,34 +559,43 @@ export default function Map() {
 
   // TODO
   const handleMarkerClick = (marker) => {
-    console.log("marker text is:" + marker.text);
+    // console.log("marker text is:" + marker.text);
 
-    // 预先加载图片数据
-    const promises = marker.picture.map(pictureID => {
-      return axios.get(`${apiUrl}/api/picture/${pictureID}`)
-        .then((response) => {
-          if (response.data.code === '0') {
-            return response.data.data;
-          } else {
-            console.log("Picture not found");
-            return null;
-          }
-        })
-        .catch((error) => {
-          console.error('Error fetching picture data:', error);
-          return null;
-        });
-    });
+    // // 预先加载图片数据
+    // const promises = marker.picture.map(pictureID => {
+    //   return axios.get(`${apiUrl}/api/picture/${pictureID}`)
+    //     .then((response) => {
+    //       if (response.data.code === '0') {
+    //         return response.data.data;
+    //       } else {
+    //         console.log("Picture not found");
+    //         return null;
+    //       }
+    //     })
+    //     .catch((error) => {
+    //       console.error('Error fetching picture data:', error);
+    //       return null;
+    //     });
+    // });
 
-    // 等待所有图片数据加载完成后再打开 Modal
-    Promise.all(promises)
-      .then((imageBase64Array) => {
-        // 过滤掉加载失败的图片数据
-        const filteredImageBase64Array = imageBase64Array.filter(imageBase64 => imageBase64 !== null);
-        setPictureDataGroup(filteredImageBase64Array);
-        // 打开 Modal
-        openModal(marker, filteredImageBase64Array);
-      });
+    // // 等待所有图片数据加载完成后再打开 Modal
+    // Promise.all(promises)
+    //   .then((imageBase64Array) => {
+    //     // 过滤掉加载失败的图片数据
+    //     const filteredImageBase64Array = imageBase64Array.filter(imageBase64 => imageBase64 !== null);
+    //     setPictureDataGroup(filteredImageBase64Array);
+    //     // 打开 Modal
+    //     openModal(marker, filteredImageBase64Array);
+    //   });
+
+    // 直接使用marker内的图片URL数组
+    const pictureUrls = marker.picture;
+
+    // // 过滤掉无效的URL，如果有的话
+    // const validPictureUrls = pictureUrls.filter(url => url != null);
+
+    // 直接打开Modal展示图片
+    openModal(marker, pictureUrls);
   };
 
 
@@ -644,7 +641,7 @@ export default function Map() {
             }}
           >
             {pictureDataGroup.map((pictureData, index) => (
-              <Image key={index} width={100} src={`data:image/png;base64,${pictureData}`} />
+              <Image key={index} width={100} src={`${pictureData}`} />
             ))}
           </Image.PreviewGroup>
         </div>
@@ -665,14 +662,14 @@ export default function Map() {
     );
   }
 
-  const openModal = (marker, imageBase64Array) => {
+  const openModal = (marker, pictureUrls) => {
     let newText = marker.text; // 用来保存模态框中更改的文本
     Modal.confirm({
       title: 'The marker you left in this place',
       content: <MarkerModalContent
         key={new Date().getTime()} // 强制更新
         marker={marker}
-        pictureDataGroup={imageBase64Array}
+        pictureDataGroup={pictureUrls}
         // inputText={marker.text}
         onSaveText={(text) => newText = text} // 将文本保存到newText变量中
         trackingEnabled={trackingEnabled} // 确保您传递了trackingEnabled
@@ -690,9 +687,9 @@ export default function Map() {
         };
 
         // 更新数据库
-        axios.post(`${apiUrl}/api/update-marker`, updatedMarker)
+        axios.put(`${apiUrl}/user/marker`, updatedMarker)
           .then(response => {
-            if (response.data.code === '0') {
+            if (response.data.code === 1) {
               console.log("Marker updated successfully in database");
 
               // 更新前端的 state
