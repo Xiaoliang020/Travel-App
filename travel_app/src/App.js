@@ -15,7 +15,7 @@ axios.interceptors.request.use(
       // 将 JWT 令牌设置到请求头的 "token" 字段
       config.headers['token'] = user.token;
     }
-    console.log(config); // 调试输出，查看请求配置
+    // console.log(config); // 调试输出，查看请求配置
     return config;
   },
   error => {

@@ -24,51 +24,54 @@ export default function Post() {
 
   const fetchPost = () => {
       // Make an API call to fetch the user data, including the avatarUrl
-      axios.get(`${apiUrl}/api/post/${postId}`)
+      axios.get(`${apiUrl}/user/post/${postId}`)
         .then((response) => {
-          if (response.data.code === '0') {
+          if (response.data.code === 1) {
             console.log(response.data);
             const postData = response.data.data;
             const commentData = response.data.data.comments ?? [];
 
-          // Fetch the user avatar for the post
-          const fetchPostAvatar = axios
-            .get(`${apiUrl}/img/${postData.avatarid}`)
-            .then((avatarResponse) => {
-              if (avatarResponse.data.code === '0') {
-                const avatarData = avatarResponse.data.data;
-                postData.avatar = `data:image/png;base64,${avatarData}`;
-              }
-            })
-            .catch((error) => {
-              console.error('Error fetching post avatar:', error);
-            });
+            setPost(postData);
+            setComments(commentData);
 
-            // Fetch the user avatar for each post and update the data array
-            const fetchCommentAvatars = commentData.map((comment) => {
-              return axios
-                .get(`${apiUrl}/api/avatar/${comment.userid}`)
-                .then((avatarResponse) => {
-                  if (avatarResponse.data.code === '0') {
-                      const avatarData = avatarResponse.data.data;
-                      comment.avatar = `data:image/png;base64,${avatarData}`;
-                    }
-                })
-                .catch((error) => {
-                  console.error('Error fetching user avatar:', error);
-                });
-            });
-            // Wait for all the avatar fetch calls to finish before updating the data array
-            Promise.all([fetchPostAvatar, ...fetchCommentAvatars])
-              .then(() => {
-                // Sort the posts by createdAt in descending order (newest first)
-                commentData.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-                setPost(postData);
-                setComments(commentData);
-              })
-              .catch((error) => {
-                console.error('Error fetching user avatars:', error);
-              });
+          // // Fetch the user avatar for the post
+          // const fetchPostAvatar = axios
+          //   .get(`${apiUrl}/img/${postData.avatarid}`)
+          //   .then((avatarResponse) => {
+          //     if (avatarResponse.data.code === '0') {
+          //       const avatarData = avatarResponse.data.data;
+          //       postData.avatar = `data:image/png;base64,${avatarData}`;
+          //     }
+          //   })
+          //   .catch((error) => {
+          //     console.error('Error fetching post avatar:', error);
+          //   });
+
+          //   // Fetch the user avatar for each post and update the data array
+          //   const fetchCommentAvatars = commentData.map((comment) => {
+          //     return axios
+          //       .get(`${apiUrl}/api/avatar/${comment.userid}`)
+          //       .then((avatarResponse) => {
+          //         if (avatarResponse.data.code === '0') {
+          //             const avatarData = avatarResponse.data.data;
+          //             comment.avatar = `data:image/png;base64,${avatarData}`;
+          //           }
+          //       })
+          //       .catch((error) => {
+          //         console.error('Error fetching user avatar:', error);
+          //       });
+          //   });
+          //   // Wait for all the avatar fetch calls to finish before updating the data array
+          //   Promise.all([fetchPostAvatar, ...fetchCommentAvatars])
+          //     .then(() => {
+          //       // Sort the posts by createdAt in descending order (newest first)
+          //       commentData.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+          //       setPost(postData);
+          //       setComments(commentData);
+          //     })
+          //     .catch((error) => {
+          //       console.error('Error fetching user avatars:', error);
+          //     });
           } else {
             console.log(response.data.msg);
           }
@@ -132,7 +135,7 @@ export default function Post() {
         <Paragraph>{post.content}</Paragraph>
       </div>
       <div className='post-map'>
-        <ShareMap pathId={post.pathid}/>
+        <ShareMap pathId={post.pathId}/>
       </div>
       <Input.TextArea
         value={replyText}

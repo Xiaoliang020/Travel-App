@@ -831,7 +831,7 @@ export default function Map() {
               icon={{
                 url: startMarker,
                 scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
-                anchor: new window.google.maps.Point(1,32)
+                anchor: new window.google.maps.Point(0, 32)
               }}
             />
           )}
@@ -842,7 +842,7 @@ export default function Map() {
               icon={{
                 url: stopMarker,
                 scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
-                anchor: new window.google.maps.Point(1,32)
+                anchor: new window.google.maps.Point(0, 32)
               }}
             />
           )}

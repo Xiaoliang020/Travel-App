@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef  } from 'react';
 import { FormOutlined, LikeOutlined, MessageOutlined } from '@ant-design/icons';
 import { Avatar, List, Space, FloatButton, Form, Modal, Input, message, Select, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import '../assets/styles/community.css';
+import { throttle } from 'lodash';
 
 const IconText = ({ icon, text }) => (
     <Space>
@@ -23,6 +24,7 @@ export default function Community() {
 
     const [posts, setPosts] = useState([]);
     const [selectedPathId, setSelectedPathId] = useState('');
+    const [selectedPathScreenshot, setSelectedPathScreenshot] = useState('');
     const [paths, setPaths] = useState([]);
     // Add state to store the list of paths for the user to select
     const [pathOptions, setPathOptions] = useState([]);
@@ -33,85 +35,24 @@ export default function Community() {
         return combinedString.includes(searchTerm.toLowerCase());
     });
 
-    const getCurrentWebsiteURL = () => {
-        const protocol = window.location.protocol;
-        const hostname = window.location.hostname;
-        const port = window.location.port;
+    const [currentPostPage, setCurrentPostPage] = useState(1); // 当前页码
+    const [totalPosts, setTotalPosts] = useState(0); // 帖子总数，需要从后端获取
 
-        // If the port is empty or equal to 80 (HTTP) or 443 (HTTPS), don't include it in the URL
-        const portSuffix = (port && port !== '80' && port !== '443') ? `:${port}` : '';
+    // 用户路径获取相关参数
+    const [currentPage, setCurrentPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true); // 假设初始时有更多数据可以加载
+    const [loadingPaths, setLoadingPaths] = useState(false);
+    // 使用useRef来跟踪上一次的页码
+    const lastPageRef = useRef(0);
 
-        // Assemble the website URL
-        const websiteURL = `${protocol}//${hostname}${portSuffix}`;
+    function convertToDate(timeArray) {
+        // 注意：月份减1，因为JavaScript中月份是从0开始的
+        const [year, month, day, hour, minute, second] = timeArray;
+        return new Date(year, month - 1, day, hour, minute, second);
+    }
 
-        return websiteURL;
-    };
-
-    const currentURL = getCurrentWebsiteURL();
-
-    const fetchPosts = () => {
-        setIsLoading(true);
-
-        axios
-            .get(`${apiUrl}/api/posts`)
-            .then((response) => {
-                if (response.data.code === '0') {
-                    console.log('Successfully fetched post data', response.data.data);
-                    const postData = response.data.data;
-                    // Fetch the user avatar for each post and update the data array
-                    const fetchUserAvatars = postData.map((post) => {
-                        return axios
-                            .get(`${apiUrl}/api/avatar/${post.userid}`)
-                            .then((avatarResponse) => {
-                                if (avatarResponse.data.code === '0') {
-                                    const avatarData = avatarResponse.data.data;
-                                    post.avatar = `data:image/png;base64,${avatarData}`;
-                                }
-                            })
-                            .catch((error) => {
-                                console.error('Error fetching user avatar:', error);
-                            });
-                    });
-
-                    const fetchPostScreenshot = postData.map((post) => {
-                        return axios
-                            .get(`${apiUrl}/api/screenshot/${post.pathid}`)
-                            .then((screenshotResponse) => {
-                                if (screenshotResponse.data.code === '0') {
-                                    const screenshotData = screenshotResponse.data.data;
-                                    post.screenshot = `data:image/png;base64,${screenshotData}`;
-                                }
-                            })
-                            .catch((error) => {
-                                console.error('Error fetching user screenshot:', error);
-                            });
-                    });
-
-                    // Wait for all the avatar fetch calls to finish before updating the data array
-                    Promise.all([...fetchUserAvatars, ...fetchPostScreenshot])
-                        .then(() => {
-                            // Sort the posts by createdAt in descending order (newest first)
-                            postData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                            setPosts(postData);
-                            console.log("Post Data: ", postData);
-                        })
-                        .catch((error) => {
-                            console.error('Error fetching user avatars:', error);
-                        });
-                } else {
-                    console.log('Error fetching post data:', response.data.message);
-                }
-                // Clear loading state when API call is completed
-                setIsLoading(false);
-            })
-            .catch((error) => {
-                console.error('Error fetching post data:', error);
-                setIsLoading(false);
-            });
-    };
-
-    const calculateTimeAgo = (createdAt) => {
-        const postDate = new Date(createdAt);
+    function timeAgo(timeArray) {
+        const postDate = convertToDate(timeArray);
         const currentDate = new Date();
         const timeDiff = currentDate.getTime() - postDate.getTime();
 
@@ -130,28 +71,97 @@ export default function Community() {
         } else {
             return `${seconds} ${seconds === 1 ? 'second' : 'seconds'} ago`;
         }
+    }
+
+    const getCurrentWebsiteURL = () => {
+        const protocol = window.location.protocol;
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+
+        // If the port is empty or equal to 80 (HTTP) or 443 (HTTPS), don't include it in the URL
+        const portSuffix = (port && port !== '80' && port !== '443') ? `:${port}` : '';
+
+        // Assemble the website URL
+        const websiteURL = `${protocol}//${hostname}${portSuffix}`;
+
+        return websiteURL;
+    };
+
+    const currentURL = getCurrentWebsiteURL();
+
+    const fetchPosts = (page = 1, pageSize = 3) => {
+        setIsLoading(true);
+
+        const queryParams = `?userId=${user.id}&page=${page}&pageSize=${pageSize}`;
+
+        axios
+            .get(`${apiUrl}/user/post/page/${queryParams}`)
+            .then((response) => {
+                if (response.data.code === 1) {
+                    console.log('Successfully fetched post data', response.data.data);
+                    const postData = response.data.data.records;
+                    setTotalPosts(response.data.data.total);
+                    setPosts(postData);
+                } else {
+                    console.log('Error fetching post data:', response.data.message);
+                }
+                // Clear loading state when API call is completed
+                setIsLoading(false);
+            })
+            .catch((error) => {
+                console.error('Error fetching post data:', error);
+                setIsLoading(false);
+            });
     };
 
     useEffect(() => {
         fetchPosts();
     }, []);
 
-    useEffect(() => {
-        axios.get(`${apiUrl}/api/paths/${user.id}`)
+    const fetchPaths = (page) => {
+        if (!hasMore || loadingPaths) return; // 如果没有更多数据，则直接返回
+
+        if (page === lastPageRef.current) {
+            // 如果这次的页码和上一次相同，就不执行fetch操作
+            console.log('Avoiding duplicate call for page: ', page);
+            return;
+        }
+
+        console.log('fetachPaths: ', page);
+
+        const queryParams = `?userId=${user.id}&page=${page}&pageSize=10`;
+        
+        setLoadingPaths(true);
+        axios.get(`${apiUrl}/user/path/page/${queryParams}`)
             .then(response => {
-                console.log(response.data);
-                setPaths(response.data.data);
-                // Format the paths data into options for the Select component
-                const formattedOptions = response.data.data.map((path) => ({
-                    value: path.id,
-                    label: path.name,
-                }));
-                setPathOptions(formattedOptions);
+                const newPaths = response.data.data.records;
+                console.log('Paths query result: ', newPaths);
+                if (response.data.data.total < 10) {
+                    setHasMore(false); // 如果加载的数据少于请求的数量，表示没有更多数据
+                }
+                setPaths(prevPaths => [...prevPaths, ...newPaths]);
             })
             .catch(error => {
                 console.error('Error retrieving paths:', error);
+            })
+            .finally(() => {
+                setLoadingPaths(false);
             });
-    }, []);
+        
+        // 更新lastPageRef为当前页码
+        lastPageRef.current = page;
+    };
+    
+    useEffect(() => {
+        fetchPaths(currentPage);
+    }, [currentPage]);
+
+    const handleScroll = throttle((e) => {
+        const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+        if (bottom && hasMore && !loadingPaths) { // 注意这里也检查了 loadingPaths
+            setCurrentPage(prevPage => prevPage + 1);
+        }
+    }, 1000); // 函数在每1000毫秒内最多执行一次
 
     const handleMakePost = () => {
         setModalVisible(true);
@@ -167,21 +177,22 @@ export default function Community() {
             const postData = {
                 title: values.title,
                 content: values.content,
-                userid: user.id,
+                userId: user.id,
                 username: user.username,
-                avatarid: user.avatarUrl,
-                pathid: selectedPathId,
+                avatar: user.avatar,
+                pathId: selectedPathId,
+                screenshot: selectedPathScreenshot,
             };
             // Get the current date and time to set the createdAt field
-            const currentDate = new Date();
-            postData.createdAt = currentDate.toISOString(); // Convert date to ISO string format
+            // const currentDate = new Date();
+            // postData.createdAt = currentDate.toISOString(); // Convert date to ISO string format
             console.log(postData);
 
             // Make the API call using axios
-            axios.post(`${apiUrl}/api/make-post`, postData)
+            axios.post(`${apiUrl}/user/post`, postData)
                 .then((response) => {
                     // Handle successful response
-                    if (response.data.code === '0') {
+                    if (response.data.code === 1) {
                         console.log('Post saved successfully:', response.data);
                         // After successfully adding the post, fetch the posts data again
                         fetchPosts();
@@ -199,6 +210,22 @@ export default function Community() {
             form.resetFields();
             setSelectedPathId(''); // Reset the selectedPathId state
         });
+    };
+
+    const handlePathChange = (pathId) => {
+        // 更新选定的pathId状态
+        setSelectedPathId(pathId);
+    
+        // 从paths数组中找到对应的路径对象
+        const selectedPath = paths.find(path => path.id === pathId);
+    
+        // 如果找到了对应的路径，更新screenshot状态
+        if (selectedPath) {
+            setSelectedPathScreenshot(selectedPath.screenshot);
+        } else {
+            // 如果没有找到对应的路径，可能需要重置screenshot状态
+            setSelectedPathScreenshot('');
+        }
     };
 
     const handleLikePost = (postId) => {
@@ -220,15 +247,19 @@ export default function Community() {
                     itemLayout="vertical"
                     size="large"
                     pagination={{
+                        current: currentPostPage,
+                        total: totalPosts,
                         onChange: (page) => {
+                            setCurrentPostPage(page);
                             console.log(page);
+                            fetchPosts(page, 3);
                         },
                         pageSize: 3,
                     }}
                     dataSource={filteredPosts}
                     footer={
                         <div>
-                            <b>travel app</b> footer part
+                            <b>Travel App Community</b>
                         </div>
                     }
                     renderItem={(item) => (
@@ -238,9 +269,10 @@ export default function Community() {
                                 className="post-item"
                                 actions={[
                                     <IconText icon={MessageOutlined} text={item.comments ? item.comments.length : 0} key="list-vertical-message" />,
+                                    <IconText icon={LikeOutlined} text="156" key="list-vertical-like-o" />
                                 ]}
                                 extra={
-                                    item.pathid ? (
+                                    item.screenshot ? (
                                         <a href={`${currentURL}/share/${item.pathid}`} target="_blank" rel="noopener noreferrer">
                                             <img
                                                 width={272}
@@ -264,7 +296,7 @@ export default function Community() {
                                         title={item.username}
                                         description={
                                             <>
-                                                {`Posted ${calculateTimeAgo(item.createdAt)}`}
+                                                {`Posted ${timeAgo(item.createTime)}`}
                                             </>
                                         }
                                     />
@@ -326,10 +358,22 @@ export default function Community() {
                             filterSort={(optionA, optionB) =>
                                 (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                             }
-                            options={pathOptions}
+                            // options={pathOptions}
                             value={selectedPathId} // Set the selected value for the Select component
-                            onChange={setSelectedPathId} // Handle selecting a path
-                        />
+                            onChange={handlePathChange} // Handle selecting a path
+                            dropdownRender={menu => (
+                                <div onScroll={handleScroll}>
+                                    {menu}
+                                    {hasMore && <div>Loading more...</div>}
+                                </div>
+                            )}
+                        >
+                            {paths.map(path => (
+                                <Select.Option key={path.id} value={path.id}>
+                                    {path.name}
+                                </Select.Option>
+                            ))}
+                        </Select>
                     </Form.Item>
                 </Form>
             </Modal>

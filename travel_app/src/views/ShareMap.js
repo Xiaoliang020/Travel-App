@@ -23,7 +23,7 @@ const ShareMap = ({ pathId }) => {
   const apiUrl = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
-    axios.get(`${apiUrl}/api/share/${pathId}`)
+    axios.get(`${apiUrl}/user/path/${pathId}`)
       .then(response => {
         setPath(response.data.data);
         console.log("Successfully retrive shared path:", response.data.data);
@@ -32,32 +32,34 @@ const ShareMap = ({ pathId }) => {
         console.error('Error retrieving shared path:', error);
       });
     // get markers binded with the path
-    axios.get(`${apiUrl}/api/share/marker/${pathId}`)
+    axios.get(`${apiUrl}/user/marker/${pathId}`)
       .then(response => {
         console.log(response.data.data);
         const markersData = response.data.data;
-        Promise.all(markersData.map(marker => {
-          return axios.get(`${apiUrl}/api/icon/${marker.icon}`)
-            .then(response => {
-              // ... (existing code to handle marker icon response)
-              if (response.data.code === '0') {
-                console.log('Marker data get successfully', response.data);
-                const imageBase64 = response.data.data;
-                const imageUrl = `data:image/png;base64,${imageBase64}`;
-                const customMarkerIcon = {
-                  url: imageUrl,
-                  scaledSize: new window.google.maps.Size(64, 64)
-                };
-                marker.url = customMarkerIcon;
-              }
-            })
-            .catch(error => {
-              console.log('Error getting marker icon from the backend:', error);
-            });
-        })).then(() => {
-          setMarkers(markersData);
-          setIsMarkersReady(true);; // Markers and icons are now ready
-        })
+        // Promise.all(markersData.map(marker => {
+        //   return axios.get(`${apiUrl}/api/icon/${marker.icon}`)
+        //     .then(response => {
+        //       // ... (existing code to handle marker icon response)
+        //       if (response.data.code === '0') {
+        //         console.log('Marker data get successfully', response.data);
+        //         const imageBase64 = response.data.data;
+        //         const imageUrl = `data:image/png;base64,${imageBase64}`;
+        //         const customMarkerIcon = {
+        //           url: imageUrl,
+        //           scaledSize: new window.google.maps.Size(64, 64)
+        //         };
+        //         marker.url = customMarkerIcon;
+        //       }
+        //     })
+        //     .catch(error => {
+        //       console.log('Error getting marker icon from the backend:', error);
+        //     });
+        // })).then(() => {
+        //   setMarkers(markersData);
+        //   setIsMarkersReady(true); // Markers and icons are now ready
+        // })
+        setMarkers(markersData);
+        setIsMarkersReady(true);
       })
       .catch(error => {
         console.error('Error retrieving shared markers:', error);
@@ -70,30 +72,31 @@ const ShareMap = ({ pathId }) => {
     markerText.current = marker.text;
 
     // 预先加载图片数据
-    const promises = marker.picture.map(pictureID => {
-      return axios.get(`${apiUrl}/api/picture/${pictureID}`)
-        .then((response) => {
-          if (response.data.code === '0') {
-            return response.data.data;
-          } else {
-            console.log("Picture not found");
-            return null;
-          }
-        })
-        .catch((error) => {
-          console.error('Error fetching picture data:', error);
-          return null;
-        });
-    });
+    // const promises = marker.picture.map(pictureID => {
+    //   return axios.get(`${apiUrl}/api/picture/${pictureID}`)
+    //     .then((response) => {
+    //       if (response.data.code === '0') {
+    //         return response.data.data;
+    //       } else {
+    //         console.log("Picture not found");
+    //         return null;
+    //       }
+    //     })
+    //     .catch((error) => {
+    //       console.error('Error fetching picture data:', error);
+    //       return null;
+    //     });
+    // });
 
     // 等待所有图片数据加载完成后再打开 Modal
-    Promise.all(promises)
-      .then((imageBase64Array) => {
-        // 过滤掉加载失败的图片数据
-        const filteredImageBase64Array = imageBase64Array.filter(imageBase64 => imageBase64 !== null);
-        // 打开 Modal
-        openModal(marker, filteredImageBase64Array);
-      });
+    // Promise.all(promises)
+    //   .then((imageBase64Array) => {
+    //     // 过滤掉加载失败的图片数据
+    //     const filteredImageBase64Array = imageBase64Array.filter(imageBase64 => imageBase64 !== null);
+    //     // 打开 Modal
+    //     openModal(marker);
+    //   });
+    openModal(marker);
   };
 
   const MarkerModalContent = ({
@@ -115,7 +118,7 @@ const ShareMap = ({ pathId }) => {
             }}
           >
             {pictureDataGroup.map((pictureData, index) => (
-              <Image key={index} width={100} src={`data:image/png;base64,${pictureData}`} />
+              <Image key={index} width={100} src={pictureData} />
             ))}
           </Image.PreviewGroup>
         </div>
@@ -123,13 +126,13 @@ const ShareMap = ({ pathId }) => {
     );
   }
 
-  const openModal = (marker, imageBase64Array) => {
+  const openModal = (marker) => {
     Modal.confirm({
       title: 'The marker you left in this place',
       content: <MarkerModalContent
         key={new Date().getTime()} // 强制更新
         marker={marker}
-        pictureDataGroup={imageBase64Array}
+        pictureDataGroup={marker.picture}
       />,
       onOk: (close) => {
         close()
@@ -176,7 +179,10 @@ const ShareMap = ({ pathId }) => {
               <MarkerF
                 key={marker.id} // Assuming there's a unique id for each marker
                 position={{ lat: marker.markerLat, lng: marker.markerLng }}
-                icon={marker.url}
+                icon={{
+                  url: marker.icon,
+                  scaledSize: new window.google.maps.Size(40, 40), // Adjust the size as needed
+                }}
                 onClick={() => handleMarkerClick(marker)}
               />
             ))}
@@ -186,7 +192,7 @@ const ShareMap = ({ pathId }) => {
               icon={{
                 url: startMarker,
                 scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
-                anchor: new window.google.maps.Point(0, 32)
+                anchor: new window.google.maps.Point(1, 32)
               }}
             />
 
@@ -195,6 +201,7 @@ const ShareMap = ({ pathId }) => {
               icon={{
                 url: stopMarker,
                 scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
+                anchor: new window.google.maps.Point(1, 32)
               }}
             />
           </GoogleMap>
