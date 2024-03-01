@@ -1,6 +1,12 @@
 # Travel-App
 Travel App for travelers to record their paths and save impressive places
 
+## New Backend of this app
+https://github.com/Xiaoliang020/World_Steps
+
+This backend project optimize the response speed of the backend significantly.
+More new and exciting features will be implemented using the new backend!
+
 ## How to run the project
 
 ### backend
