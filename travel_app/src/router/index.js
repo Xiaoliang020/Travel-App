@@ -18,6 +18,8 @@ const Post = lazy(() => import("../views/Post"))
 const Image = lazy(() => import("../views/Image"))
 const Message = lazy(() => import("../views/Message"))
 const Conversation = lazy(() => import("../views/Conversation"))
+const NotFoundPage = lazy(() => import("../views/NotFoundPage"));
+
 
 const withLoadingComponent = (comp) => (
     <React.Suspense fallback={<div>Loading...</div>}>
@@ -99,6 +101,11 @@ const routes = [
     {
         path: "/img/:imageId.png",
         element: <Image />,
+    },
+    // 添加404页面的路由规则
+    {
+        path: "*",
+        element: withLoadingComponent(<NotFoundPage />),
     }
 ]
 

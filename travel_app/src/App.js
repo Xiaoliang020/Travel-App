@@ -4,6 +4,7 @@ import { useRoutes } from "react-router-dom"
 import router from "./router"
 import SavedPathsContext from "./SavedPathsContext"
 import axios from 'axios';
+import './config/axiosConfig';
 
 export const ThemeContext = React.createContext();
 

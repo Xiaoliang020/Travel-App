@@ -3,10 +3,16 @@ import { useState, useEffect } from 'react';
 import { LikeOutlined, MessageOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
-const CommentList = ({ comments, parentId, parentUsername, fetchComments }) => {
+const CommentList = ({ initialComments, parentId, parentUsername, fetchComments }) => {
     let userStr = localStorage.getItem("user") || "{}"
     let user = JSON.parse(userStr);
     const apiUrl = process.env.REACT_APP_API_BASE_URL;
+
+    const [comments, setComments] = useState(initialComments);
+
+    useEffect(() => {
+      setComments(initialComments);
+    }, [initialComments]);
 
     // 回复评论相关参数
     const [replyingTo, setReplyingTo] = useState(null); // 当前正在回复的评论ID，null表示没有回复
@@ -97,6 +103,40 @@ const CommentList = ({ comments, parentId, parentUsername, fetchComments }) => {
           });
     };
 
+    const handleLike = async (entityType, commentId) => {
+        // 在这里发送请求到后端以更新点赞状态
+        // 根据响应来更新点赞数和点赞状态
+        // 构造请求体，包含所有需要的参数
+        const requestBody = {
+            entityType: entityType,
+            userId: user.id, // 假设user对象包含当前用户的ID
+            entityId: commentId, // 假设1代表评论的实体类型，根据你的实际情况调整
+        };
+
+        try {
+            const response = await axios.post(`${apiUrl}/user/like`, requestBody);
+            if (response.data.code === 1) {
+                // 假设后端成功处理了点赞请求并返回了更新后的点赞数
+                // 更新评论列表以反映新的点赞数和状态
+                const updatedComments = comments.map(comment => {
+                    if (comment.id === commentId) {
+                      // 更新点赞状态和数量
+                      return {
+                        ...comment,
+                        likeStatus: response.data.data.likeStatus,
+                        likeCount: response.data.data.likeCount,
+                      };
+                    }
+                    return comment;
+                });
+                setComments(updatedComments);
+            }
+        } catch (error) {
+            console.error('Error liking comment:', error);
+            message.error('Failed to like the comment. Please try again later.');
+        }
+    };
+
     return (
     <List
         dataSource={comments}
@@ -113,7 +153,7 @@ const CommentList = ({ comments, parentId, parentUsername, fetchComments }) => {
                     <div>
                       {comment.username} 
                       <span style={{ color: '#89CFF0' }}> replied to </span>
-                      {parentUsername}
+                      {comment.targetName}
                     </div>
                 );
             }
@@ -128,8 +168,17 @@ const CommentList = ({ comments, parentId, parentUsername, fetchComments }) => {
                                     {comment.content}
                                     <div style={{ marginTop: '8px', fontSize: '12px', color: 'gray', paddingTop: '5px' }}>
                                         {`Replied ${timeAgo(comment.createTime)} `}
-                                        <Button type="text" icon={<LikeOutlined />}>Like</Button>
-                                        <Button type="text" icon={<MessageOutlined />} onClick={() => handleReplyClick(comment.id)}>Reply</Button>
+                                        <Button
+                                            type="text"
+                                            icon={<LikeOutlined style={{ color: comment.likeStatus === 1 ? 'red' : 'gray' }} />}
+                                            onClick={() => handleLike(2, comment.id)}
+                                            >
+                                            {comment.likeCount > 0 ? comment.likeCount : 'Like'}
+                                        </Button>
+                                        {/* 根据 isDirectReply 来决定是否渲染回复按钮 */}
+                                        {isDirectReply && (
+                                            <Button type="text" icon={<MessageOutlined />} onClick={() => handleReplyClick(comment.id)}>Reply</Button>
+                                        )}
                                     </div>
                                 </div>
                             

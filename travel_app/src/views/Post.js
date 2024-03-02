@@ -179,6 +179,53 @@ export default function Post() {
       });
   };
 
+  const handleLike = async (entityType, commentId) => {
+    // 在这里发送请求到后端以更新点赞状态
+    // 根据响应来更新点赞数和点赞状态
+    // 构造请求体，包含所有需要的参数
+    const requestBody = {
+        entityType: entityType,
+        userId: user.id, // 假设user对象包含当前用户的ID
+        entityId: commentId, // 假设1代表评论的实体类型，根据你的实际情况调整
+    };
+
+    try {
+        const response = await axios.post(`${apiUrl}/user/like`, requestBody);
+        if (response.data.code === 1) {
+          // 假设后端成功处理了点赞请求并返回了更新后的点赞数
+          // 更新评论列表以反映新的点赞数和状态
+          if (entityType === 2) {
+            updateCommentLikes(commentId, response.data.data);
+          }
+          if (entityType === 1) {
+            // 更新帖子的点赞状态和数量
+            setPost(prevPost => ({
+              ...prevPost,
+              likeStatus: response.data.data.likeStatus,
+              likeCount: response.data.data.likeCount
+            }));
+          }
+        }
+    } catch (error) {
+        console.error('Error liking comment:', error);
+        message.error('Failed to like the comment. Please try again later.');
+    }
+  };
+
+  // 用于更新特定评论的点赞状态和数量
+  const updateCommentLikes = (commentId, likeVO) => {
+    setComments(prevComments => prevComments.map(comment => {
+        if (comment.id === commentId) {
+            return {
+                ...comment,
+                likeStatus: likeVO.likeStatus,
+                likeCount: likeVO.likeCount,
+            };
+        }
+        return comment;
+    }));
+  };
+
   // Conditional rendering based on the post state
   if (isLoading || !post) {
     return <div>Loading...</div>; // Show a loading indicator while fetching data
@@ -211,6 +258,12 @@ export default function Post() {
       />
       <div className='post-button'>
         <Button onClick={handleReplySubmit}>Reply</Button>
+        <Button type="text"
+          icon={<LikeOutlined style={{ color: post.likeStatus === 1 ? 'red' : 'gray',  marginRight: 10}} />}
+          onClick={() => handleLike(1, postId)}
+        >
+          {post.likeCount > 0 ? post.likeCount : 'Like'}
+        </Button>
       </div>
       {comments.length === 0 ? (
         <div className='post-noreply'> No replies yet </div>
@@ -262,11 +315,10 @@ export default function Post() {
                     {`Replied ${timeAgo(comment.createTime)} `}
                     <Button
                       type="text"
-                      // icon={<LikeOutlined style={{ color: likes[comment.id] ? 'red' : 'gray' }} />}
-                      icon={<LikeOutlined />}
-                      // onClick={() => toggleLike(comment.id)}
+                      icon={<LikeOutlined style={{ color: comment.likeStatus === 1 ? 'red' : 'gray' }} />}
+                      onClick={() => handleLike(2, comment.id)}
                     >
-                      Like
+                      {comment.likeCount > 0 ? comment.likeCount : 'Like'}
                     </Button>
                     <Button
                       type="text"
@@ -297,7 +349,12 @@ export default function Post() {
                   )}
 
                   {comment.replies && comment.replies.length > 0 && (
-                    <CommentList comments={comment.replies} parentId={comment.id} parentUsername={comment.username} fetchComments={fetchComments}/>
+                    <CommentList 
+                      initialComments={comment.replies} 
+                      parentId={comment.id} 
+                      parentUsername={comment.username} 
+                      fetchComments={fetchComments}
+                    />
                   )}
                 </>
               }

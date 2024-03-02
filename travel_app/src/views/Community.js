@@ -268,8 +268,8 @@ export default function Community() {
                                 key={item.title}
                                 className="post-item"
                                 actions={[
-                                    <IconText icon={MessageOutlined} text={item.comments ? item.comments.length : 0} key="list-vertical-message" />,
-                                    <IconText icon={LikeOutlined} text="156" key="list-vertical-like-o" />
+                                    <IconText icon={MessageOutlined} text={item.commentCount} key="list-vertical-message" />,
+                                    <IconText icon={LikeOutlined} text={item.likeCount} key="list-vertical-like-o" />
                                 ]}
                                 extra={
                                     item.screenshot ? (
