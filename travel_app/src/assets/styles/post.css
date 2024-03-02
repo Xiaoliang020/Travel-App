@@ -42,3 +42,8 @@
   margin-bottom: 10px;
 }
 
+.custom-badge .ant-badge-count {
+  right: 100%; /* 移动到左边 */
+  transform: translateX(-50%); /* 微调位置 */
+}
+

@@ -12,6 +12,7 @@ import {
 import { Button, Layout, Menu, theme, Avatar, Dropdown } from 'antd';
 import { useState } from 'react';
 import '../App.css';
+import '../assets/styles/post.css';
 import { Outlet, useNavigate, useLocation } from "react-router-dom"
 
 const { Header, Sider, Content } = Layout;
@@ -28,7 +29,7 @@ const Home = () => {
   let userStr = localStorage.getItem("user") || "{}"
   let user = JSON.parse(userStr);
 
-    const handleLogout = () => {
+  const handleLogout = () => {
     // 清除存储在localStorage或sessionStorage的User Token
     localStorage.removeItem('user');
   
@@ -54,10 +55,14 @@ const Home = () => {
     window.location.href = '/login';
   };
 
+  const handleMessage = () => {
+    window.location.href = '/message';
+  }
+
   // 用户操作菜单
   const userMenu = (
     <Menu>
-      <Menu.Item key="1" icon={<MessageOutlined />}>
+      <Menu.Item key="1" icon={<MessageOutlined />} onClick={handleMessage}>
         View Messages
       </Menu.Item>
       <Menu.Item key="2" icon={<BellOutlined />}>

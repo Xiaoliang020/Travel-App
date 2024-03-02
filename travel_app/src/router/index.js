@@ -16,6 +16,8 @@ const Paths = lazy(() => import("../views/Paths"))
 const SharedPage = lazy(() => import("../views/Share"))
 const Post = lazy(() => import("../views/Post"))
 const Image = lazy(() => import("../views/Image"))
+const Message = lazy(() => import("../views/Message"))
+const Conversation = lazy(() => import("../views/Conversation"))
 
 const withLoadingComponent = (comp) => (
     <React.Suspense fallback={<div>Loading...</div>}>
@@ -71,6 +73,14 @@ const routes = [
             {
                 path: "/post/:postId",
                 element: authRoute(<Post />)
+            },
+            {
+                path: "/message",
+                element: authRoute(<Message />)
+            },
+            {
+                path: "/conversation/:conversationId",
+                element: authRoute(<Conversation />)
             }
         ]
     },

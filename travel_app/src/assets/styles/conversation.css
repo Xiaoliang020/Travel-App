@@ -1,0 +1,85 @@
+/* Conversation.css */
+/* Conversation.css */
+.conversation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+}
+
+.conversation-title {
+  font-size: 18px; /* 调整字体大小 */
+  font-weight: bold;
+}
+
+.send-message-button {
+  padding: 5px 15px;
+  font-size: 16px;
+  color: white;
+  background-color: #007bff; /* 使用蓝色背景表示动作按钮 */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.send-message-button:hover {
+  background-color: #0056b3; /* 鼠标悬停时的背景色 */
+}
+
+.conversation {
+  padding: 20px;
+  background-color: #f4f4f4; /* 更新为更浅的背景色 */
+  min-height: 400px;
+  overflow-y: auto;
+}
+
+.message {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px; /* 增大间距 */
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.message.current-user {
+  justify-content: flex-end;
+}
+
+.message.current-user .avatar {
+  order: 2; /* 将头像移动到消息泡泡的右侧 */
+}
+
+.message-bubble {
+  padding: 15px;
+  border-radius: 20px;
+  background-color: #e0e0e0; /* 轻微的背景色 */
+  max-width: 80%; /* 增加最大宽度 */
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.message.current-user .message-bubble {
+  background-color: #007bff;
+  color: white;
+}
+
+.message-header {
+  text-align: left;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.message-text {
+  font-size: 16px; /* 增大字体大小 */
+  text-align: left;
+}
+
+.message-timestamp {
+  margin-top: 5px;
+  font-size: 12px; /* 调整时间戳字体大小，确保不会过大 */
+  text-align: right;
+}
