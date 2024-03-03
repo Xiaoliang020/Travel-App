@@ -20,7 +20,8 @@ const Message = lazy(() => import("../views/Message"))
 const Conversation = lazy(() => import("../views/Conversation"))
 const NotFoundPage = lazy(() => import("../views/NotFoundPage"));
 const UserProfile = lazy(() => import("../views/UserProfile"));
-
+const FollowList = lazy(() => import("../views/FollowList"));
+const FollowerList = lazy(() => import("../views/FollowerList"));
 
 const withLoadingComponent = (comp) => (
     <React.Suspense fallback={<div>Loading...</div>}>
@@ -88,6 +89,14 @@ const routes = [
             {
                 path: "/profile/:userId",
                 element: authRoute(<UserProfile />)
+            },
+            {
+                path: "/following/:userId",
+                element: authRoute(<FollowList />)
+            },
+            {
+                path: "/follower/:userId",
+                element: authRoute(<FollowerList />)
             }
         ]
     },

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Avatar, Button, Statistic, Row, Col, Space, message } from 'antd';
 import { UserOutlined, HeartOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import FollowerList from './FollowerList'
+import FollowList from './FollowList'
 
 const UserProfile = () => {
   let userStr = localStorage.getItem("user") || "{}"
@@ -74,10 +76,14 @@ const UserProfile = () => {
         )}
         <Row gutter={16}>
           <Col span={8}>
-            <Statistic title="Follwers" value={userProfile.followerCount} />
+            <Link to={`/follower/${userId}`} style={{alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+              <Statistic title="Follwers" value={userProfile.followerCount} />
+            </Link>
           </Col>
           <Col span={8}>
-            <Statistic title="Following" value={userProfile.followingCount} />
+            <Link to={`/following/${userId}`} style={{alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+              <Statistic title="Following" value={userProfile.followingCount} />
+            </Link>
           </Col>
           <Col span={8}>
             <Statistic title="Likes" value={userProfile.likeCount} prefix={<HeartOutlined />} />
