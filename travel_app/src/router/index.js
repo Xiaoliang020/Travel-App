@@ -19,6 +19,7 @@ const Image = lazy(() => import("../views/Image"))
 const Message = lazy(() => import("../views/Message"))
 const Conversation = lazy(() => import("../views/Conversation"))
 const NotFoundPage = lazy(() => import("../views/NotFoundPage"));
+const UserProfile = lazy(() => import("../views/UserProfile"));
 
 
 const withLoadingComponent = (comp) => (
@@ -83,6 +84,10 @@ const routes = [
             {
                 path: "/conversation/:conversationId",
                 element: authRoute(<Conversation />)
+            },
+            {
+                path: "/profile/:userId",
+                element: authRoute(<UserProfile />)
             }
         ]
     },

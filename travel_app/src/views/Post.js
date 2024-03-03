@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Button, Input, Avatar, Typography, List, message, Image, Space } from 'antd';
 import { LikeOutlined, MessageOutlined } from '@ant-design/icons';
 import ShareMap from './ShareMap';
@@ -31,6 +31,7 @@ export default function Post() {
   // 回复评论相关参数
   const [replyingTo, setReplyingTo] = useState(null); // 当前正在回复的评论ID，null表示没有回复
   const [replyCommentText, setReplyCommentText] = useState(''); // 回复的文本内容
+  const [expandedRepliesCommentId, setExpandedRepliesCommentId] = useState(null);
 
   function convertToDate(timeArray) {
     // 注意：月份减1，因为JavaScript中月份是从0开始的
@@ -179,7 +180,7 @@ export default function Post() {
       });
   };
 
-  const handleLike = async (entityType, commentId) => {
+  const handleLike = async (entityType, commentId, entityUserId) => {
     // 在这里发送请求到后端以更新点赞状态
     // 根据响应来更新点赞数和点赞状态
     // 构造请求体，包含所有需要的参数
@@ -187,6 +188,7 @@ export default function Post() {
         entityType: entityType,
         userId: user.id, // 假设user对象包含当前用户的ID
         entityId: commentId, // 假设1代表评论的实体类型，根据你的实际情况调整
+        entityUserId: entityUserId
     };
 
     try {
@@ -226,6 +228,14 @@ export default function Post() {
     }));
   };
 
+  const toggleRepliesVisibility = (commentId) => {
+    if (expandedRepliesCommentId === commentId) {
+      setExpandedRepliesCommentId(null); // 如果点击的是已展开的评论，隐藏回复列表
+    } else {
+      setExpandedRepliesCommentId(commentId); // 否则展开新的回复列表
+    }
+  };
+
   // Conditional rendering based on the post state
   if (isLoading || !post) {
     return <div>Loading...</div>; // Show a loading indicator while fetching data
@@ -237,12 +247,14 @@ export default function Post() {
         <Title level={2}>{post.title}</Title>
       </div>
       <div className='avatar-info-container' style={{ display: 'flex', alignItems: 'center' }}>
-        <div className='avatar-container' style={{ marginRight: '16px' }}>
-          <Avatar src={post.avatar} size={64} />
-        </div>
-        <div className='post-username'>
-          <Title level={4}>{post.username}</Title>
-        </div>
+        <Link to={`/profile/${post.userId}`} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+          <div className='avatar-container' style={{ marginRight: '16px' }}>
+            <Avatar src={post.avatar} size={64} />
+          </div>
+          <div className='post-username'>
+            <Title level={4}>{post.username}</Title>
+          </div>
+        </Link>
       </div>
       <div className='post-content' style={{ textAlign: 'left' }}>
         <Paragraph>{post.content}</Paragraph>
@@ -260,7 +272,7 @@ export default function Post() {
         <Button onClick={handleReplySubmit}>Reply</Button>
         <Button type="text"
           icon={<LikeOutlined style={{ color: post.likeStatus === 1 ? 'red' : 'gray',  marginRight: 10}} />}
-          onClick={() => handleLike(1, postId)}
+          onClick={() => handleLike(1, postId, post.userId)}
         >
           {post.likeCount > 0 ? post.likeCount : 'Like'}
         </Button>
@@ -284,28 +296,13 @@ export default function Post() {
         renderItem={(comment) => (
           <List.Item
             actions={[
-              // <Space>
-              //   <Button
-              //     type="text"
-              //     // icon={<LikeOutlined style={{ color: likes[comment.id] ? 'red' : 'gray' }} />}
-              //     icon={<LikeOutlined />}
-              //     // onClick={() => toggleLike(comment.id)}
-              //   >
-              //     Like
-              //   </Button>
-              //   <Button
-              //     type="text"
-              //     icon={<MessageOutlined />}
-              //     onClick={() => handleReplyClick(comment.id)}
-              //   >
-              //     Reply
-              //   </Button>
-              // </Space>
             ]}
           >
             <List.Item.Meta
               avatar={
-                <Avatar src={comment.avatar} />
+                <Link to={`/profile/${comment.userId}`} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+                  <Avatar src={comment.avatar} />
+                </Link>
               }
               title={comment.username}
               description={
@@ -316,7 +313,7 @@ export default function Post() {
                     <Button
                       type="text"
                       icon={<LikeOutlined style={{ color: comment.likeStatus === 1 ? 'red' : 'gray' }} />}
-                      onClick={() => handleLike(2, comment.id)}
+                      onClick={() => handleLike(2, comment.id, comment.userId)}
                     >
                       {comment.likeCount > 0 ? comment.likeCount : 'Like'}
                     </Button>
@@ -327,6 +324,15 @@ export default function Post() {
                     >
                       Reply
                     </Button>
+                    {/* 回复显示按钮 */}
+                    {comment.replies && comment.replies.length > 0 && (
+                      <Button
+                        type="text"
+                        onClick={() => toggleRepliesVisibility(comment.id)}
+                      >
+                        {expandedRepliesCommentId === comment.id ? 'Hide Replies' : `View Replies (${comment.replies.length})`}
+                      </Button>
+                    )}
                   </div>
 
                   {/* 当前评论被选中以回复时，显示回复输入框 */}
@@ -348,7 +354,8 @@ export default function Post() {
                     </div>
                   )}
 
-                  {comment.replies && comment.replies.length > 0 && (
+                  {/* 回复列表 */}
+                  {expandedRepliesCommentId === comment.id && comment.replies && comment.replies.length > 0 && (
                     <CommentList 
                       initialComments={comment.replies} 
                       parentId={comment.id} 

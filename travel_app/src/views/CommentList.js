@@ -1,5 +1,6 @@
 import { List, Avatar, Button, Input, Space, message } from 'antd';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { LikeOutlined, MessageOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
@@ -8,10 +9,16 @@ const CommentList = ({ initialComments, parentId, parentUsername, fetchComments 
     let user = JSON.parse(userStr);
     const apiUrl = process.env.REACT_APP_API_BASE_URL;
 
+    const position = 'bottom';
+    const align = 'left';
+
     const [comments, setComments] = useState(initialComments);
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 5; // 每页显示的评论数
+
     useEffect(() => {
-      setComments(initialComments);
+        setComments(initialComments);
     }, [initialComments]);
 
     // 回复评论相关参数
@@ -139,6 +146,15 @@ const CommentList = ({ initialComments, parentId, parentUsername, fetchComments 
 
     return (
     <List
+        pagination={{
+            position,
+            align,
+            current: currentPage,
+            pageSize: pageSize,
+            onChange: (page) => {
+                setCurrentPage(page);
+            },
+        }}
         dataSource={comments}
         renderItem={comment => {
 
@@ -146,14 +162,20 @@ const CommentList = ({ initialComments, parentId, parentUsername, fetchComments 
             const isDirectReply = comment.entityId === parentId;
             let titleContent;
             if (isDirectReply) {
-                titleContent = comment.username;
+                titleContent = (
+                    <Link to={`/profile/${comment.userId}`} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+                        {comment.username}
+                    </Link> 
+                );
             } else {
                 // 获取被回复的用户名称
                 titleContent = (
                     <div>
-                      {comment.username} 
-                      <span style={{ color: '#89CFF0' }}> replied to </span>
-                      {comment.targetName}
+                        <Link to={`/profile/${comment.userId}`} style={{ alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+                            {comment.username}
+                        </Link> 
+                        <span style={{ color: '#89CFF0' }}> replied to </span>
+                        {comment.targetName}
                     </div>
                 );
             }

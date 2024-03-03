@@ -8,6 +8,7 @@ import {
   LogoutOutlined,
   MessageOutlined,
   BellOutlined,
+  SettingOutlined
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme, Avatar, Dropdown } from 'antd';
 import { useState } from 'react';
@@ -59,16 +60,23 @@ const Home = () => {
     window.location.href = '/message';
   }
 
+  const handleProfile = () => {
+    window.location.href = `/profile/${user.id}`;
+  }
+
   // 用户操作菜单
   const userMenu = (
     <Menu>
+      <Menu.Item key="0" icon={<UserOutlined />} onClick={handleProfile}>
+        Profile
+      </Menu.Item>
       <Menu.Item key="1" icon={<MessageOutlined />} onClick={handleMessage}>
         View Messages
       </Menu.Item>
       <Menu.Item key="2" icon={<BellOutlined />}>
         View Notifications
       </Menu.Item>
-      <Menu.Item key="0" icon={<LogoutOutlined />} onClick={handleLogout}>
+      <Menu.Item key="3" icon={<LogoutOutlined />} onClick={handleLogout}>
         Log Out
       </Menu.Item>
     </Menu>
@@ -97,11 +105,6 @@ const Home = () => {
             selectedKeys={[currentPathname]}
             items={[
               {
-                key: '/settings',
-                icon: <UserOutlined />,
-                label: 'User Settings',
-              },
-              {
                 key: '/map',
                 icon: <HomeOutlined />,
                 label: 'Map View',
@@ -115,7 +118,12 @@ const Home = () => {
                 key: '/paths',
                 icon: <HistoryOutlined />,
                 label: 'History Paths',
-              }
+              },
+              {
+                key: '/settings',
+                icon: <SettingOutlined />,
+                label: 'User Settings',
+              },
             ]}
             onClick={menuClick}
           />
