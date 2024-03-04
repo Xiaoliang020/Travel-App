@@ -13,8 +13,6 @@ const FollowerList = () => {
   const { userId } = useParams();
   const [total, setTotal] = useState(0);
   const pageSize = 10;
-    const position = 'bottom';
-  const align = 'center';
 
   useEffect(() => {
     // 假设这是获取关注用户列表的API
@@ -60,13 +58,16 @@ const FollowerList = () => {
         renderItem={item => (
           <List.Item
             actions={[
-              <Button
-                type={item.hasFollowed ? 'default' : 'primary'}
-                onClick={() => handleFollowToggle(item.id, item.hasFollowed)}
-              >
-                {item.hasFollowed ? '已关注' : '关注'}
-              </Button>,
-            ]}
+              // 使用条件渲染来决定是否显示关注按钮
+              user.id !== item.id && (
+                <Button
+                  type={item.hasFollowed ? 'default' : 'primary'}
+                  onClick={() => handleFollowToggle(item.id, item.hasFollowed)}
+                >
+                  {item.hasFollowed ? '已关注' : '关注'}
+                </Button>
+              ),
+            ].filter(Boolean)}
           >
             <List.Item.Meta
               avatar={<Avatar src={item.avatar} />}

@@ -47,7 +47,8 @@ const SharedPage = () => {
   function convertToDate(timeArray) {
     // 注意：月份减1，因为JavaScript中月份是从0开始的
     const [year, month, day, hour, minute, second] = timeArray;
-    return new Date(year, month - 1, day, hour, minute, second);
+    const date = new Date(year, month - 1, day, hour, minute, second);
+    return date.toLocaleString();
   }
 
   // TODO
@@ -123,8 +124,8 @@ const SharedPage = () => {
         <h1>Path Name: {path.name}</h1>
         <p>Start Address: {path.startAddress}</p>
         <p>End Address: {path.endAddress}</p>
-        <p>Start Time: {path.startTime}</p>
-        <p>End Time: {path.endTime}</p>
+        <p>Start Time: {convertToDate(path.startTime)}</p>
+        <p>End Time: {convertToDate(path.endTime)}</p>
       </div>
       <div className="map-container">
         {isMarkersReady && isLoaded && ( // Check if markers are ready and Google Map is loaded
@@ -159,6 +160,7 @@ const SharedPage = () => {
               icon={{
                 url: startMarker,
                 scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
+                anchor: new window.google.maps.Point(1, 32)
               }}
             />
 
@@ -167,6 +169,7 @@ const SharedPage = () => {
               icon={{
                 url: stopMarker,
                 scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
+                anchor: new window.google.maps.Point(1, 32)
               }}
             />
           </GoogleMap>

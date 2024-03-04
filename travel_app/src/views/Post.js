@@ -188,7 +188,8 @@ export default function Post() {
         entityType: entityType,
         userId: user.id, // 假设user对象包含当前用户的ID
         entityId: commentId, // 假设1代表评论的实体类型，根据你的实际情况调整
-        entityUserId: entityUserId
+        entityUserId: entityUserId,
+        postId: postId
     };
 
     try {
@@ -361,6 +362,7 @@ export default function Post() {
                       parentId={comment.id} 
                       parentUsername={comment.username} 
                       fetchComments={fetchComments}
+                      postId={postId}
                     />
                   )}
                 </>

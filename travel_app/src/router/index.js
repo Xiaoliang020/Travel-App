@@ -22,6 +22,7 @@ const NotFoundPage = lazy(() => import("../views/NotFoundPage"));
 const UserProfile = lazy(() => import("../views/UserProfile"));
 const FollowList = lazy(() => import("../views/FollowList"));
 const FollowerList = lazy(() => import("../views/FollowerList"));
+const NotificationList = lazy(() => import("../views/NotificationList"));
 
 const withLoadingComponent = (comp) => (
     <React.Suspense fallback={<div>Loading...</div>}>
@@ -97,6 +98,10 @@ const routes = [
             {
                 path: "/follower/:userId",
                 element: authRoute(<FollowerList />)
+            },
+            {
+                path: "/notice",
+                element: authRoute(<NotificationList />)
             }
         ]
     },

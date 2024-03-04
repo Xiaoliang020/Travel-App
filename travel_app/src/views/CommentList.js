@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { LikeOutlined, MessageOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
-const CommentList = ({ initialComments, parentId, parentUsername, fetchComments }) => {
+const CommentList = ({ initialComments, parentId, parentUsername, fetchComments, postId }) => {
     let userStr = localStorage.getItem("user") || "{}"
     let user = JSON.parse(userStr);
     const apiUrl = process.env.REACT_APP_API_BASE_URL;
@@ -118,6 +118,7 @@ const CommentList = ({ initialComments, parentId, parentUsername, fetchComments 
             entityType: entityType,
             userId: user.id, // 假设user对象包含当前用户的ID
             entityId: commentId, // 假设1代表评论的实体类型，根据你的实际情况调整
+            postId: postId
         };
 
         try {
