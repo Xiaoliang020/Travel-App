@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { List, Avatar, Badge } from 'antd';
 import { CommentOutlined, HeartOutlined, UserAddOutlined } from '@ant-design/icons';
 import '../assets/styles/post.css';
@@ -12,6 +13,13 @@ const NotificationItem = ({ notification }) => {
     1: 'post',
     2: 'comment',
     // 可以根据需要添加更多的映射
+  };
+
+  const navigate = useNavigate();
+
+  // 添加跳转函数
+  const handleNavigate = () => {
+    navigate(`/notifications/${notification.type}`);
   };
 
   const formatDate = (createTime) => {
@@ -32,21 +40,26 @@ const NotificationItem = ({ notification }) => {
                      type === 'like' ? <HeartOutlined /> :
                      <UserAddOutlined />;
 
+  const avatarBgColor = type === 'comment' ? '#add8e6' : // 灰色
+                        type === 'like' ? '#ffcccc' : // 浅红色
+                        '#ccffcc'; // 浅绿色
+
   return (
     <List.Item
       actions={[<span>{formatDate(createTime)}</span>, <span>Total: {count}</span>]}
+      onClick={handleNavigate}
     >
       <List.Item.Meta
         avatar={
           <Badge count={unread} offset={[-50, 0]}>
-            <Avatar icon={avatarIcon} size={56}/>
+            <Avatar icon={avatarIcon} size={56} style={{ backgroundColor: avatarBgColor }}/>
           </Badge>
         }
         title={type}
         description={
-          type === 'comment' ? `Commented on your ${entityTypeMap[entityType]}.` :
-          type === 'like' ? 'Liked your post.' :
-          'Followed you.'
+          type === 'comment' ? `${notification.username} commented on your ${entityTypeMap[entityType]}.` :
+          type === 'like' ? `${notification.username} Liked your post.` :
+          `${notification.username} Followed you.`
         }
       />
     </List.Item>

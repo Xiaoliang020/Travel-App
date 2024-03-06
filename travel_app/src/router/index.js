@@ -23,6 +23,7 @@ const UserProfile = lazy(() => import("../views/UserProfile"));
 const FollowList = lazy(() => import("../views/FollowList"));
 const FollowerList = lazy(() => import("../views/FollowerList"));
 const NotificationList = lazy(() => import("../views/NotificationList"));
+const NotificationDetail = lazy(() => import("../views/NotificationDetail"));
 
 const withLoadingComponent = (comp) => (
     <React.Suspense fallback={<div>Loading...</div>}>
@@ -102,6 +103,10 @@ const routes = [
             {
                 path: "/notice",
                 element: authRoute(<NotificationList />)
+            },
+            {
+                path: "/notifications/:type",
+                element: authRoute(<NotificationDetail />)
             }
         ]
     },

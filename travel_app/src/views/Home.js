@@ -60,6 +60,10 @@ const Home = () => {
     window.location.href = '/message';
   }
 
+  const handleNotification = () => {
+    window.location.href = `/notice`;
+  }
+
   const handleProfile = () => {
     window.location.href = `/profile/${user.id}`;
   }
@@ -73,7 +77,7 @@ const Home = () => {
       <Menu.Item key="1" icon={<MessageOutlined />} onClick={handleMessage}>
         View Messages
       </Menu.Item>
-      <Menu.Item key="2" icon={<BellOutlined />}>
+      <Menu.Item key="2" icon={<BellOutlined />} onClick={handleNotification}>
         View Notifications
       </Menu.Item>
       <Menu.Item key="3" icon={<LogoutOutlined />} onClick={handleLogout}>
